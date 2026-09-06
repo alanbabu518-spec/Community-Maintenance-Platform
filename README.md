@@ -10,13 +10,13 @@ A centralized platform where residents can report issues, mangeres can assign te
 
 ## Current Progress
 
-Day 1:
+## Day 1 - Initial Full-Stack Setup
 - React frontend
 - Node.js backend
 - Express API
 - frontend/backend connection
 
-Day 2 - Database Foundation
+## Day 2 - Database Foundation
 
 ### Completed
 - installed PostgreSQL
@@ -35,4 +35,24 @@ Day 2 - Database Foundation
 - Enums
 - Migrations
 - Database schema design
+
+## Day 3 - Backend Architeture & User API
+
+### Completed
+- Created feature based user module
+- Implmented route -> controller -> service -> repository architeture
+- Connected user module with prisma 
+- Created `GET/api/users`
+- Created `POST/api/users`
+- Tested api using postman
+- Verified user data in PostgreSQl
+
+### Learned
+- Backend layered architecture
+- REST API structure
+- Controllers, Services & Repositories
+- Express routing
+- Prisma database operations
+- HTTP request/response flow
+- API testing with Postman
 
