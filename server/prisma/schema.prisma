@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}  
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  RESIDENT
+  TECHNICIAN
+}
+
+enum MaintenanceStatus {
+  OPEN
+  ACKNOWLEDGED
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum MaintenancePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id     Int    @id @default(autoincrement())
+  name   String
+  email  String  @unique
+  passwordHash   String
+  role   UserRole
+
+  maintenanceRequests MaintenanceRequest[]  @relation("ResidentRequests")
+  assignedRequests   MaintenanceRequest[]  @relation("TechnicianRequests")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Community {
+  id    Int     @id  @default(autoincrement())
+  name  String
+  address  String
+
+  buildings Building[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Building {
+  id    Int    @id  @default(autoincrement())
+  name  String
+  communityId  Int
+
+  community Community @relation(fields: [communityId], references: [id])
+  units   Unit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Unit {
+  id          Int    @id @default(autoincrement())
+  unitNumber  String
+  buildingId  Int
+
+  building Building @relation(fields: [buildingId], references: [id])
+
+  maintenanceRequests MaintenanceRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MaintenanceRequest {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+
+  category String
+  priority MaintenancePriority @default(MEDIUM)
+  status   MaintenanceStatus   @default(OPEN)
+
+  residentId   Int
+  unitId       Int
+  technicianId Int?
+
+  resident   User  @relation("ResidentRequests", fields: [residentId], references: [id])
+  unit       Unit  @relation(fields: [unitId], references: [id])
+  technician User? @relation("TechnicianRequests", fields: [technicianId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
