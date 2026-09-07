@@ -56,3 +56,24 @@ A centralized platform where residents can report issues, mangeres can assign te
 - HTTP request/response flow
 - API testing with Postman
 
+## Day 4 — Authentication Foundation
+
+### Completed
+- Installed and configured bcrypt
+- Added Nodemon for development
+- Created Auth module
+- Added Zod registration validation
+- Implemented password hashing
+- Created registration API
+- Connected Auth → User Repository → Prisma → PostgreSQL
+- Tested registration with Postman
+- Verified hashed password in Prisma Studio
+
+### Learned
+- Authentication basics
+- Password hashing with bcrypt
+- Request validation with Zod
+- Auth Controller & Service
+- Secure password storage
+- REST API registration flow
+
