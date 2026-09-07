@@ -117,3 +117,20 @@ A centralized platform where residents can report issues, mangeres can assign te
 - HTTP 401 vs 403
 - Protected role-based routes
 
+## Day 7 — Authentication Cleanup & Security
+
+### Completed
+- Created reusable authenticated user type
+- Improved JWT type safety
+- Added duplicate email handling
+- Added proper 409 Conflict response
+- Tested invalid JWT handling
+- Verified authentication and authorization flows
+
+### Learned
+- Type-safe JWT authentication
+- Express type extension
+- Error handling
+- HTTP 401 vs 403 vs 409
+- Authentication security practices
+

@@ -3,7 +3,6 @@ import type { UserRole } from "@prisma/client";
 
 export function authorize(...allowedRoles: UserRole[]){
     return(req: Request, res: Response, next: NextFunction)=>{
-        console.log("AUTHORIZE MIDDLEWARE RUNNING:", req.user);
         if(!req.user){
             return res.status(401).json({
                 message: "Authentication required",

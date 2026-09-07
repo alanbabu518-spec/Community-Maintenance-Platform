@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { authService } from "./auth.service.js";
 import { registerSchema, loginSchema } from "./auth.schema.js";
+import { Prisma } from "@prisma/client";
 
 export const authController = {
   async register(req: Request, res: Response) {
@@ -16,7 +17,16 @@ export const authController = {
     } catch (error) {
       console.error(error);
 
-      res.status(400).json({
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        return res.status(409).json({
+          message: "Email already registered",
+        });
+      }
+
+      return res.status(400).json({
         message: "Invalid registration data",
       });
     }
