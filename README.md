@@ -98,3 +98,22 @@ A centralized platform where residents can report issues, mangeres can assign te
 - JWT verification
 - Secure API responses
 
+## Day 6 — Role-Based Authorization
+
+### Completed
+- Created role-based authorization middleware
+- Added role checking for protected routes
+- Added ADMIN and MANAGER access control
+- Protected `GET /api/users` by role
+- Tested unauthorized access with RESIDENT
+- Tested authorized access with ADMIN
+- Implemented 401 and 403 responses
+
+### Learned
+- Authentication vs Authorization
+- Role-Based Access Control (RBAC)
+- Authorization middleware
+- JWT user data
+- HTTP 401 vs 403
+- Protected role-based routes
+

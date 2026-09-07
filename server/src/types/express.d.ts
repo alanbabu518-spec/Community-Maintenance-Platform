@@ -1,9 +1,12 @@
-import type { JwtPayload } from "jsonwebtoken";
+import type { UserRole } from "@prisma/client";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: string | JwtPayload;
+      user?: {
+        userId: number;
+        role: UserRole;
+      };
     }
   }
 }

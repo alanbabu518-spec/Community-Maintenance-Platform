@@ -23,7 +23,10 @@ export function authMiddleware(
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: number;
+      role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
+    };
     req.user = decoded;
 
     next();

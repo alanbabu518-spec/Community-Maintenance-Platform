@@ -1,10 +1,16 @@
-import  {Router} from "express";
+import { Router } from "express";
 import { userController } from "./user.controller.js";
 import { authMiddleware } from "../../middleware/auth.middleware.js";
+import { authorize } from "../../middleware/role.middleware.js";
 
 const router = Router();
 
-router.get("/", authMiddleware, userController.getUsers);
-router.post("/",userController.createUser)
+router.get(
+  "/",
+  authMiddleware,
+  authorize("ADMIN", "MANAGER"),
+  userController.getUsers,
+);
+router.post("/", userController.createUser);
 
 export default router;
