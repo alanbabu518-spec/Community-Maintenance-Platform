@@ -77,3 +77,24 @@ A centralized platform where residents can report issues, mangeres can assign te
 - Secure password storage
 - REST API registration flow
 
+## Day 5 — Login & JWT Authentication
+
+### Completed
+- Implemented login API
+- Added bcrypt password verification
+- Added JWT token generation
+- Added JWT expiration
+- Created authentication middleware
+- Protected `GET /api/users`
+- Tested protected API with and without JWT
+- Prevented `passwordHash` from being returned in user responses
+
+### Learned
+- Login authentication flow
+- JWT authentication
+- Bearer tokens
+- Authentication middleware
+- Protected routes
+- JWT verification
+- Secure API responses
+

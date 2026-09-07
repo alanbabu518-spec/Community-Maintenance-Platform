@@ -4,3 +4,8 @@ export interface RegisterInput {
     password: string;
     role: "RESIDENT" | "ADMIN" | "MANAGER" | "TECHNICIAN";
 }
+
+export interface LoginInput {
+    email: string;
+    password:  string;
+}

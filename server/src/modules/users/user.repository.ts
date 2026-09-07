@@ -3,6 +3,14 @@ import { prisma } from "../../lib/prisma.js";
 export const userRepository = {
   findAll() {
     return prisma.user.findMany({
+      select:  {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -17,6 +25,14 @@ export const userRepository = {
   }) {
     return prisma.user.create({
       data,
+    });
+  },
+
+  findByEmail(email: string){
+    return prisma.user.findUnique({
+      where: {
+        email,
+      },
     });
   },
 };
