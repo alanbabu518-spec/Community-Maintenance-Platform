@@ -6,6 +6,7 @@ import type {
   MaintenanceFilters,
 } from "./maintenance.types.js";
 import { userRepository } from "../users/user.repository.js";
+import { AppError } from "../../utils/AppError.js";
 
 export const maintenanceService = {
   async createRequest(data: CreateMaintenanceRequestInput, residentId: number) {
@@ -74,7 +75,7 @@ export const maintenanceService = {
     const request = await maintenanceRepository.findById(id);
 
     if (!request) {
-      return null;
+      throw new AppError("Maintenance request not found", 404);
     }
 
     if (role === "ADMIN" || role === "MANAGER") {
@@ -89,8 +90,12 @@ export const maintenanceService = {
       return request;
     }
 
-    return null;
+    throw new AppError(
+      "You are not authorized to access this maintenance request",
+      403,
+    );
   },
+
   async updateRequest(id: number, data: UpdateMaintenanceRequestInput) {
     const request = await maintenanceRepository.findById(id);
 
@@ -111,8 +116,9 @@ export const maintenanceService = {
       const allowedNextStatuses = allowedTransitions[request.status] ?? [];
 
       if (!allowedNextStatuses.includes(data.status)) {
-        throw new Error(
+        throw new AppError(
           `Invalid status transition: ${request.status} → ${data.status}`,
+          400,
         );
       }
     }
@@ -124,22 +130,23 @@ export const maintenanceService = {
     const technician = await userRepository.findById(technicianId);
 
     if (!technician) {
-      throw new Error("Technician not found");
+      throw new AppError("Technician not found", 404);
     }
 
     if (technician.role !== "TECHNICIAN") {
-      throw new Error("User is not a technician");
+      throw new AppError("User is not a technician", 400);
     }
 
     const request = await maintenanceRepository.findById(requestId);
 
     if (!request) {
-      throw new Error("Maintenance request not found");
+      throw new AppError("Maintenance request not found", 404);
     }
 
     if (request.status !== "ACKNOWLEDGED") {
-      throw new Error(
+      throw new AppError(
         "Technician can only be assigned to an acknowledged request",
+        400,
       );
     }
 

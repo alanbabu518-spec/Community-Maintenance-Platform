@@ -3,6 +3,7 @@ import cors from "cors";
 import userRoutes from "./modules/users/user.routes.js"
 import authRoutes from "./modules/auth/auth.routes.js"
 import maintenanceRoutes from "./modules/maintenance/maintenance.routes.js"
+import { errorMiddleware } from "./middleware/error.middleware.js"
 
 const app = express();
 
@@ -18,6 +19,8 @@ app.get("/api/health",(req,res)=>{
         status: "ok",
     })
 })
+
+app.use(errorMiddleware);
 
 const PORT = 5000;
 

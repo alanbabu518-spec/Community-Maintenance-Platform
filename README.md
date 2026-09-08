@@ -301,3 +301,42 @@ CLOSED
 
 ```text
 GET /api/maintenance?page=1&limit=5
+
+## Day 14 — Centralized Error Handling
+
+### Completed
+- Created custom `AppError` class
+- Implemented centralized Express error middleware
+- Registered error middleware after all routes
+- Updated controllers to forward errors using `next(error)`
+- Converted business errors to `AppError`
+- Added proper HTTP status codes for business errors
+- Added `404 Not Found` handling
+- Added `403 Forbidden` handling
+- Added `400 Bad Request` handling
+- Added centralized Zod validation error handling
+- Added safe `500 Internal Server Error` handling
+- Tested centralized error handling using Postman
+- Tested 404 request errors
+- Tested 403 authorization errors
+- Tested Zod validation errors
+- Verified TypeScript compilation with `npx tsc --noEmit`
+
+### Error Handling Flow
+
+```text
+Request
+   ↓
+Route
+   ↓
+Controller
+   ↓
+Service
+   ↓
+Error
+   ↓
+next(error)
+   ↓
+Central Error Middleware
+   ↓
+HTTP Response

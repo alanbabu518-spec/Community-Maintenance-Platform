@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { maintenanceService } from "./maintenance.service.js";
 import {
   createMaintenanceRequestSchema,
@@ -8,7 +8,7 @@ import {
 import type { MaintenanceFilters } from "./maintenance.types.js";
 
 export const maintenanceController = {
-  async createRequest(req: Request, res: Response) {
+  async createRequest(req: Request, res: Response, next: NextFunction) {
     try {
       const data = createMaintenanceRequestSchema.parse(req.body);
 
@@ -28,15 +28,11 @@ export const maintenanceController = {
         request,
       });
     } catch (error) {
-      console.error(error);
-
-      return res.status(400).json({
-        message: "Invalid maintenance request data",
-      });
+      next(error);
     }
   },
 
-  async getRequests(req: Request, res: Response) {
+  async getRequests(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -46,7 +42,10 @@ export const maintenanceController = {
 
       const page = Math.max(Number(req.query.page) || 1, 1);
 
-      const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
+      const limit = Math.min(
+        Math.max(Number(req.query.limit) || 10, 1),
+        100,
+      );
 
       const filters: MaintenanceFilters = {
         status: req.query.status as
@@ -88,15 +87,11 @@ export const maintenanceController = {
         },
       });
     } catch (error) {
-      console.error(error);
-
-      return res.status(500).json({
-        message: "Failed to fetch maintenance requests",
-      });
+      next(error);
     }
   },
 
-  async getRequestById(req: Request, res: Response) {
+  async getRequestById(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -118,25 +113,15 @@ export const maintenanceController = {
         req.user.role,
       );
 
-      if (!request) {
-        return res.status(404).json({
-          message: "Maintenance request not found",
-        });
-      }
-
       return res.status(200).json({
         request,
       });
     } catch (error) {
-      console.error(error);
-
-      return res.status(500).json({
-        message: "Failed to fetch maintenance request",
-      });
+      next(error);
     }
   },
 
-  async updateRequest(req: Request, res: Response) {
+  async updateRequest(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
 
@@ -155,14 +140,15 @@ export const maintenanceController = {
         request,
       });
     } catch (error) {
-      console.error(error);
-
-      return res.status(400).json({
-        message: "Invalid maintenance request update",
-      });
+      next(error);
     }
   },
-  async assignTechnician(req: Request, res: Response) {
+
+  async assignTechnician(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const requestId = Number(req.params.id);
 
@@ -184,11 +170,7 @@ export const maintenanceController = {
         request,
       });
     } catch (error) {
-      console.error(error);
-
-      return res.status(400).json({
-        message: "Failed to assign technician",
-      });
+      next(error);
     }
   },
 };
