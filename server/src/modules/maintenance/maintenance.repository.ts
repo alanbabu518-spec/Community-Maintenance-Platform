@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma.js";
+import type { UpdateMaintenanceRequestInput } from "./maintenance.types.js";
 
 export const maintenanceRepository = {
   create(data: {
@@ -47,7 +48,6 @@ export const maintenanceRepository = {
             role: true,
           },
         },
-
         unit: {
           include: {
             building: {
@@ -57,7 +57,6 @@ export const maintenanceRepository = {
             },
           },
         },
-
         technician: {
           select: {
             id: true,
@@ -66,6 +65,18 @@ export const maintenanceRepository = {
             role: true,
           },
         },
+      },
+    });
+  },
+  update(id: number, data: UpdateMaintenanceRequestInput) {
+    return prisma.maintenanceRequest.update({
+      where: {
+        id,
+      },
+      data: {
+        ...(data.status !== undefined && { status: data.status }),
+        ...(data.priority !== undefined && { priority: data.priority }),
+        ...(data.category !== undefined && { category: data.category }),
       },
     });
   },

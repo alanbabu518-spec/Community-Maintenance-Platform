@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { createMaintenanceRequestSchema } from "./maintenance.schema.js";
 import { maintenanceService } from "./maintenance.service.js";
+import { updateMaintenanceRequestSchema } from "./maintenance.schema.js";
 
 export const maintenanceController = {
   async createRequest(req: Request, res: Response) {
@@ -32,68 +33,94 @@ export const maintenanceController = {
   },
 
   async getRequests(req: Request, res: Response) {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        message: "Authentication required",
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          message: "Authentication required",
+        });
+      }
+
+      const requests = await maintenanceService.getRequests(
+        req.user.userId,
+        req.user.role,
+      );
+
+      return res.status(200).json({
+        requests,
+      });
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).json({
+        message: "Failed to fetch maintenance requests",
       });
     }
+  },
 
-    const requests = await maintenanceService.getRequests(
-      req.user.userId,
-      req.user.role
-    );
+  async getRequestById(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          message: "Authentication required",
+        });
+      }
 
-    return res.status(200).json({
-      requests,
-    });
-  } catch (error) {
-    console.error(error);
+      const id = Number(req.params.id);
 
-    return res.status(500).json({
-      message: "Failed to fetch maintenance requests",
-    });
-  }
-},
+      if (Number.isNaN(id)) {
+        return res.status(400).json({
+          message: "Invalid request ID",
+        });
+      }
 
-async getRequestById(req: Request, res: Response) {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        message: "Authentication required",
+      const request = await maintenanceService.getRequestById(
+        id,
+        req.user.userId,
+        req.user.role,
+      );
+
+      if (!request) {
+        return res.status(404).json({
+          message: "Maintenance request not found",
+        });
+      }
+
+      return res.status(200).json({
+        request,
+      });
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).json({
+        message: "Failed to fetch maintenance request",
       });
     }
+  },
 
-    const id = Number(req.params.id);
+  async updateRequest(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
 
-    if (Number.isNaN(id)) {
+      if (Number.isNaN(id)) {
+        return res.status(400).json({
+          message: "Invalid request ID",
+        });
+      }
+
+      const data = updateMaintenanceRequestSchema.parse(req.body);
+
+      const request = await maintenanceService.updateRequest(id, data);
+
+      return res.status(200).json({
+        message: "Maintenance request updated successfully",
+        request,
+      });
+    } catch (error) {
+      console.error(error);
+
       return res.status(400).json({
-        message: "Invalid request ID",
+        message: "Invalid maintenance request update",
       });
     }
-
-    const request = await maintenanceService.getRequestById(
-      id,
-      req.user.userId,
-      req.user.role
-    );
-
-    if (!request) {
-      return res.status(404).json({
-        message: "Maintenance request not found",
-      });
-    }
-
-    return res.status(200).json({
-      request,
-    });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Failed to fetch maintenance request",
-    });
-  }
-},
-
+  },
 };

@@ -24,4 +24,11 @@ router.get(
   maintenanceController.getRequestById
 );
 
+router.patch(
+  "/:id",
+  authMiddleware,
+  authorize("ADMIN", "MANAGER"),
+  maintenanceController.updateRequest
+);
+
 export default router;

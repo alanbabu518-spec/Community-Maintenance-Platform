@@ -7,3 +7,23 @@ export const createMaintenanceRequestSchema = z.object({
     priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]),
     unitId: z.number().int().positive(),
 });
+
+export const updateMaintenanceRequestSchema = z.object({
+  status: z.enum([
+    "OPEN",
+    "ACKNOWLEDGED",
+    "ASSIGNED",
+    "IN_PROGRESS",
+    "RESOLVED",
+    "CLOSED",
+  ]).optional(),
+
+  priority: z.enum([
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "URGENT",
+  ]).optional(),
+
+  category: z.string().min(2).optional(),
+});

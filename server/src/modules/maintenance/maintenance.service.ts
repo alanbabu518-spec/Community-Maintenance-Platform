@@ -1,6 +1,7 @@
 import type { CreateMaintenanceRequestInput } from "./maintenance.types.js";
 import { maintenanceRepository } from "./maintenance.repository.js";
 import type { UserRole } from "@prisma/client";
+import type { UpdateMaintenanceRequestInput } from "./maintenance.types.js";
 
 export const maintenanceService = {
   async createRequest(data: CreateMaintenanceRequestInput, residentId: number) {
@@ -43,5 +44,33 @@ export const maintenanceService = {
     }
 
     return null;
+  },
+  async updateRequest(id: number, data: UpdateMaintenanceRequestInput) {
+    const request = await maintenanceRepository.findById(id);
+
+    if (!request) {
+      return null;
+    }
+
+    if (data.status) {
+      const allowedTransitions: Record<string, string[]> = {
+        OPEN: ["ACKNOWLEDGED"],
+        ACKNOWLEDGED: ["ASSIGNED"],
+        ASSIGNED: ["IN_PROGRESS"],
+        IN_PROGRESS: ["RESOLVED"],
+        RESOLVED: ["CLOSED"],
+        CLOSED: [],
+      };
+
+      const allowedNextStatuses = allowedTransitions[request.status] ?? [];
+
+      if (!allowedNextStatuses.includes(data.status)) {
+        throw new Error(
+          `Invalid status transition: ${request.status} → ${data.status}`,
+        );
+      }
+    }
+
+    return maintenanceRepository.update(id, data);
   },
 };

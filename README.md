@@ -190,3 +190,29 @@ A centralized platform where residents can report issues, mangeres can assign te
 - Secure API responses
 - Protecting sensitive database fields
 
+## Day 10 — Maintenance Request Updates & Status Workflow
+
+### Completed
+- Implemented `PATCH /api/maintenance/:id`
+- Added partial request updates using PATCH
+- Added Zod validation for update requests
+- Added TypeScript update types
+- Implemented Prisma update operation
+- Added ADMIN and MANAGER authorization
+- Implemented maintenance status transition rules
+- Tested valid status transitions
+- Tested invalid status transitions
+- Verified status updates in PostgreSQL
+- Tested protected update API using Postman
+
+### Learned
+- PATCH requests and partial updates
+- Request validation with Zod
+- Prisma update operations
+- Business logic in the Service layer
+- Status transition rules
+- Role-based authorization
+- HTTP 400, 403, and 200 responses
+- Separating business logic from database logic
+- Designing workflow/state machines
+- Testing API business rules with Postman
