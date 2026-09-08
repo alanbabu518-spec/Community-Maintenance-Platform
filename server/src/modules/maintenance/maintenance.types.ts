@@ -24,4 +24,6 @@ export interface UpdateMaintenanceRequestInput {
     | undefined;
 
   category?: string | undefined;
+
+  technicianId?: number | undefined;
 }

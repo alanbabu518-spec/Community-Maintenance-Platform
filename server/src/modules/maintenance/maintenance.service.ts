@@ -2,6 +2,7 @@ import type { CreateMaintenanceRequestInput } from "./maintenance.types.js";
 import { maintenanceRepository } from "./maintenance.repository.js";
 import type { UserRole } from "@prisma/client";
 import type { UpdateMaintenanceRequestInput } from "./maintenance.types.js";
+import { userRepository } from "../users/user.repository.js";
 
 export const maintenanceService = {
   async createRequest(data: CreateMaintenanceRequestInput, residentId: number) {
@@ -72,5 +73,34 @@ export const maintenanceService = {
     }
 
     return maintenanceRepository.update(id, data);
+  },
+
+  async assignTechnician(requestId: number, technicianId: number) {
+    const technician = await userRepository.findById(technicianId);
+
+    if (!technician) {
+      throw new Error("Technician not found");
+    }
+
+    if (technician.role !== "TECHNICIAN") {
+      throw new Error("User is not a technician");
+    }
+
+    const request = await maintenanceRepository.findById(requestId);
+
+    if (!request) {
+      throw new Error("Maintenance request not found");
+    }
+
+    if (request.status !== "ACKNOWLEDGED") {
+      throw new Error(
+        "Technician can only be assigned to an acknowledged request",
+      );
+    }
+
+    return maintenanceRepository.update(requestId, {
+      technicianId,
+      status: "ASSIGNED",
+    });
   },
 };

@@ -77,6 +77,9 @@ export const maintenanceRepository = {
         ...(data.status !== undefined && { status: data.status }),
         ...(data.priority !== undefined && { priority: data.priority }),
         ...(data.category !== undefined && { category: data.category }),
+        ...(data.technicianId !== undefined && {
+          technicianId: data.technicianId,
+        }),
       },
     });
   },

@@ -18,6 +18,13 @@ router.get(
   maintenanceController.getRequests
 );
 
+router.patch(
+  "/:id/assign",
+  authMiddleware,
+  authorize("ADMIN", "MANAGER"),
+  maintenanceController.assignTechnician
+);
+
 router.get(
   "/:id",
   authMiddleware,

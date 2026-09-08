@@ -35,4 +35,13 @@ export const userRepository = {
       },
     });
   },
+
+  findById(id: number) {
+  return prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+},
+
 };

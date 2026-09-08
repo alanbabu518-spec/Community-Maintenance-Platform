@@ -216,3 +216,30 @@ A centralized platform where residents can report issues, mangeres can assign te
 - Separating business logic from database logic
 - Designing workflow/state machines
 - Testing API business rules with Postman
+
+## Day 11 — Technician Assignment Workflow
+
+### Completed
+- Created technician assignment validation with Zod
+- Added technician lookup through User Repository
+- Verified that assigned users have the TECHNICIAN role
+- Implemented technician assignment service logic
+- Added technician assignment API
+- Added ADMIN and MANAGER authorization
+- Added status workflow validation for technician assignment
+- Automatically changed status from ACKNOWLEDGED to ASSIGNED
+- Tested successful technician assignment
+- Tested resident access restriction
+- Tested invalid status transitions
+- Verified technician assignment in PostgreSQL
+
+### Learned
+- Service-layer business rules
+- Technician assignment workflow
+- Role-based authorization
+- Resource state validation
+- Zod request validation
+- Repository and service responsibilities
+- Workflow/state-machine enforcement
+- HTTP 403 authorization responses
+- Updating related foreign-key data

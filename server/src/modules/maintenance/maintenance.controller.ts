@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
-import { createMaintenanceRequestSchema } from "./maintenance.schema.js";
 import { maintenanceService } from "./maintenance.service.js";
-import { updateMaintenanceRequestSchema } from "./maintenance.schema.js";
+import { createMaintenanceRequestSchema, updateMaintenanceRequestSchema, assignTechnicianSchema } from "./maintenance.schema.js";
 
 export const maintenanceController = {
   async createRequest(req: Request, res: Response) {
@@ -123,4 +122,33 @@ export const maintenanceController = {
       });
     }
   },
+  async assignTechnician(req: Request, res: Response) {
+  try {
+    const requestId = Number(req.params.id);
+
+    if (Number.isNaN(requestId)) {
+      return res.status(400).json({
+        message: "Invalid request ID",
+      });
+    }
+
+    const data = assignTechnicianSchema.parse(req.body);
+
+    const request = await maintenanceService.assignTechnician(
+      requestId,
+      data.technicianId
+    );
+
+    return res.status(200).json({
+      message: "Technician assigned successfully",
+      request,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(400).json({
+      message: "Failed to assign technician",
+    });
+  }
+},
 };

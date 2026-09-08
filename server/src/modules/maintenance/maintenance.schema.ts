@@ -27,3 +27,7 @@ export const updateMaintenanceRequestSchema = z.object({
 
   category: z.string().min(2).optional(),
 });
+
+export const assignTechnicianSchema = z.object({
+  technicianId: z.number().int().positive(),
+});
