@@ -243,3 +243,34 @@ A centralized platform where residents can report issues, mangeres can assign te
 - Workflow/state-machine enforcement
 - HTTP 403 authorization responses
 - Updating related foreign-key data
+
+## Day 12 — Role-Based Permissions & Workflow Refinement
+
+### Completed
+- Added technician-specific maintenance request filtering
+- Implemented resource-level authorization for maintenance requests
+- Verified residents can view only their own requests
+- Verified technicians can view only their assigned requests
+- Verified technicians cannot access unassigned requests
+- Verified admins can view all maintenance requests
+- Verified managers can view all maintenance requests
+- Restricted technician assignment to ADMIN and MANAGER roles
+- Enforced `ACKNOWLEDGED → ASSIGNED` assignment workflow
+- Verified complete maintenance status workflow
+- Tested role-based access control using Postman
+- Ran TypeScript validation with `npx tsc --noEmit`
+
+### Maintenance Workflow
+
+```text
+OPEN
+  ↓
+ACKNOWLEDGED
+  ↓
+ASSIGNED
+  ↓
+IN_PROGRESS
+  ↓
+RESOLVED
+  ↓
+CLOSED

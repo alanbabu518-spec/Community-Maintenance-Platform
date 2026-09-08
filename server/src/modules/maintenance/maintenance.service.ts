@@ -18,8 +18,11 @@ export const maintenanceService = {
 
   async getRequests(userId: number, role: UserRole) {
     if (role === "RESIDENT") {
-      const requests = await maintenanceRepository.findAll();
-      return requests.filter((request) => request.residentId === userId);
+      return maintenanceRepository.findByResidentId(userId);
+    }
+
+    if (role === "TECHNICIAN") {
+      return maintenanceRepository.findByTechnicianId(userId);
     }
 
     if (role === "ADMIN" || role === "MANAGER") {
@@ -28,7 +31,6 @@ export const maintenanceService = {
 
     return [];
   },
-
   async getRequestById(id: number, userId: number, role: UserRole) {
     const request = await maintenanceRepository.findById(id);
 
@@ -41,6 +43,10 @@ export const maintenanceService = {
     }
 
     if (role === "RESIDENT" && request.residentId === userId) {
+      return request;
+    }
+
+    if (role === "TECHNICIAN" && request.technicianId === userId) {
       return request;
     }
 

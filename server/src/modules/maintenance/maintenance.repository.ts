@@ -34,6 +34,17 @@ export const maintenanceRepository = {
     });
   },
 
+  findByTechnicianId(technicianId: number) {
+    return prisma.maintenanceRequest.findMany({
+      where: {
+        technicianId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  },
+
   findById(id: number) {
     return prisma.maintenanceRequest.findUnique({
       where: {
