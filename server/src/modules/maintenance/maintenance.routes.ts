@@ -18,4 +18,10 @@ router.get(
   maintenanceController.getRequests
 );
 
+router.get(
+  "/:id",
+  authMiddleware,
+  maintenanceController.getRequestById
+);
+
 export default router;

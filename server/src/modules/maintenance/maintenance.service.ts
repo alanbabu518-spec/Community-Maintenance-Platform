@@ -3,10 +3,7 @@ import { maintenanceRepository } from "./maintenance.repository.js";
 import type { UserRole } from "@prisma/client";
 
 export const maintenanceService = {
-  async createRequest(
-    data: CreateMaintenanceRequestInput,
-    residentId: number
-  ) {
+  async createRequest(data: CreateMaintenanceRequestInput, residentId: number) {
     return maintenanceRepository.create({
       title: data.title,
       description: data.description,
@@ -28,5 +25,23 @@ export const maintenanceService = {
     }
 
     return [];
+  },
+
+  async getRequestById(id: number, userId: number, role: UserRole) {
+    const request = await maintenanceRepository.findById(id);
+
+    if (!request) {
+      return null;
+    }
+
+    if (role === "ADMIN" || role === "MANAGER") {
+      return request;
+    }
+
+    if (role === "RESIDENT" && request.residentId === userId) {
+      return request;
+    }
+
+    return null;
   },
 };

@@ -134,3 +134,59 @@ A centralized platform where residents can report issues, mangeres can assign te
 - HTTP 401 vs 403 vs 409
 - Authentication security practices
 
+## Day 8 — Maintenance Request API
+
+### Completed
+- Created Maintenance Request module
+- Added Zod request validation
+- Implemented maintenance request creation API
+- Connected authenticated resident to maintenance requests
+- Added resident-only authorization for creating requests
+- Added GET maintenance requests API
+- Implemented role-based request visibility
+- Residents can view only their own requests
+- Admins and Managers can view all requests
+- Tested APIs using Postman
+- Verified maintenance data in PostgreSQL
+
+### Learned
+- Feature-based backend architecture
+- Route → Controller → Service → Repository flow
+- Request validation with Zod
+- Authentication vs authorization
+- Role-based data access
+- Using JWT user identity for data ownership
+- Prisma filtering with `where`
+- PostgreSQL foreign-key relationships
+- HTTP 401, 403, and 500 responses
+- Testing protected APIs with Postman
+
+## Day 9 — Maintenance Request Details & Access Control
+
+### Completed
+- Implemented `GET /api/maintenance/:id`
+- Added Prisma `findUnique()` query
+- Added request ID route parameters
+- Added invalid request ID validation
+- Added `404 Not Found` handling
+- Added related resident data
+- Added Unit → Building → Community relationships
+- Added related technician data
+- Prevented `passwordHash` from being exposed
+- Implemented resource-level access control
+- Residents can view only their own requests
+- Admins and Managers can view any request
+- Tested API access using Postman
+
+### Learned
+- Express route parameters
+- Prisma `findUnique()`
+- Prisma `include`
+- Prisma `select`
+- Nested database relationships
+- Resource-level authorization
+- Data ownership
+- HTTP 404 handling
+- Secure API responses
+- Protecting sensitive database fields
+

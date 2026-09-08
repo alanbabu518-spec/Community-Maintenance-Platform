@@ -55,4 +55,45 @@ export const maintenanceController = {
     });
   }
 },
+
+async getRequestById(req: Request, res: Response) {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      return res.status(400).json({
+        message: "Invalid request ID",
+      });
+    }
+
+    const request = await maintenanceService.getRequestById(
+      id,
+      req.user.userId,
+      req.user.role
+    );
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Maintenance request not found",
+      });
+    }
+
+    return res.status(200).json({
+      request,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Failed to fetch maintenance request",
+    });
+  }
+},
+
 };
