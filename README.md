@@ -274,6 +274,7 @@ IN_PROGRESS
 RESOLVED
   ↓
 CLOSED
+```
 
 ## Day 13 — Filtering & Pagination
 
@@ -301,6 +302,7 @@ CLOSED
 
 ```text
 GET /api/maintenance?page=1&limit=5
+```
 
 ## Day 14 — Centralized Error Handling
 
@@ -340,3 +342,44 @@ next(error)
 Central Error Middleware
    ↓
 HTTP Response
+```
+## Day 15 — API Query Validation
+
+### Completed
+- Created Zod schema for maintenance query parameters
+- Added runtime validation for `page`
+- Added runtime validation for `limit`
+- Added runtime validation for `status`
+- Added runtime validation for `priority`
+- Added runtime validation for `category`
+- Added automatic type coercion for pagination values
+- Added default values for `page` and `limit`
+- Added category trimming and empty-value validation
+- Removed manual TypeScript query parameter type assertions
+- Connected query validation with centralized error handling
+- Tested valid query parameters using Postman
+- Tested invalid status values
+- Tested invalid pagination values
+- Tested invalid query parameter types
+- Tested default pagination values
+- Tested category trimming
+- Tested empty category validation
+- Verified TypeScript compilation with `npx tsc --noEmit`
+
+### Query Validation Flow
+
+```text
+HTTP Query Parameters
+        ↓
+Zod Schema
+        ↓
+Validation + Type Conversion
+        ↓
+Controller
+        ↓
+Service
+        ↓
+Repository
+        ↓
+PostgreSQL
+```

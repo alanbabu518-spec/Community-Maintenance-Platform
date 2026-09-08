@@ -4,8 +4,8 @@ import {
   createMaintenanceRequestSchema,
   updateMaintenanceRequestSchema,
   assignTechnicianSchema,
+  maintenanceQuerySchema,
 } from "./maintenance.schema.js";
-import type { MaintenanceFilters } from "./maintenance.types.js";
 
 export const maintenanceController = {
   async createRequest(req: Request, res: Response, next: NextFunction) {
@@ -40,31 +40,14 @@ export const maintenanceController = {
         });
       }
 
-      const page = Math.max(Number(req.query.page) || 1, 1);
+      const query = maintenanceQuerySchema.parse(req.query);
 
-      const limit = Math.min(
-        Math.max(Number(req.query.limit) || 10, 1),
-        100,
-      );
+      const { page, limit, status, priority, category } = query;
 
-      const filters: MaintenanceFilters = {
-        status: req.query.status as
-          | "OPEN"
-          | "ACKNOWLEDGED"
-          | "ASSIGNED"
-          | "IN_PROGRESS"
-          | "RESOLVED"
-          | "CLOSED"
-          | undefined,
-
-        priority: req.query.priority as
-          | "LOW"
-          | "MEDIUM"
-          | "HIGH"
-          | "URGENT"
-          | undefined,
-
-        category: req.query.category as string | undefined,
+      const filters = {
+        status,
+        priority,
+        category,
       };
 
       const result = await maintenanceService.getRequests(
