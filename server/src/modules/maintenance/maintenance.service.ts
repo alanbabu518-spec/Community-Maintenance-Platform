@@ -7,10 +7,14 @@ import type {
 } from "./maintenance.types.js";
 import { userRepository } from "../users/user.repository.js";
 import { AppError } from "../../utils/AppError.js";
+import {
+  toMaintenanceRequestResponse,
+  toMaintenanceRequestDetailResponse,
+} from "./maintenance.mapper.js";
 
 export const maintenanceService = {
   async createRequest(data: CreateMaintenanceRequestInput, residentId: number) {
-    return maintenanceRepository.create({
+    const request = await maintenanceRepository.create({
       title: data.title,
       description: data.description,
       category: data.category,
@@ -18,6 +22,8 @@ export const maintenanceService = {
       unitId: data.unitId,
       residentId,
     });
+
+    return toMaintenanceRequestResponse(request);
   },
 
   async getRequests(
@@ -36,7 +42,7 @@ export const maintenanceService = {
       ]);
 
       return {
-        requests,
+        requests: requests.map(toMaintenanceRequestResponse),
         total,
       };
     }
@@ -48,7 +54,7 @@ export const maintenanceService = {
       ]);
 
       return {
-        requests,
+        requests: requests.map(toMaintenanceRequestResponse),
         total,
       };
     }
@@ -60,7 +66,7 @@ export const maintenanceService = {
       ]);
 
       return {
-        requests,
+        requests: requests.map(toMaintenanceRequestResponse),
         total,
       };
     }
@@ -79,15 +85,15 @@ export const maintenanceService = {
     }
 
     if (role === "ADMIN" || role === "MANAGER") {
-      return request;
+      return toMaintenanceRequestDetailResponse(request);
     }
 
     if (role === "RESIDENT" && request.residentId === userId) {
-      return request;
+      return toMaintenanceRequestDetailResponse(request);
     }
 
     if (role === "TECHNICIAN" && request.technicianId === userId) {
-      return request;
+      return toMaintenanceRequestDetailResponse(request);
     }
 
     throw new AppError(
@@ -123,7 +129,9 @@ export const maintenanceService = {
       }
     }
 
-    return maintenanceRepository.update(id, data);
+    const updatedRequest = await maintenanceRepository.update(id, data);
+
+    return toMaintenanceRequestResponse(updatedRequest);
   },
 
   async assignTechnician(requestId: number, technicianId: number) {
@@ -150,9 +158,11 @@ export const maintenanceService = {
       );
     }
 
-    return maintenanceRepository.update(requestId, {
+    const updatedRequest = await maintenanceRepository.update(requestId, {
       technicianId,
       status: "ASSIGNED",
     });
+
+    return toMaintenanceRequestResponse(updatedRequest);
   },
 };

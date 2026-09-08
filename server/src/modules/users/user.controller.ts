@@ -1,32 +1,36 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { userService } from "./user.service.js";
 
 export const userController = {
-  async getUsers(req: Request, res: Response) {
+  async getUsers(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const users = await userService.getUsers();
 
-      res.status(200).json(users);
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({
-        message: "Failed to fetch users",
+      return res.status(200).json({
+        users,
       });
+    } catch (error) {
+      next(error);
     }
   },
 
-  async createUser(req: Request, res: Response) {
+  async createUser(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const user = await userService.createUser(req.body);
 
-      res.status(201).json(user);
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({
-        message: "Failed to create user",
+      return res.status(201).json({
+        user,
       });
+    } catch (error) {
+      next(error);
     }
   },
 };

@@ -383,3 +383,55 @@ Repository
         ↓
 PostgreSQL
 ```
+
+## Day 16 — API Response Design & Architecture Refinement
+
+### Completed
+- Created User API response DTO
+- Created User response mapper
+- Prevented `passwordHash` from being exposed through User APIs
+- Updated User Service to return API response DTOs
+- Updated User Controller to use centralized error handling
+- Standardized User API response structure
+- Created Maintenance Request response DTO
+- Created Maintenance Request response mapper
+- Created Maintenance Request detail response DTO
+- Created Maintenance Request detail mapper
+- Updated maintenance list API to return DTOs
+- Updated maintenance detail API to return detailed DTOs
+- Updated maintenance creation API to return DTOs
+- Updated maintenance update API to return DTOs
+- Updated technician assignment API to return DTOs
+- Preserved existing authentication and authorization rules
+- Tested User API with ADMIN role
+- Tested User API authorization with RESIDENT role
+- Tested user registration response
+- Tested user login response
+- Tested maintenance list response
+- Tested maintenance detail response
+- Tested maintenance creation response
+- Tested maintenance update response
+- Tested technician assignment response
+- Verified sensitive fields are not exposed
+- Removed `any` from maintenance detail mapper
+- Verified TypeScript compilation with `npx tsc --noEmit`
+
+### API Architecture
+
+```text
+HTTP Request
+     ↓
+Route
+     ↓
+Middleware
+     ↓
+Controller
+     ↓
+Service
+     ↓
+Repository
+     ↓
+Prisma
+     ↓
+PostgreSQL
+```

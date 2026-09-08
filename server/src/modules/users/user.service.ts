@@ -1,16 +1,21 @@
 import { userRepository } from "./user.repository.js";
+import { toUserResponse } from "./user.mapper.js";
 
 export const userService = {
-  getUsers() {
-    return userRepository.findAll();
+  async getUsers() {
+    const users = await userRepository.findAll();
+
+    return users.map(toUserResponse);
   },
 
-  createUser(data: {
+  async createUser(data: {
     name: string;
     email: string;
     passwordHash: string;
     role: "RESIDENT" | "ADMIN" | "MANAGER" | "TECHNICIAN";
   }) {
-    return userRepository.create(data);
+    const user = await userRepository.create(data);
+
+    return toUserResponse(user);
   },
 };

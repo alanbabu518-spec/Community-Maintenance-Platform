@@ -37,3 +37,53 @@ export interface MaintenanceFilters {
 
   category?: string | undefined;
 }
+
+export interface MaintenanceRequestResponse {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  status:
+    | "OPEN"
+    | "ACKNOWLEDGED"
+    | "ASSIGNED"
+    | "IN_PROGRESS"
+    | "RESOLVED"
+    | "CLOSED";
+  residentId: number;
+  unitId: number;
+  technicianId: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MaintenanceRequestDetailResponse extends MaintenanceRequestResponse {
+  resident: {
+    id: number;
+    name: string;
+    email: string;
+    role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
+  };
+
+  unit: {
+    id: number;
+    unitNumber: string;
+    building: {
+      id: number;
+      name: string;
+      community: {
+        id: number;
+        name: string;
+        address: string;
+      };
+    };
+  };
+
+  technician: {
+    id: number;
+    name: string;
+    email: string;
+    role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
+  } | null;
+}
