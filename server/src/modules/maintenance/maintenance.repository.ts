@@ -1,5 +1,8 @@
 import { prisma } from "../../lib/prisma.js";
-import type { UpdateMaintenanceRequestInput } from "./maintenance.types.js";
+import type {
+  UpdateMaintenanceRequestInput,
+  MaintenanceFilters,
+} from "./maintenance.types.js";
 
 export const maintenanceRepository = {
   create(data: {
@@ -15,30 +18,147 @@ export const maintenanceRepository = {
     });
   },
 
-  findAll() {
+  findAll(skip: number, limit: number, filters: MaintenanceFilters) {
     return prisma.maintenanceRequest.findMany({
+      where: {
+        ...(filters.status !== undefined && {
+          status: filters.status,
+        }),
+
+        ...(filters.priority !== undefined && {
+          priority: filters.priority,
+        }),
+
+        ...(filters.category !== undefined && {
+          category: filters.category,
+        }),
+      },
+
+      skip,
+      take: limit,
+
       orderBy: {
         createdAt: "desc",
       },
     });
   },
 
-  findByResidentId(residentId: number) {
+  countAll(filters: MaintenanceFilters) {
+    return prisma.maintenanceRequest.count({
+      where: {
+        ...(filters.status !== undefined && {
+          status: filters.status,
+        }),
+
+        ...(filters.priority !== undefined && {
+          priority: filters.priority,
+        }),
+
+        ...(filters.category !== undefined && {
+          category: filters.category,
+        }),
+      },
+    });
+  },
+
+  countByResidentId(residentId: number, filters: MaintenanceFilters) {
+    return prisma.maintenanceRequest.count({
+      where: {
+        residentId,
+
+        ...(filters.status !== undefined && {
+          status: filters.status,
+        }),
+
+        ...(filters.priority !== undefined && {
+          priority: filters.priority,
+        }),
+
+        ...(filters.category !== undefined && {
+          category: filters.category,
+        }),
+      },
+    });
+  },
+
+  countByTechnicianId(technicianId: number, filters: MaintenanceFilters) {
+    return prisma.maintenanceRequest.count({
+      where: {
+        technicianId,
+
+        ...(filters.status !== undefined && {
+          status: filters.status,
+        }),
+
+        ...(filters.priority !== undefined && {
+          priority: filters.priority,
+        }),
+
+        ...(filters.category !== undefined && {
+          category: filters.category,
+        }),
+      },
+    });
+  },
+
+  findByResidentId(
+    residentId: number,
+    skip: number,
+    limit: number,
+    filters: MaintenanceFilters,
+  ) {
     return prisma.maintenanceRequest.findMany({
       where: {
         residentId,
+
+        ...(filters.status !== undefined && {
+          status: filters.status,
+        }),
+
+        ...(filters.priority !== undefined && {
+          priority: filters.priority,
+        }),
+
+        ...(filters.category !== undefined && {
+          category: filters.category,
+        }),
       },
+
+      skip,
+      take: limit,
+
       orderBy: {
         createdAt: "desc",
       },
     });
   },
 
-  findByTechnicianId(technicianId: number) {
+  findByTechnicianId(
+    technicianId: number,
+    skip: number,
+    limit: number,
+    filters: MaintenanceFilters,
+  ) {
     return prisma.maintenanceRequest.findMany({
       where: {
         technicianId,
+
+        ...(filters.status !== undefined && {
+          status: filters.status,
+        }),
+
+        ...(filters.priority !== undefined && {
+          priority: filters.priority,
+        }),
+
+        ...(filters.category !== undefined && {
+          category: filters.category,
+        }),
       },
+
+      skip,
+      take: limit,
+
       orderBy: {
         createdAt: "desc",
       },

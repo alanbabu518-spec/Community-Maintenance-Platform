@@ -1,7 +1,10 @@
-import type { CreateMaintenanceRequestInput } from "./maintenance.types.js";
 import { maintenanceRepository } from "./maintenance.repository.js";
 import type { UserRole } from "@prisma/client";
-import type { UpdateMaintenanceRequestInput } from "./maintenance.types.js";
+import type {
+  CreateMaintenanceRequestInput,
+  UpdateMaintenanceRequestInput,
+  MaintenanceFilters,
+} from "./maintenance.types.js";
 import { userRepository } from "../users/user.repository.js";
 
 export const maintenanceService = {
@@ -16,21 +19,57 @@ export const maintenanceService = {
     });
   },
 
-  async getRequests(userId: number, role: UserRole) {
+  async getRequests(
+    userId: number,
+    role: UserRole,
+    page: number,
+    limit: number,
+    filters: MaintenanceFilters,
+  ) {
+    const skip = (page - 1) * limit;
+
     if (role === "RESIDENT") {
-      return maintenanceRepository.findByResidentId(userId);
+      const [requests, total] = await Promise.all([
+        maintenanceRepository.findByResidentId(userId, skip, limit, filters),
+        maintenanceRepository.countByResidentId(userId, filters),
+      ]);
+
+      return {
+        requests,
+        total,
+      };
     }
 
     if (role === "TECHNICIAN") {
-      return maintenanceRepository.findByTechnicianId(userId);
+      const [requests, total] = await Promise.all([
+        maintenanceRepository.findByTechnicianId(userId, skip, limit, filters),
+        maintenanceRepository.countByTechnicianId(userId, filters),
+      ]);
+
+      return {
+        requests,
+        total,
+      };
     }
 
     if (role === "ADMIN" || role === "MANAGER") {
-      return maintenanceRepository.findAll();
+      const [requests, total] = await Promise.all([
+        maintenanceRepository.findAll(skip, limit, filters),
+        maintenanceRepository.countAll(filters),
+      ]);
+
+      return {
+        requests,
+        total,
+      };
     }
 
-    return [];
+    return {
+      requests: [],
+      total: 0,
+    };
   },
+
   async getRequestById(id: number, userId: number, role: UserRole) {
     const request = await maintenanceRepository.findById(id);
 

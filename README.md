@@ -274,3 +274,30 @@ IN_PROGRESS
 RESOLVED
   ↓
 CLOSED
+
+## Day 13 — Filtering & Pagination
+
+### Completed
+- Implemented pagination for maintenance requests
+- Added `page` and `limit` query parameters
+- Added pagination limits to prevent excessive data requests
+- Added status filtering
+- Added priority filtering
+- Added category filtering
+- Added combined filtering
+- Added filtered result counts
+- Added total pages to API responses
+- Applied pagination and filtering to resident requests
+- Applied pagination and filtering to technician requests
+- Applied pagination and filtering to admin and manager requests
+- Tested pagination using Postman
+- Tested status, priority, and category filters
+- Tested combined filters with pagination
+- Verified TypeScript compilation with `npx tsc --noEmit`
+
+### Example API Requests
+
+#### Pagination
+
+```text
+GET /api/maintenance?page=1&limit=5

@@ -16,14 +16,24 @@ export interface UpdateMaintenanceRequestInput {
     | "CLOSED"
     | undefined;
 
-  priority?:
-    | "LOW"
-    | "MEDIUM"
-    | "HIGH"
-    | "URGENT"
-    | undefined;
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT" | undefined;
 
   category?: string | undefined;
 
   technicianId?: number | undefined;
+}
+
+export interface MaintenanceFilters {
+  status?:
+    | "OPEN"
+    | "ACKNOWLEDGED"
+    | "ASSIGNED"
+    | "IN_PROGRESS"
+    | "RESOLVED"
+    | "CLOSED"
+    | undefined;
+
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT" | undefined;
+
+  category?: string | undefined;
 }
