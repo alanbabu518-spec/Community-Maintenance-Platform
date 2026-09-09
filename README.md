@@ -469,3 +469,43 @@ src/tests/
 ├── auth.service.test.ts
 └── maintenance.service.test.ts
 ```
+
+## Day 18 — API Integration Testing
+
+### Completed
+- Installed Supertest
+- Separated Express app from HTTP server
+- Created API integration tests using Supertest
+- Tested health endpoint
+- Tested login API
+- Tested registration API
+- Tested registration validation
+- Tested duplicate email handling
+- Tested missing JWT authentication
+- Tested invalid JWT authentication
+- Tested valid JWT authentication
+- Tested role-based authorization
+- Tested resident access restrictions
+- Tested admin access
+- Tested resident resource-level authorization
+- Tested technician resource-level authorization
+- Tested manager resource access
+- Verified protected API routes
+- Verified TypeScript compilation
+- Verified complete API test suite
+
+### API Integration Test Structure
+
+```text
+HTTP Request
+     ↓
+Express Route
+     ↓
+Middleware
+     ↓
+Controller
+     ↓
+Service
+     ↓
+HTTP Response
+```
