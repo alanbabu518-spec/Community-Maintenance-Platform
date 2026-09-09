@@ -435,3 +435,37 @@ Prisma
      ↓
 PostgreSQL
 ```
+
+## Day 17 — Backend Testing
+
+### Completed
+- Installed Vitest
+- Configured Vitest for the backend
+- Created unit tests for `AppError`
+- Created maintenance service unit tests
+- Tested valid maintenance status transitions
+- Tested invalid maintenance status transitions
+- Tested the complete maintenance workflow
+- Tested technician assignment
+- Tested invalid technician assignment
+- Tested missing technician handling
+- Tested missing maintenance request handling
+- Created authentication service unit tests
+- Tested successful login
+- Tested invalid password
+- Tested non-existent user login
+- Tested password comparison failure
+- Tested registration password hashing
+- Verified `passwordHash` is not exposed
+- Mocked repositories and external dependencies
+- Added CI-friendly `test:run` script
+- Verified complete test suite
+
+### Test Structure
+
+```text
+src/tests/
+├── AppError.test.ts
+├── auth.service.test.ts
+└── maintenance.service.test.ts
+```
