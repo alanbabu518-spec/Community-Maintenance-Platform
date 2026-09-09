@@ -557,3 +557,80 @@ HTTP Response
 - Mocking services with Vitest
 - HTTP error handling
 - Testing business rules through APIs
+
+## Day 20 — API Documentation with Swagger/OpenAPI
+
+### Completed
+- Installed Swagger UI
+- Installed swagger-jsdoc
+- Configured OpenAPI 3.0
+- Added Swagger UI to Express
+- Created interactive API documentation
+- Added JWT Bearer authentication to Swagger
+- Documented Authentication APIs
+- Documented Users APIs
+- Documented Maintenance APIs
+- Documented request bodies
+- Documented path parameters
+- Documented query parameters
+- Documented API response status codes
+- Added pagination and filtering documentation
+- Added maintenance workflow documentation
+- Verified Swagger UI
+- Verified complete API test suite
+- Verified TypeScript compilation
+
+### Swagger Documentation
+
+Swagger UI:
+
+http://localhost:5000/api-docs
+
+### Documented APIs
+
+#### Authentication
+- POST /api/auth/register
+- POST /api/auth/login
+
+#### Users
+- GET /api/users
+- POST /api/users
+
+#### Maintenance
+- POST /api/maintenance
+- GET /api/maintenance
+- GET /api/maintenance/{id}
+- PATCH /api/maintenance/{id}
+- PATCH /api/maintenance/{id}/assign
+
+### Authentication
+
+Swagger supports JWT Bearer authentication through the Authorize button.
+
+Request format:
+
+Authorization: Bearer <JWT>
+
+### OpenAPI
+
+- OpenAPI version: 3.0
+- Interactive documentation: Swagger UI
+- Specification generation: swagger-jsdoc
+
+### Test Results
+
+- Test Files: 12 passed
+- Tests: 65 passed
+- TypeScript compilation: Passed
+
+### Learned
+- OpenAPI specification
+- Swagger UI
+- swagger-jsdoc
+- API documentation
+- API request/response documentation
+- Query parameters
+- Path parameters
+- Request body schemas
+- JWT Bearer authentication documentation
+- Interactive API testing

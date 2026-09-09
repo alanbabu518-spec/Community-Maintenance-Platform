@@ -7,6 +7,9 @@ import maintenanceRoutes from "./modules/maintenance/maintenance.routes.js";
 
 import { errorMiddleware } from "./middleware/error.middleware.js";
 
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.js";
+
 const app = express();
 
 app.use(cors());
@@ -21,6 +24,8 @@ app.get("/api/health", (_req, res) => {
     status: "ok",
   });
 });
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorMiddleware);
 
