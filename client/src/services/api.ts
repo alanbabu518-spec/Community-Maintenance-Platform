@@ -3,6 +3,8 @@ import type {
   MaintenanceListResponse,
   LoginInput,
   LoginResponse,
+  RegisterInput,
+  RegisterResponse,
 } from "../types/api";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -24,6 +26,24 @@ export async function getMaintenanceRequests(): Promise<MaintenanceListResponse>
 
   if (!response.ok) {
     throw new Error("Failed to fetch maintenance requests");
+  }
+
+  return response.json();
+}
+
+export async function registerUser(
+  data: RegisterInput
+): Promise<RegisterResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error("Registration failed");
   }
 
   return response.json();

@@ -635,18 +635,46 @@ Authorization: Bearer <JWT>
 - JWT Bearer authentication documentation
 - Interactive API testing
 
-# Day 21 — Frontend API Foundation & Cookie Authentication
+## Day 21 — Frontend API Foundation, Redis OTP & Cookie Authentication
 
-## Objective
+### Completed
 
-Build the frontend API foundation and connect the React frontend with the backend using cookie-based JWT authentication.
+- Created centralized frontend API service
+- Added TypeScript API types for frontend-backend communication
+- Implemented frontend health check API
+- Implemented frontend maintenance requests API
+- Connected React frontend with backend API
+- Added Redis using Docker for OTP storage
+- Created Redis client configuration
+- Implemented 6-digit OTP generation
+- Implemented OTP storage in Redis
+- Added 5-minute OTP expiration
+- Implemented OTP retrieval and deletion
+- Added OTP verification API
+- Added email verification status using `emailVerified`
+- Implemented REGISTER → OTP verification flow
+- Implemented cookie-based JWT authentication
+- Added HTTP-only `access_token` cookie
+- Configured CORS credentials for cookie authentication
+- Added `credentials: "include"` to frontend authenticated requests
+- Tested frontend login successfully
+- Tested protected maintenance API from React
+- Verified authentication using HTTP-only cookie
 
-## What I Built
+### Learned
 
-### 1. Frontend API Service Layer
-
-Created:
-
-```text
-client/src/services/api.ts
-```
+- Frontend API service architecture
+- Type-safe API communication with TypeScript
+- Redis and key-value storage
+- Redis TTL and temporary data
+- OTP generation and verification
+- OTP expiration
+- Email verification workflow
+- JWT authentication with cookies
+- HTTP-only cookies
+- Cookie-based authentication
+- CORS credentials
+- `credentials: "include"`
+- Frontend → Backend authentication flow
+- Protected API requests
+- Separating API logic from React components

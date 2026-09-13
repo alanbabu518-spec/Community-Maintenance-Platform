@@ -32,6 +32,18 @@ export interface MaintenanceListResponse {
   };
 }
 
+export interface RegisterInput {
+  name: string;
+  email: string;
+  password: string;
+  role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
+}
+
+export interface RegisterResponse {
+  message: string;
+  user: UserResponse;
+}
+
 export interface LoginInput {
   email: string;
   password: string;
