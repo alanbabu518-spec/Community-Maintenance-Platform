@@ -44,4 +44,15 @@ export const userRepository = {
   });
 },
 
+updateVerificationStatus(id: number, emailVerified: boolean) {
+  return prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      emailVerified,
+    },
+  });
+},
+
 };

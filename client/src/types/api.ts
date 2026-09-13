@@ -47,5 +47,4 @@ export interface UserResponse {
 export interface LoginResponse {
   message: string;
   user: UserResponse;
-  token: string;
 }

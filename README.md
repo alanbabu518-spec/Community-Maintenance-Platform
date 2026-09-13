@@ -634,3 +634,19 @@ Authorization: Bearer <JWT>
 - Request body schemas
 - JWT Bearer authentication documentation
 - Interactive API testing
+
+# Day 21 — Frontend API Foundation & Cookie Authentication
+
+## Objective
+
+Build the frontend API foundation and connect the React frontend with the backend using cookie-based JWT authentication.
+
+## What I Built
+
+### 1. Frontend API Service Layer
+
+Created:
+
+```text
+client/src/services/api.ts
+```

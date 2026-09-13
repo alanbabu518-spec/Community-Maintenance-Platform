@@ -1,5 +1,5 @@
-import {Router} from "express"
-import { authController } from "./auth.controller.js"
+import { Router } from "express";
+import { authController } from "./auth.controller.js";
 
 const router = Router();
 
@@ -50,7 +50,7 @@ const router = Router();
  *         description: Email already registered
  */
 
-router.post("/register",authController.register);
+router.post("/register", authController.register);
 
 /**
  * @openapi
@@ -84,6 +84,8 @@ router.post("/register",authController.register);
  *         description: Invalid email or password
  */
 
-router.post("/login",authController.login);
+router.post("/verify-otp", authController.verifyOtp);
+
+router.post("/login", authController.login);
 
 export default router;

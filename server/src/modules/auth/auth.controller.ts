@@ -1,6 +1,6 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { authService } from "./auth.service.js";
-import { registerSchema, loginSchema } from "./auth.schema.js";
+import { registerSchema, loginSchema, verifyOtpSchema } from "./auth.schema.js";
 import { Prisma } from "@prisma/client";
 
 export const authController = {
@@ -31,6 +31,24 @@ export const authController = {
       });
     }
   },
+
+  async verifyOtp(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = verifyOtpSchema.parse(req.body);
+
+    const user = await authService.verifyOtp(
+      data.email,
+      data.otp
+    );
+
+    return res.status(200).json({
+      message: "Email verified successfully",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+},
 
   async login(req: Request, res: Response) {
     try {

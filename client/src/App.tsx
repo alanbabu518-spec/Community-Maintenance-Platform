@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import {
-  getHealth,
-  getMaintenanceRequests,
-} from "./services/api";
+import { getHealth, getMaintenanceRequests } from "./services/api";
 import type { MaintenanceRequest } from "./types/api";
+import { loginUser } from "./services/api";
 
 function App() {
   const [backendStatus, setBackendStatus] = useState("Checking...");
@@ -17,7 +15,7 @@ function App() {
         const health = await getHealth();
 
         if (health.status === "ok") {
-          setBackendStatus("Connected ✅");
+          setBackendStatus("Connected !");
         }
 
         const data = await getMaintenanceRequests();
@@ -32,6 +30,29 @@ function App() {
 
     loadData();
   }, []);
+
+  const handleLogin = async () => {
+    try {
+      const result = await loginUser({
+        email: "tester999@example.com",
+        password: "Password123",
+      });
+
+      console.log("Login successful:", result);
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
+
+  const handleLoadRequests = async () => {
+    try {
+      const result = await getMaintenanceRequests();
+
+      console.log("Maintenance requests:", result);
+    } catch (error) {
+      console.error("Failed to load requests:", error);
+    }
+  };
 
   return (
     <div>
@@ -61,6 +82,10 @@ function App() {
           )}
         </div>
       )}
+
+      <button onClick={handleLogin}>Test Login</button>
+
+      <button onClick={handleLoadRequests}>Load Maintenance Requests</button>
     </div>
   );
 }

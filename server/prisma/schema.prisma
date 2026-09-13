@@ -30,12 +30,13 @@ enum MaintenancePriority {
 }
 
 model User {
-  id     Int    @id @default(autoincrement())
-  name   String
-  email  String  @unique
+  id             Int      @id @default(autoincrement())
+  name           String
+  email          String   @unique
   passwordHash   String
-  role   UserRole
-
+  role           UserRole
+  emailVerified  Boolean  @default(false)
+  
   maintenanceRequests MaintenanceRequest[]  @relation("ResidentRequests")
   assignedRequests   MaintenanceRequest[]  @relation("TechnicianRequests")
 
