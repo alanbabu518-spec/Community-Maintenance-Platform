@@ -44,6 +44,16 @@ export interface RegisterResponse {
   user: UserResponse;
 }
 
+export interface VerifyOtpInput {
+  email: string;
+  otp: string;
+}
+
+export interface VerifyOtpResponse {
+  message: string;
+  user: UserResponse;
+}
+
 export interface LoginInput {
   email: string;
   password: string;

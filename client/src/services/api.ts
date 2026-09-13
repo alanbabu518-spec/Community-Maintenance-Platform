@@ -5,6 +5,8 @@ import type {
   LoginResponse,
   RegisterInput,
   RegisterResponse,
+  VerifyOtpInput,
+  VerifyOtpResponse,
 } from "../types/api";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -44,6 +46,24 @@ export async function registerUser(
 
   if (!response.ok) {
     throw new Error("Registration failed");
+  }
+
+  return response.json();
+}
+
+export async function verifyOtp(
+  data: VerifyOtpInput
+): Promise<VerifyOtpResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error("OTP verification failed");
   }
 
   return response.json();

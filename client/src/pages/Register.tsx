@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { registerUser } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
   const [name, setName] = useState("");
@@ -10,6 +11,7 @@ function Register() {
   >("RESIDENT");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -26,7 +28,8 @@ function Register() {
       });
 
       console.log("Registration successful:", result);
-      setMessage("Registration successful. Check your OTP.");
+
+      navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Registration failed");
     }
