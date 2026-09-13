@@ -6,28 +6,20 @@ export function authMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      message: "Authentication required",
-    });
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({
-      message: "Invalid authorization header",
-    });
-  }
-
   try {
+    const token = req.cookies.access_token;
+
+    if (!token) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET!,
     ) as Express.AuthenticatedUser;
-    
+
     req.user = decoded;
 
     next();

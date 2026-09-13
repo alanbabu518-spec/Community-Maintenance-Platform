@@ -36,22 +36,23 @@ export const authController = {
     try {
       const data = loginSchema.parse(req.body);
 
-      const user = await authService.login(data);
+      const result = await authService.login(data);
 
-      res.status(200).json({
+      res.cookie("access_token", result.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
         message: "Login successful",
-        user: {
-          id: user.user.id,
-          name: user.user.name,
-          email: user.user.email,
-          role: user.user.role,
-        },
-        token: user.token,
+        user: result.user,
       });
     } catch (error) {
       console.error(error);
 
-      res.status(401).json({
+      return res.status(401).json({
         message: "Invalid email or password",
       });
     }
