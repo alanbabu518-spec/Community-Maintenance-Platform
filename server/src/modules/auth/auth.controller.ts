@@ -33,22 +33,19 @@ export const authController = {
   },
 
   async verifyOtp(req: Request, res: Response, next: NextFunction) {
-  try {
-    const data = verifyOtpSchema.parse(req.body);
+    try {
+      const data = verifyOtpSchema.parse(req.body);
 
-    const user = await authService.verifyOtp(
-      data.email,
-      data.otp
-    );
+      const user = await authService.verifyOtp(data.email, data.otp);
 
-    return res.status(200).json({
-      message: "Email verified successfully",
-      user,
-    });
-  } catch (error) {
-    next(error);
-  }
-},
+      return res.status(200).json({
+        message: "Email verified successfully",
+        user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 
   async login(req: Request, res: Response) {
     try {
@@ -75,4 +72,35 @@ export const authController = {
       });
     }
   },
+
+  async me(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Not authenticated",
+      });
+    }
+
+    const user = await authService.getCurrentUser(req.user.userId);
+
+    return res.status(200).json({
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+},
+
+async logout(req: Request, res: Response) {
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+
+  return res.status(200).json({
+    message: "Logout successful",
+  });
+},
+
 };

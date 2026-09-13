@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -22,7 +24,8 @@ function Login() {
       });
 
       console.log("Login successful:", result);
-      navigate("/");
+      setUser(result.user);
+      navigate("/home");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Login failed");
     }

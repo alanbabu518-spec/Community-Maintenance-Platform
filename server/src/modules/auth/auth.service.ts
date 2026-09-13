@@ -81,4 +81,15 @@ export const authService = {
       token,
     };
   },
+
+  async getCurrentUser(userId: number) {
+  const user = await userRepository.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return toUserResponse(user);
+},
+
 };

@@ -678,3 +678,47 @@ Authorization: Bearer <JWT>
 - Frontend → Backend authentication flow
 - Protected API requests
 - Separating API logic from React components
+
+## Day 22 — Authentication UI & Session Management
+
+### Completed
+
+- Added React Router for frontend routing
+- Created Register page
+- Created OTP verification page
+- Created Login page
+- Created Home page
+- Implemented controlled React form inputs
+- Connected Register page with backend API
+- Connected OTP verification with backend API
+- Connected Login page with backend API
+- Implemented authentication state using React Context
+- Created `AuthProvider` and `useAuth`
+- Implemented protected routes
+- Added HTTP-only cookie based authentication
+- Added `/auth/me` endpoint to restore authenticated user
+- Implemented authentication persistence after browser refresh
+- Added authentication loading state
+- Implemented Logout API
+- Added Logout functionality to Home page
+- Implemented complete Register → OTP → Login → Home → Logout flow
+- Tested protected route behavior
+- Tested authentication persistence after refresh
+- Tested logout and protected route redirection
+
+### Learned
+
+- React Router
+- React controlled forms
+- React Context API
+- Authentication state management
+- Protected routes
+- HTTP-only cookies
+- Cookie-based JWT authentication
+- Authentication persistence
+- `/auth/me` session restoration
+- Loading states during authentication checks
+- Logout flow
+- Frontend → Backend authentication flow
+- Route protection
+- Separation of authentication logic from UI

@@ -7,6 +7,7 @@ import type {
   RegisterResponse,
   VerifyOtpInput,
   VerifyOtpResponse,
+  UserResponse,
 } from "../types/api";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -81,6 +82,31 @@ export async function loginUser(data: LoginInput): Promise<LoginResponse> {
 
   if (!response.ok) {
     throw new Error("Invalid email or password");
+  }
+  return response.json();
+  
+}
+
+export async function getCurrentUser(): Promise<{ user: UserResponse }> {
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Not authenticated");
+  }
+
+  return response.json();
+}
+
+export async function logoutUser(): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Logout failed");
   }
 
   return response.json();
