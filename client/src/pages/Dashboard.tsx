@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMaintenanceRequests } from "../services/api";
+import { getMaintenanceRequests } from "../services/maintenance.api";
 import StatCard from "../components/ui/StatCard";
 import MaintenanceCard from "../features/maintenance/components/MaintenanceCard";
 import { Link } from "react-router-dom";

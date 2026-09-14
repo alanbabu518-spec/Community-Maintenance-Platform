@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../services/api";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Spinner from "../components/ui/Spinner";
 import PageTransition from "../components/ui/PageTransition";
 import FormField from "../components/ui/FormField";
 import SocialButtons from "../components/ui/SocialButtons";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,13 +24,9 @@ function Login() {
     try {
       setError("");
       setLoading(true);
+      await login(email, password);
 
-      await loginUser({
-        email,
-        password,
-      });
-
-      navigate("/dashboard");
+      navigate("/Home");
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Invalid email or password",

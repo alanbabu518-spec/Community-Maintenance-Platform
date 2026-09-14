@@ -859,3 +859,44 @@ Authorization: Bearer <JWT>
 - Responsive component design
 - Frontend architecture cleanup
 - TypeScript validation
+
+## Day 26 — Frontend API Architecture
+
+### Completed
+
+- Created centralized `apiClient`
+- Added centralized API request handling
+- Added credentials and headers automatically
+- Added query parameter support
+- Added centralized API error handling
+- Created `ApiError` with HTTP status
+- Added network error handling
+- Created `auth.api.ts`
+- Created `health.api.ts`
+- Created `maintenance.api.ts`
+- Removed the old `api.ts`
+- Migrated authentication APIs to `auth.api.ts`
+- Migrated health API to `health.api.ts`
+- Migrated maintenance APIs to `maintenance.api.ts`
+- Connected feature APIs with `apiClient`
+- Updated API imports across the frontend
+- Connected login with `AuthContext`
+- Updated authentication state after login
+- Verified protected route authentication
+- Validated frontend with TypeScript
+
+### Learned
+
+- Frontend API architecture
+- API client abstraction
+- Feature-based API organization
+- Centralized HTTP request handling
+- API error handling
+- Custom `ApiError` class
+- HTTP status handling
+- Network error handling
+- Query parameter handling
+- Separation of API logic from UI
+- Authentication state management
+- Protected routes
+- Scalable frontend architecture

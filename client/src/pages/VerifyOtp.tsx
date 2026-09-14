@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { verifyOtp } from "../services/api";
+import { verifyOtp } from "../services/auth.api";
 import Button from "../components/ui/Button";
 import Spinner from "../components/ui/Spinner";
 import PageTransition from "../components/ui/PageTransition";

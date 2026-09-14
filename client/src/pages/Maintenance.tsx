@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMaintenanceRequests } from "../services/api";
+import { getMaintenanceRequests } from "../services/maintenance.api";
 import MaintenanceCard from "../features/maintenance/components/MaintenanceCard";
 import type { MaintenanceRequest } from "../features/maintenance/types";
 import Loading from "../components/ui/Loading";

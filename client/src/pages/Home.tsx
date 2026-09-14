@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { logoutUser } from "../services/api";
+import { logoutUser } from "../services/auth.api";
 
 function Home() {
   const navigate = useNavigate();
