@@ -722,3 +722,48 @@ Authorization: Bearer <JWT>
 - Frontend → Backend authentication flow
 - Route protection
 - Separation of authentication logic from UI
+
+## Day 23 — Frontend Architecture & Dashboard Foundation
+
+### Completed
+
+- Created feature-based frontend folder structure
+- Added reusable layout components
+- Created `DashboardLayout`
+- Created reusable `Sidebar` component
+- Added protected dashboard routes
+- Created Dashboard page
+- Connected Dashboard with backend maintenance API
+- Added maintenance request statistics
+- Added reusable `StatCard` component
+- Created reusable `MaintenanceCard` component
+- Displayed recent maintenance requests on Dashboard
+- Created Maintenance page
+- Connected Maintenance page with backend API
+- Added role-based dashboard messaging
+- Added responsive Register page using Tailwind CSS
+- Added responsive Login page using Tailwind CSS
+- Added Google, Facebook, GitHub, and LinkedIn social login UI
+- Connected Login page with authentication flow
+- Updated successful login to redirect to Dashboard
+- Tested Dashboard navigation
+- Tested Maintenance navigation
+- Tested authentication-protected routes
+
+### Learned
+
+- Feature-based frontend architecture
+- Component-based architecture
+- Reusable React components
+- React Router nested routes
+- Dashboard layouts
+- Sidebar navigation
+- `Outlet` in React Router
+- API data fetching in React
+- Derived statistics from API data
+- Role-based UI rendering
+- Responsive design with Tailwind CSS
+- Mobile-first responsive layouts
+- Controlled form components
+- Reusing authentication logic across pages
+- Separation of pages, features, components, and services
