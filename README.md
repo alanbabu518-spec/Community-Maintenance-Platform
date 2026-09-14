@@ -814,3 +814,48 @@ Authorization: Bearer <JWT>
 - Separation of UI and business logic
 - Consistent UI design
 - Frontend UX patterns
+
+## Day 25 — Reusable UI Components & Frontend Architecture
+
+### Completed
+
+- Created reusable `Select` component
+- Refactored Register page to use `Select`
+- Created reusable `FormField` component
+- Refactored Register page to use `FormField`
+- Refactored Login page to use `FormField`
+- Refactored OTP verification page
+- Added reusable `SocialButtons` component
+- Reused `SocialButtons` in Register and Login
+- Reused `Button` component across authentication pages
+- Reused `Spinner` for loading states
+- Reused `PageTransition` across pages
+- Preserved existing authentication flow
+- Preserved responsive authentication UI
+- Added OTP input navigation with keyboard controls
+- Added OTP paste support
+- Added OTP validation
+- Added loading and error states
+- Reviewed frontend component responsibilities
+- Avoided unnecessary component abstraction
+- Completed frontend architecture cleanup
+- Validated the frontend with TypeScript
+
+### Learned
+
+- Reusable UI components
+- Component composition
+- Form abstraction
+- Feature-based frontend architecture
+- Component responsibility
+- Separation of UI and business logic
+- Component reuse
+- Avoiding unnecessary abstraction
+- Reusable form components
+- OTP input handling
+- Keyboard navigation
+- Clipboard/paste handling
+- Loading and error states
+- Responsive component design
+- Frontend architecture cleanup
+- TypeScript validation
