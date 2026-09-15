@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import Maintenance from "./pages/Maintenance";
+import ReportIssue from "./pages/ReportIssue";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="/maintenance/new" element={<ReportIssue />} />
           </Route>
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

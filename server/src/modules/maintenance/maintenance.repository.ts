@@ -18,6 +18,14 @@ export const maintenanceRepository = {
     });
   },
 
+  findAllUnits() {
+    return prisma.unit.findMany({
+      orderBy: {
+        unitNumber: "asc",
+      },
+    });
+  },
+
   findAll(skip: number, limit: number, filters: MaintenanceFilters) {
     return prisma.maintenanceRequest.findMany({
       where: {

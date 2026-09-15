@@ -62,9 +62,7 @@ export async function getMaintenanceRequests(
 ): Promise<MaintenanceListResponse> {
   return apiClient<MaintenanceListResponse>("/maintenance", {
     params: Object.fromEntries(
-      Object.entries(params ?? {}).filter(
-        ([, value]) => value !== undefined,
-      ),
+      Object.entries(params ?? {}).filter(([, value]) => value !== undefined),
     ) as Record<string, string>,
   });
 }
@@ -72,9 +70,7 @@ export async function getMaintenanceRequests(
 export async function getMaintenanceRequest(
   id: number,
 ): Promise<MaintenanceRequestDetailResponse> {
-  return apiClient<MaintenanceRequestDetailResponse>(
-    `/maintenance/${id}`,
-  );
+  return apiClient<MaintenanceRequestDetailResponse>(`/maintenance/${id}`);
 }
 
 export interface CreateMaintenanceRequestInput {
@@ -92,4 +88,18 @@ export async function createMaintenanceRequest(
     method: "POST",
     body: JSON.stringify(data),
   });
+}
+
+export interface Unit {
+  id: number;
+  unitNumber: string;
+  buildingId: number;
+}
+
+export interface UnitsResponse {
+  units: Unit[];
+}
+
+export async function getUnits(): Promise<UnitsResponse> {
+  return apiClient<UnitsResponse>("/maintenance/units");
 }

@@ -59,11 +59,13 @@ const router = Router();
 
 router.post(
   "/",
+  (req, res, next) => {
+    next();
+  },
   authMiddleware,
   authorize("RESIDENT"),
   maintenanceController.createRequest,
 );
-
 /**
  * @openapi
  * /api/maintenance:
@@ -205,6 +207,8 @@ router.patch(
  *       404:
  *         description: Maintenance request not found
  */
+
+router.get("/units", authMiddleware, authorize("RESIDENT"), maintenanceController.getUnits);
 
 router.get("/:id", authMiddleware, maintenanceController.getRequestById);
 

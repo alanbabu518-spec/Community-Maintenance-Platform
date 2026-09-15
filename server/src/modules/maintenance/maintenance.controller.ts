@@ -75,6 +75,18 @@ export const maintenanceController = {
     }
   },
 
+  async getUnits(req: Request, res: Response, next: NextFunction) {
+    try {
+      const units = await maintenanceService.getUnits();
+
+      return res.status(200).json({
+        units,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async getRequestById(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {

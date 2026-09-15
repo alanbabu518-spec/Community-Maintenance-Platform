@@ -5,6 +5,7 @@ import Loading from "../components/ui/Loading";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import PageTransition from "../components/ui/PageTransition";
 import useDebounce from "../hooks/useDebounce";
+import { useLocation } from "react-router-dom";
 
 function Maintenance() {
   const [status, setStatus] = useState<
@@ -21,6 +22,26 @@ function Maintenance() {
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
+
+  const location = useLocation();
+
+  const successMessage = location.state?.successMessage;
+  const successDescription = location.state?.successDescription;
+  const [showSuccess, setShowSuccess] = useState(Boolean(successMessage));
+
+  useEffect(() => {
+    if (!successMessage) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setShowSuccess(false);
+    }, 10000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [successMessage]);
 
   useEffect(() => {
     window.scrollTo({
@@ -58,6 +79,17 @@ function Maintenance() {
   return (
     <PageTransition>
       <div>
+        {showSuccess && successMessage && (
+          <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+            <p className="text-sm font-semibold text-emerald-800">
+              {successMessage}
+            </p>
+
+            <p className="mt-1 text-sm text-emerald-700">
+              {successDescription}
+            </p>
+          </div>
+        )}
         <div className="mb-4">
           <input
             type="text"

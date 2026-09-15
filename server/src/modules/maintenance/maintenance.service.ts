@@ -26,6 +26,10 @@ export const maintenanceService = {
     return toMaintenanceRequestResponse(request);
   },
 
+  async getUnits() {
+    return maintenanceRepository.findAllUnits();
+  },
+
   async getRequests(
     userId: number,
     role: UserRole,
