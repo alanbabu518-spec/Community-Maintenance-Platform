@@ -32,16 +32,19 @@ async function apiClient<T>(
     url += `?${searchParams.toString()}`;
   }
 
+  const headers = new Headers(fetchOptions.headers);
+
+  if (!(fetchOptions.body instanceof FormData)) {
+    headers.set("Content-Type", "application/json");
+  }
+
   let response: Response;
 
   try {
     response = await fetch(url, {
       ...fetchOptions,
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-      },
+      headers,
     });
   } catch {
     throw new ApiError(

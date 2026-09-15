@@ -990,3 +990,72 @@ Authorization: Bearer <JWT>
 - Separation of API logic and UI logic
 - Frontend scalability patterns
 - Production-oriented React architecture
+
+## Day 29 — Maintenance UI, Issue Reporting & File Attachments
+
+### Completed
+
+- Built responsive Maintenance dashboard UI
+- Added responsive sidebar navigation
+- Added mobile navigation drawer
+- Added maintenance request cards
+- Added Maintenance Request Details page
+- Added Report an Issue page
+- Added controlled maintenance request form
+- Added dynamic maintenance categories
+- Added custom category input for Other
+- Added dynamic unit selection
+- Added maintenance priority selection
+- Added success notification after issue submission
+- Added responsive photo selection UI
+- Added mobile camera support
+- Added multiple photo selection
+- Added photo preview and removal functionality
+- Limited issue attachments to 5 photos
+- Added Multer file upload handling
+- Added image file validation
+- Added 5 MB file size limit
+- Added Cloudinary image storage
+- Added MaintenanceAttachment database model
+- Added maintenance request → attachment relationship
+- Added attachment metadata storage in PostgreSQL
+- Added attachment upload service
+- Added maintenance request attachment retrieval
+- Added photo gallery to Maintenance Request Details
+- Added Cloudinary image preview
+- Added full-size image access
+- Tested maintenance request creation with Postman
+- Tested image upload and Cloudinary storage
+- Verified attachment records in PostgreSQL
+- Tested complete issue reporting flow from the React UI
+- Verified responsive maintenance UI
+- Verified frontend production build
+
+### Learned
+
+- Responsive dashboard UI design
+- Tailwind CSS responsive layouts
+- Mobile navigation patterns
+- React controlled forms
+- Dynamic form fields
+- File input handling in React
+- Mobile camera capture
+- Multiple file selection
+- File previews
+- Multipart/form-data
+- Multer
+- Memory-based file uploads
+- File validation
+- File size limits
+- Cloudinary
+- Image storage architecture
+- PostgreSQL file metadata storage
+- Database relationships
+- One-to-many relationships
+- Cascading deletes
+- Upload service architecture
+- API handling for multipart requests
+- Frontend → Backend → Cloudinary → PostgreSQL flow
+- Separating file storage from database metadata
+- Production-oriented file upload architecture
+- Responsive frontend architecture

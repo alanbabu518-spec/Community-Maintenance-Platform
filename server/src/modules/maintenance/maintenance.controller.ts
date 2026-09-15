@@ -9,28 +9,31 @@ import {
 
 export const maintenanceController = {
   async createRequest(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = createMaintenanceRequestSchema.parse(req.body);
+  try {
+    const data = createMaintenanceRequestSchema.parse(req.body);
 
-      if (!req.user) {
-        return res.status(401).json({
-          message: "Authentication required",
-        });
-      }
-
-      const request = await maintenanceService.createRequest(
-        data,
-        req.user.userId,
-      );
-
-      return res.status(201).json({
-        message: "Maintenance request created successfully",
-        request,
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Authentication required",
       });
-    } catch (error) {
-      next(error);
     }
-  },
+
+    const files = (req.files ?? []) as Express.Multer.File[];
+
+    const request = await maintenanceService.createRequest(
+      data,
+      req.user.userId,
+      files,
+    );
+
+    return res.status(201).json({
+      message: "Maintenance request created successfully",
+      request,
+    });
+  } catch (error) {
+    next(error);
+  }
+},
 
   async getRequests(req: Request, res: Response, next: NextFunction) {
     try {

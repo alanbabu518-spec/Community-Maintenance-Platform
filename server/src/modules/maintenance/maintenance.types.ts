@@ -60,6 +60,14 @@ export interface MaintenanceRequestResponse {
   updatedAt: Date;
 }
 
+export interface MaintenanceAttachmentResponse {
+  id: number;
+  fileUrl: string;
+  fileName: string;
+  fileType: string;
+  createdAt: Date;
+}
+
 export interface MaintenanceRequestDetailResponse extends MaintenanceRequestResponse {
   resident: {
     id: number;
@@ -88,4 +96,6 @@ export interface MaintenanceRequestDetailResponse extends MaintenanceRequestResp
     email: string;
     role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
   } | null;
+
+  attachments: MaintenanceAttachmentResponse[];
 }

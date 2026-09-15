@@ -11,9 +11,14 @@ import {
   toMaintenanceRequestResponse,
   toMaintenanceRequestDetailResponse,
 } from "./maintenance.mapper.js";
+import { uploadToCloudinary } from "../../utils/cloudinaryUpload.js";
 
 export const maintenanceService = {
-  async createRequest(data: CreateMaintenanceRequestInput, residentId: number) {
+  async createRequest(
+    data: CreateMaintenanceRequestInput,
+    residentId: number,
+    files: Express.Multer.File[],
+  ) {
     const request = await maintenanceRepository.create({
       title: data.title,
       description: data.description,
@@ -23,7 +28,29 @@ export const maintenanceService = {
       residentId,
     });
 
-    return toMaintenanceRequestResponse(request);
+    for (const file of files) {
+      const uploadedImage = await uploadToCloudinary(
+        file.buffer,
+        "community-maintenance",
+      );
+
+      await maintenanceRepository.createAttachment({
+        maintenanceRequestId: request.id,
+        fileUrl: uploadedImage.secure_url,
+        fileName: file.originalname,
+        fileType: file.mimetype,
+      });
+    }
+
+    const requestWithAttachments = await maintenanceRepository.findById(
+      request.id,
+    );
+
+    if (!requestWithAttachments) {
+      throw new Error("Maintenance request not found");
+    }
+
+    return toMaintenanceRequestResponse(requestWithAttachments);
   },
 
   async getUnits() {

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageTransition from "../components/ui/PageTransition";
-import useCreateMaintenanceRequest from "../features/maintenance/hooks/useMaintenanceRequest";
 import useUnits from "../features/maintenance/hooks/useUnits";
+import useCreateMaintenanceRequest from "../features/maintenance/hooks/useCreateMaintenanceRequest";
 
 function ReportIssue() {
   const navigate = useNavigate();
@@ -13,11 +13,14 @@ function ReportIssue() {
   const [otherCategory, setOtherCategory] = useState("");
   const [priority, setPriority] = useState("");
   const [unitId, setUnitId] = useState("");
-  const [photo, setPhoto] = useState<File | null>(null);
+  const [photos, setPhotos] = useState<File[]>([]);
+
   const createRequest = useCreateMaintenanceRequest();
   const { data, isLoading: unitsLoading } = useUnits();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     const requestData = {
@@ -26,6 +29,7 @@ function ReportIssue() {
       category: category === "OTHER" ? otherCategory : category,
       priority: priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
       unitId: Number(unitId),
+      photos,
     };
 
     try {
@@ -42,15 +46,49 @@ function ReportIssue() {
       console.error("Failed to create maintenance request:", error);
     }
   };
+
   const handleCancel = () => {
     navigate("/maintenance");
+  };
+
+  const handlePhotoChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const selectedFiles = Array.from(event.target.files ?? []);
+
+    setPhotos((currentPhotos) => {
+      const combinedPhotos = [...currentPhotos, ...selectedFiles];
+
+      const uniquePhotos = combinedPhotos.filter(
+        (photo, index, array) =>
+          index ===
+          array.findIndex(
+            (item) =>
+              item.name === photo.name &&
+              item.size === photo.size &&
+              item.lastModified === photo.lastModified,
+          ),
+      );
+
+      return uniquePhotos.slice(0, 5);
+    });
+
+    event.target.value = "";
+  };
+
+  const removePhoto = (indexToRemove: number) => {
+    setPhotos((currentPhotos) =>
+      currentPhotos.filter((_, index) => index !== indexToRemove),
+    );
   };
 
   return (
     <PageTransition>
       <div className="mx-auto w-full max-w-3xl">
         <div className="mb-8">
-          <p className="text-sm font-medium text-slate-500">Maintenance</p>
+          <p className="text-sm font-medium text-slate-500">
+            Maintenance
+          </p>
 
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
             Report an Issue
@@ -71,8 +109,8 @@ function ReportIssue() {
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Provide enough information so the maintenance team can understand
-              the problem.
+              Provide enough information so the maintenance team can
+              understand the problem.
             </p>
           </div>
 
@@ -118,8 +156,8 @@ function ReportIssue() {
             />
 
             <p className="mt-2 text-xs text-slate-500">
-              Include details such as where the problem is and when you noticed
-              it.
+              Include details such as where the problem is and when you
+              noticed it.
             </p>
           </div>
 
@@ -163,7 +201,9 @@ function ReportIssue() {
                   name="otherCategory"
                   type="text"
                   value={otherCategory}
-                  onChange={(event) => setOtherCategory(event.target.value)}
+                  onChange={(event) =>
+                    setOtherCategory(event.target.value)
+                  }
                   placeholder="e.g. Pest control, security issue..."
                   className="mt-2 block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
                 />
@@ -204,7 +244,8 @@ function ReportIssue() {
             </select>
 
             <p className="mt-2 text-xs text-slate-500">
-              Select urgent only when the issue requires immediate attention.
+              Select urgent only when the issue requires immediate
+              attention.
             </p>
           </div>
 
@@ -240,33 +281,79 @@ function ReportIssue() {
           </div>
 
           <div className="mt-6">
-            <label
-              htmlFor="photo"
-              className="block text-sm font-medium text-slate-700"
-            >
-              Photo
+            <label className="block text-sm font-medium text-slate-700">
+              Photos
             </label>
 
-            <div className="mt-2 rounded-xl border-2 border-dashed border-slate-300 p-6 text-center transition hover:border-slate-400">
-              <input
-                id="photo"
-                name="photo"
-                type="file"
-                accept="image/*"
-                onChange={(event) => setPhoto(event.target.files?.[0] ?? null)}
-                className="block w-full text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-slate-800"
-              />
+            <p className="mt-1 text-xs text-slate-500">
+              Add up to 5 photos to help explain the issue.
+            </p>
 
-              <p className="mt-3 text-xs text-slate-500">
-                Upload a photo that helps explain the issue.
-              </p>
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="flex cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-4 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 sm:hidden">
+                <span className="text-lg">📷</span>
+                <span>Take Photo</span>
 
-              {photo && (
-                <p className="mt-2 text-xs font-medium text-slate-700">
-                  Selected: {photo.name}
-                </p>
-              )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  multiple
+                  className="hidden"
+                  onChange={handlePhotoChange}
+                />
+              </label>
+
+              <label className="flex cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-4 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">
+                <span className="text-lg">📁</span>
+                <span>Choose from Device</span>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handlePhotoChange}
+                />
+              </label>
             </div>
+
+            {photos.length > 0 && (
+              <div className="mt-4 space-y-3">
+                {photos.map((photo, index) => (
+                  <div
+                    key={`${photo.name}-${photo.lastModified}-${index}`}
+                    className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3"
+                  >
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={URL.createObjectURL(photo)}
+                        alt={`Selected issue ${index + 1}`}
+                        className="h-20 w-20 shrink-0 rounded-lg object-cover"
+                      />
+
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-slate-900">
+                          {photo.name}
+                        </p>
+
+                        <p className="mt-1 text-xs text-slate-500">
+                          Photo {index + 1} of {photos.length}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="mt-8 flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
@@ -280,9 +367,10 @@ function ReportIssue() {
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto"
+              disabled={createRequest.isPending}
+              className="w-full rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
-              Report Issue
+              {createRequest.isPending ? "Submitting..." : "Report Issue"}
             </button>
           </div>
         </form>

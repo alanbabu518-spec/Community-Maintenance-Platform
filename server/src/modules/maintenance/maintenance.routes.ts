@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authMiddleware } from "../../middleware/auth.middleware.js";
 import { maintenanceController } from "./maintenance.controller.js";
 import { authorize } from "../../middleware/role.middleware.js";
+import { upload } from "../../middleware/upload.js";
 
 const router = Router();
 
@@ -59,11 +60,9 @@ const router = Router();
 
 router.post(
   "/",
-  (req, res, next) => {
-    next();
-  },
   authMiddleware,
   authorize("RESIDENT"),
+  upload.array("photos", 5),
   maintenanceController.createRequest,
 );
 /**
@@ -208,7 +207,12 @@ router.patch(
  *         description: Maintenance request not found
  */
 
-router.get("/units", authMiddleware, authorize("RESIDENT"), maintenanceController.getUnits);
+router.get(
+  "/units",
+  authMiddleware,
+  authorize("RESIDENT"),
+  maintenanceController.getUnits,
+);
 
 router.get("/:id", authMiddleware, maintenanceController.getRequestById);
 

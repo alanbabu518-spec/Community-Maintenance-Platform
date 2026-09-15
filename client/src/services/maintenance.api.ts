@@ -54,6 +54,13 @@ export interface MaintenanceRequestDetailResponse {
       email: string;
       role: string;
     } | null;
+    attachments: {
+      id: number;
+      fileUrl: string;
+      fileName: string;
+      fileType: string;
+      createdAt: string;
+    }[];
   };
 }
 
@@ -79,14 +86,27 @@ export interface CreateMaintenanceRequestInput {
   category: string;
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   unitId: number;
+  photos?: File[];
 }
 
 export async function createMaintenanceRequest(
   data: CreateMaintenanceRequestInput,
 ) {
+  const formData = new FormData();
+
+  formData.append("title", data.title);
+  formData.append("description", data.description);
+  formData.append("category", data.category);
+  formData.append("priority", data.priority);
+  formData.append("unitId", String(data.unitId));
+
+  data.photos?.forEach((photo) => {
+    formData.append("photos", photo);
+  });
+
   return apiClient("/maintenance", {
     method: "POST",
-    body: JSON.stringify(data),
+    body: formData,
   });
 }
 

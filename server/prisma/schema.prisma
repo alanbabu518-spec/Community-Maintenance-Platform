@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-}  
+}
 
 datasource db {
   provider = "postgresql"
@@ -30,24 +30,24 @@ enum MaintenancePriority {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
-  name           String
-  email          String   @unique
-  passwordHash   String
-  role           UserRole
-  emailVerified  Boolean  @default(false)
-  
-  maintenanceRequests MaintenanceRequest[]  @relation("ResidentRequests")
-  assignedRequests   MaintenanceRequest[]  @relation("TechnicianRequests")
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String   @unique
+  passwordHash  String
+  role          UserRole
+  emailVerified Boolean  @default(false)
+
+  maintenanceRequests MaintenanceRequest[] @relation("ResidentRequests")
+  assignedRequests    MaintenanceRequest[] @relation("TechnicianRequests")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Community {
-  id    Int     @id  @default(autoincrement())
-  name  String
-  address  String
+  id      Int    @id @default(autoincrement())
+  name    String
+  address String
 
   buildings Building[]
 
@@ -56,21 +56,21 @@ model Community {
 }
 
 model Building {
-  id    Int    @id  @default(autoincrement())
-  name  String
-  communityId  Int
+  id          Int    @id @default(autoincrement())
+  name        String
+  communityId Int
 
   community Community @relation(fields: [communityId], references: [id])
-  units   Unit[]
+  units     Unit[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Unit {
-  id          Int    @id @default(autoincrement())
-  unitNumber  String
-  buildingId  Int
+  id         Int    @id @default(autoincrement())
+  unitNumber String
+  buildingId Int
 
   building Building @relation(fields: [buildingId], references: [id])
 
@@ -97,6 +97,20 @@ model MaintenanceRequest {
   unit       Unit  @relation(fields: [unitId], references: [id])
   technician User? @relation("TechnicianRequests", fields: [technicianId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  maintenanceAttachments MaintenanceAttachment[]
+}
+
+model MaintenanceAttachment {
+  id                   Int      @id @default(autoincrement())
+  maintenanceRequestId Int
+  fileUrl              String
+  fileName             String
+  fileType             String
+  createdAt            DateTime @default(now())
+
+  maintenanceRequest MaintenanceRequest @relation(fields: [maintenanceRequestId], references: [id], onDelete: Cascade)
+
+  @@index([maintenanceRequestId])
 }

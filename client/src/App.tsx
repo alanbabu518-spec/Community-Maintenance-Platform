@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import Maintenance from "./pages/Maintenance";
 import ReportIssue from "./pages/ReportIssue";
+import MaintenanceDetails from "./pages/MaintenanceDetails";
 
 function App() {
   return (
@@ -37,6 +38,14 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/maintenance" element={<Maintenance />} />
             <Route path="/maintenance/new" element={<ReportIssue />} />
+            <Route
+              path="/maintenance/:id"
+              element={
+                <ProtectedRoute>
+                  <MaintenanceDetails />
+                </ProtectedRoute>
+              }
+            />
           </Route>
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

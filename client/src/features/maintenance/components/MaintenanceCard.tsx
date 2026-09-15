@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Badge from "../../../components/ui/Badge";
 import type { MaintenanceRequest } from "../types";
 
@@ -15,6 +16,7 @@ function MaintenanceCard({ request }: MaintenanceCardProps) {
 
   const statusStyles: Record<string, string> = {
     OPEN: "bg-blue-50 text-blue-700",
+    ACKNOWLEDGED: "bg-indigo-50 text-indigo-700",
     ASSIGNED: "bg-purple-50 text-purple-700",
     IN_PROGRESS: "bg-amber-50 text-amber-700",
     RESOLVED: "bg-emerald-50 text-emerald-700",
@@ -22,7 +24,10 @@ function MaintenanceCard({ request }: MaintenanceCardProps) {
   };
 
   return (
-    <div className="group rounded-xl border border-slate-200 bg-white p-4 transition duration-200 hover:border-slate-300 hover:shadow-sm sm:p-5">
+    <Link
+      to={`/maintenance/${request.id}`}
+      className="group block rounded-xl border border-slate-200 bg-white p-4 transition duration-200 hover:border-slate-300 hover:shadow-sm sm:p-5"
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-base font-semibold text-slate-900 sm:text-lg">
@@ -58,7 +63,11 @@ function MaintenanceCard({ request }: MaintenanceCardProps) {
           {request.priority}
         </Badge>
       </div>
-    </div>
+
+      <div className="mt-4 text-sm font-medium text-slate-500 transition group-hover:text-slate-900">
+        View details →
+      </div>
+    </Link>
   );
 }
 

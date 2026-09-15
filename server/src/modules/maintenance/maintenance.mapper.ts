@@ -68,6 +68,14 @@ type MaintenanceRequestWithDetails = {
     email: string;
     role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
   } | null;
+
+  maintenanceAttachments: {
+    id: number;
+    fileUrl: string;
+    fileName: string;
+    fileType: string;
+    createdAt: Date;
+  }[];
 };
 
 export function toMaintenanceRequestDetailResponse(
@@ -117,5 +125,13 @@ export function toMaintenanceRequestDetailResponse(
           role: request.technician.role,
         }
       : null,
+
+    attachments: request.maintenanceAttachments.map((attachment) => ({
+      id: attachment.id,
+      fileUrl: attachment.fileUrl,
+      fileName: attachment.fileName,
+      fileType: attachment.fileType,
+      createdAt: attachment.createdAt,
+    })),
   };
 }

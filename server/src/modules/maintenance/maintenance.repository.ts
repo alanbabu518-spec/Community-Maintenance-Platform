@@ -233,6 +233,7 @@ export const maintenanceRepository = {
             role: true,
           },
         },
+        maintenanceAttachments: true,
       },
     });
   },
@@ -249,6 +250,16 @@ export const maintenanceRepository = {
           technicianId: data.technicianId,
         }),
       },
+    });
+  },
+  createAttachment(data: {
+    maintenanceRequestId: number;
+    fileUrl: string;
+    fileName: string;
+    fileType: string;
+  }) {
+    return prisma.maintenanceAttachment.create({
+      data,
     });
   },
 };
