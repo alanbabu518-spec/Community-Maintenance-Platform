@@ -21,6 +21,24 @@ export const maintenanceRepository = {
   findAll(skip: number, limit: number, filters: MaintenanceFilters) {
     return prisma.maintenanceRequest.findMany({
       where: {
+        ...(filters.search !== undefined &&
+          filters.search !== "" && {
+            OR: [
+              {
+                title: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                description: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          }),
+
         ...(filters.status !== undefined && {
           status: filters.status,
         }),
@@ -33,19 +51,30 @@ export const maintenanceRepository = {
           category: filters.category,
         }),
       },
-
-      skip,
-      take: limit,
-
-      orderBy: {
-        createdAt: "desc",
-      },
     });
   },
 
   countAll(filters: MaintenanceFilters) {
     return prisma.maintenanceRequest.count({
       where: {
+        ...(filters.search !== undefined &&
+          filters.search !== "" && {
+            OR: [
+              {
+                title: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                description: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          }),
+
         ...(filters.status !== undefined && {
           status: filters.status,
         }),

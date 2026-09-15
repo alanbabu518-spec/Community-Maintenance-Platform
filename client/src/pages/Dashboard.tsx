@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getMaintenanceRequests } from "../services/maintenance.api";
 import StatCard from "../components/ui/StatCard";
 import MaintenanceCard from "../features/maintenance/components/MaintenanceCard";
@@ -28,19 +28,24 @@ function Dashboard() {
     loadRequests();
   }, []);
 
-  const totalRequests = requests.length;
+  const statistics = useMemo(() => {
+    let open = 0;
+    let assigned = 0;
+    let resolved = 0;
 
-  const openRequests = requests.filter(
-    (request) => request.status === "OPEN",
-  ).length;
+    for (const request of requests) {
+      if (request.status === "OPEN") open++;
+      if (request.status === "ASSIGNED") assigned++;
+      if (request.status === "RESOLVED") resolved++;
+    }
 
-  const assignedRequests = requests.filter(
-    (request) => request.status === "ASSIGNED",
-  ).length;
-
-  const resolvedRequests = requests.filter(
-    (request) => request.status === "RESOLVED",
-  ).length;
+    return {
+      total: requests.length,
+      open,
+      assigned,
+      resolved,
+    };
+  }, [requests]);
 
   if (loading) {
     return <Loading type="dashboard" />;
@@ -77,10 +82,10 @@ function Dashboard() {
             background: "lightblue",
           }}
         >
-          <StatCard title="Total Requests" value={totalRequests} />
-          <StatCard title="Open Requests" value={openRequests} />
-          <StatCard title="Assigned Requests" value={assignedRequests} />
-          <StatCard title="Resolved Requests" value={resolvedRequests} />
+          <StatCard title="Total Requests" value={statistics.total} />
+          <StatCard title="Open Requests" value={statistics.open} />
+          <StatCard title="Assigned Requests" value={statistics.assigned} />
+          <StatCard title="Resolved Requests" value={statistics.resolved} />
         </div>
 
         <h2>Recent Maintenance Requests</h2>
@@ -95,9 +100,7 @@ function Dashboard() {
             ))
         )}
 
-        <Link to="/maintenance">
-          View All Maintenance Requests
-        </Link>
+        <Link to="/maintenance">View All Maintenance Requests</Link>
       </div>
     </PageTransition>
   );

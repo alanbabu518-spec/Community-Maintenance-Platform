@@ -900,3 +900,58 @@ Authorization: Bearer <JWT>
 - Authentication state management
 - Protected routes
 - Scalable frontend architecture
+
+## Day 27 — Frontend Performance & Data Fetching
+
+### Completed
+
+- Optimized Dashboard statistics using `useMemo`
+- Reduced multiple array iterations into a single statistics calculation
+- Used `useCallback` for stable async functions
+- Installed TanStack Query
+- Added `QueryClientProvider`
+- Migrated Maintenance API fetching to TanStack Query
+- Added query caching
+- Added `staleTime` configuration
+- Added query invalidation after mutations
+- Added dynamic status filtering
+- Added server-side pagination
+- Added pagination metadata
+- Added Previous and Next pagination controls
+- Prevented navigation beyond the first and last pages
+- Added `placeholderData` for smoother pagination
+- Added `isFetching` background loading indicator
+- Added server-side search
+- Added debounced search using a reusable `useDebounce` hook
+- Reset pagination when changing filters
+- Reset pagination when searching
+- Added search across maintenance title and description
+- Added case-insensitive search
+- Updated backend filtering and counting for search
+- Added automatic scroll-to-top when changing pages
+- Tested search, filtering, pagination, caching, and loading states
+
+### Learned
+
+- React rendering and performance
+- `useMemo`
+- `useCallback`
+- TanStack Query
+- Server-state management
+- Query keys
+- Query caching
+- `staleTime`
+- `placeholderData`
+- `isFetching` vs `isLoading`
+- Query invalidation
+- Server-side pagination
+- Pagination metadata
+- Dynamic query parameters
+- Debouncing
+- Custom React hooks
+- Search optimization
+- PostgreSQL filtering with Prisma
+- Case-insensitive database search
+- Synchronizing pagination with filters
+- Smooth pagination UX
+- Frontend performance optimization

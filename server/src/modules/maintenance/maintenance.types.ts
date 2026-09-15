@@ -24,6 +24,8 @@ export interface UpdateMaintenanceRequestInput {
 }
 
 export interface MaintenanceFilters {
+  search?: string | undefined;
+
   status?:
     | "OPEN"
     | "ACKNOWLEDGED"

@@ -42,9 +42,10 @@ export const maintenanceController = {
 
       const query = maintenanceQuerySchema.parse(req.query);
 
-      const { page, limit, status, priority, category } = query;
+      const { page, limit, search, status, priority, category } = query;
 
       const filters = {
+        search,
         status,
         priority,
         category,
@@ -127,11 +128,7 @@ export const maintenanceController = {
     }
   },
 
-  async assignTechnician(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
+  async assignTechnician(req: Request, res: Response, next: NextFunction) {
     try {
       const requestId = Number(req.params.id);
 
