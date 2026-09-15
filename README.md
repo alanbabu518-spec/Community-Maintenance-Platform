@@ -955,3 +955,38 @@ Authorization: Bearer <JWT>
 - Synchronizing pagination with filters
 - Smooth pagination UX
 - Frontend performance optimization
+
+## Day 28 — Advanced Frontend Data Architecture
+
+### Completed
+
+- Created feature-level maintenance query hooks
+- Created centralized maintenance query keys
+- Created reusable maintenance query configuration
+- Added individual maintenance request query hook
+- Added maintenance request detail API
+- Implemented TanStack Query prefetching
+- Prefetched the next maintenance page when available
+- Added cache invalidation for maintenance mutations
+- Created `useCreateMaintenanceRequest` mutation hook
+- Separated maintenance query and mutation logic from UI components
+- Improved frontend server-state architecture
+- Verified frontend production build successfully
+
+### Learned
+
+- Feature-based data architecture
+- TanStack Query custom hooks
+- Query key factories
+- Query configuration
+- Individual resource queries
+- Query prefetching
+- `useQueryClient`
+- Query cache invalidation
+- Mutations with `useMutation`
+- `onSuccess` mutation handling
+- Server-state management
+- Cache consistency
+- Separation of API logic and UI logic
+- Frontend scalability patterns
+- Production-oriented React architecture

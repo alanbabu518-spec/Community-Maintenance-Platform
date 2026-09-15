@@ -1,6 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import useMaintenanceRequests from "../features/maintenance/hooks/useMaintenanceRequests";
 import { useState, useEffect } from "react";
-import { getMaintenanceRequests } from "../services/maintenance.api";
 import MaintenanceCard from "../features/maintenance/components/MaintenanceCard";
 import Loading from "../components/ui/Loading";
 import ErrorMessage from "../components/ui/ErrorMessage";
@@ -30,21 +29,12 @@ function Maintenance() {
     });
   }, [page]);
 
-  const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
-    queryKey: [
-      "maintenance-requests",
-      { status, page, search: debouncedSearch },
-    ],
-    queryFn: () =>
-      getMaintenanceRequests({
-        status,
-        page,
-        limit: 10,
-        search: debouncedSearch,
-      }),
-    staleTime: 30 * 1000,
-    placeholderData: (previousData) => previousData,
-  });
+  const { data, isLoading, isFetching, isError, error, refetch } =
+    useMaintenanceRequests({
+      status,
+      page,
+      search: debouncedSearch,
+    });
 
   const requests = data?.requests ?? [];
 
