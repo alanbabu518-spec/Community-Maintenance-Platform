@@ -53,54 +53,141 @@ function Dashboard() {
 
   return (
     <PageTransition>
-      <div>
-        <h1>Dashboard</h1>
+      <div className="mx-auto w-full max-w-7xl space-y-8">
+        <section className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-500">Welcome back</p>
 
-        <p>Welcome to the Community Maintenance Platform.</p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              {user?.name ?? "User"}
+            </h1>
+
+            {user?.role === "RESIDENT" && (
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">
+                Report and track your maintenance requests.
+              </p>
+            )}
+
+            {user?.role === "TECHNICIAN" && (
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">
+                View and manage your assigned maintenance requests.
+              </p>
+            )}
+
+            {user?.role === "MANAGER" && (
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">
+                Manage maintenance requests and technician assignments.
+              </p>
+            )}
+
+            {user?.role === "ADMIN" && (
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">
+                Manage the community platform and its users.
+              </p>
+            )}
+          </div>
+
+          {user?.role === "RESIDENT" && (
+            <Link
+              to="/maintenance/new"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto"
+            >
+              Report an Issue
+            </Link>
+          )}
+        </section>
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            title="Total Requests"
+            value={statistics.total}
+            description="All maintenance requests"
+          />
+
+          <StatCard
+            title="Open Requests"
+            value={statistics.open}
+            description="Waiting for action"
+          />
+
+          <StatCard
+            title="Assigned Requests"
+            value={statistics.assigned}
+            description="Assigned to technicians"
+          />
+
+          <StatCard
+            title="Resolved Requests"
+            value={statistics.resolved}
+            description="Successfully resolved"
+          />
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">
+                Recent Maintenance Requests
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Keep track of your latest maintenance activity.
+              </p>
+            </div>
+
+            <Link
+              to="/maintenance"
+              className="inline-flex w-fit items-center rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              View All
+            </Link>
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {requests.length === 0 ? (
+              <div className="px-5 py-12 text-center sm:px-6">
+                <p className="text-sm font-medium text-slate-700">
+                  No maintenance requests found.
+                </p>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Your maintenance requests will appear here.
+                </p>
+              </div>
+            ) : (
+              requests.slice(0, 5).map((request) => (
+                <div key={request.id} className="p-4 sm:p-5">
+                  <MaintenanceCard request={request} />
+                </div>
+              ))
+            )}
+          </div>
+        </section>
 
         {user?.role === "RESIDENT" && (
-          <p>Report and track your maintenance requests.</p>
+          <section className="overflow-hidden rounded-2xl bg-slate-900 p-6 text-white sm:p-8">
+            <div className="max-w-2xl">
+              <p className="text-sm font-medium text-slate-300">
+                Need something fixed?
+              </p>
+
+              <h2 className="mt-2 text-xl font-bold sm:text-2xl">
+                Have a maintenance issue?
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-slate-300">
+                Report an issue in your community and track its progress from
+                submission to resolution.
+              </p>
+
+              <Link
+                to="/maintenance/new"
+                className="mt-5 inline-flex items-center rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+              >
+                Report an Issue
+              </Link>
+            </div>
+          </section>
         )}
-
-        {user?.role === "TECHNICIAN" && (
-          <p>View and manage your assigned maintenance requests.</p>
-        )}
-
-        {user?.role === "MANAGER" && (
-          <p>Manage maintenance requests and technician assignments.</p>
-        )}
-
-        {user?.role === "ADMIN" && (
-          <p>Manage the community platform and its users.</p>
-        )}
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "16px",
-            background: "lightblue",
-          }}
-        >
-          <StatCard title="Total Requests" value={statistics.total} />
-          <StatCard title="Open Requests" value={statistics.open} />
-          <StatCard title="Assigned Requests" value={statistics.assigned} />
-          <StatCard title="Resolved Requests" value={statistics.resolved} />
-        </div>
-
-        <h2>Recent Maintenance Requests</h2>
-
-        {requests.length === 0 ? (
-          <p>No maintenance requests found.</p>
-        ) : (
-          requests
-            .slice(0, 5)
-            .map((request) => (
-              <MaintenanceCard key={request.id} request={request} />
-            ))
-        )}
-
-        <Link to="/maintenance">View All Maintenance Requests</Link>
       </div>
     </PageTransition>
   );
