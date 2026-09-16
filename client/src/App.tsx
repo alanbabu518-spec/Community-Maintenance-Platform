@@ -12,6 +12,9 @@ import Maintenance from "./pages/Maintenance";
 import ReportIssue from "./pages/ReportIssue";
 import MaintenanceDetails from "./pages/MaintenanceDetails";
 import ErrorPage from "./components/ui/ErrorPage";
+import AnnouncementsPage from "./pages/AnnouncementsPage";
+import AnnouncementDetails from "./pages/AnnouncementDetailsPage";
+import CreateAnnouncement from "./pages/CreateAnnouncement";
 
 function NotFoundPage() {
   const navigate = useNavigate();
@@ -52,14 +55,13 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/maintenance" element={<Maintenance />} />
             <Route path="/maintenance/new" element={<ReportIssue />} />
+            <Route path="/announcements" element={<AnnouncementsPage />} />
+            <Route path="/maintenance/:id" element={<MaintenanceDetails />} />
             <Route
-              path="/maintenance/:id"
-              element={
-                <ProtectedRoute>
-                  <MaintenanceDetails />
-                </ProtectedRoute>
-              }
+              path="/announcements/:id"
+              element={<AnnouncementDetails />}
             />
+            <Route path="/announcements/new" element={<CreateAnnouncement />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

@@ -8,9 +8,14 @@ import {
   Users,
   Settings,
   LogOut,
+  Bell,
 } from "lucide-react";
 import { getCurrentUser, logoutUser } from "../../services/auth.api";
 import { removeToken } from "../../services/auth";
+import {
+  getAnnouncementCount,
+  getAnnouncementEventName,
+} from "../../features/announcements/utils/announcementStorage";
 
 type User = {
   name?: string;
@@ -22,6 +27,7 @@ function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [announcementCount, setAnnouncementCount] = useState(0);
 
   const desktopProfileRef = useRef<HTMLDivElement>(null);
   const mobileProfileRef = useRef<HTMLDivElement>(null);
@@ -55,16 +61,32 @@ function Navbar() {
   }, [location.pathname]);
 
   useEffect(() => {
+    const updateAnnouncementCount = () => {
+      setAnnouncementCount(getAnnouncementCount());
+    };
+
+    updateAnnouncementCount();
+
+    const eventName = getAnnouncementEventName();
+
+    window.addEventListener(eventName, updateAnnouncementCount);
+    window.addEventListener("storage", updateAnnouncementCount);
+
+    return () => {
+      window.removeEventListener(eventName, updateAnnouncementCount);
+      window.removeEventListener("storage", updateAnnouncementCount);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       const target = event.target as Node;
 
       const clickedDesktop =
-        desktopProfileRef.current &&
-        desktopProfileRef.current.contains(target);
+        desktopProfileRef.current && desktopProfileRef.current.contains(target);
 
       const clickedMobile =
-        mobileProfileRef.current &&
-        mobileProfileRef.current.contains(target);
+        mobileProfileRef.current && mobileProfileRef.current.contains(target);
 
       if (!clickedDesktop && !clickedMobile) {
         setProfileOpen(false);
@@ -126,6 +148,12 @@ function Navbar() {
       setMobileMenuOpen(false);
       navigate("/login", { replace: true });
     }
+  };
+
+  const handleNotificationsClick = () => {
+    closeMobileMenu();
+    closeProfile();
+    navigate("/announcements");
   };
 
   const navItems = [
@@ -275,10 +303,26 @@ function Navbar() {
 
         <div
           ref={desktopProfileRef}
-          className="relative hidden items-center gap-2 md:flex"
+          className="relative hidden items-center gap-4 md:flex"
         >
           {user ? (
             <>
+              <button
+                type="button"
+                onClick={handleNotificationsClick}
+                className="relative mr-2 flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                aria-label="View announcements"
+                title="Announcements"
+              >
+                <Bell size={19} />
+
+                {announcementCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+                    {announcementCount > 99 ? "99+" : announcementCount}
+                  </span>
+                )}
+              </button>
+
               <button
                 type="button"
                 onClick={(event) => {
@@ -323,10 +367,26 @@ function Navbar() {
 
         <div
           ref={mobileProfileRef}
-          className="relative flex items-center md:hidden"
+          className="relative flex items-center gap-2 md:hidden"
         >
           {user ? (
             <>
+              <button
+                type="button"
+                onClick={handleNotificationsClick}
+                className="relative flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                aria-label="View announcements"
+                title="Announcements"
+              >
+                <Bell size={20} />
+
+                {announcementCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+                    {announcementCount > 99 ? "99+" : announcementCount}
+                  </span>
+                )}
+              </button>
+
               <button
                 type="button"
                 onClick={(event) => {

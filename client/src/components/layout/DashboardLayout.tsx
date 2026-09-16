@@ -15,18 +15,17 @@ import { useAuth } from "../../context/AuthContext";
 function DashboardLayout() {
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const location = useLocation();
 
-  const closeMobileMenu = () => {
-    setMobileMenuOpen(false);
-  };
+  const closeMobileMenu = () => setMobileMenuOpen(false);
 
   const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
     "/maintenance": "Maintenance",
+    "/maintenance/new": "Report an Issue",
     "/technicians": "Technicians",
     "/announcements": "Announcements",
+    "/announcements/new": "Create Announcement",
   };
 
   const pageTitle = pageTitles[location.pathname] ?? "Dashboard";
@@ -34,45 +33,45 @@ function DashboardLayout() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="flex min-h-screen">
-        <Sidebar />
+        <div className="sticky top-0 hidden h-screen shrink-0 lg:block">
+          <Sidebar />
+        </div>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-20 h-16 border-b border-slate-200 bg-white/95 backdrop-blur">
-            <div className="flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
+          <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
+            <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(true)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-700 transition hover:bg-slate-50 lg:hidden"
-                  aria-label="Open navigation menu"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 lg:hidden"
+                  aria-label="Open menu"
                 >
                   <Menu size={20} />
                 </button>
 
                 <div>
-                  <p className="text-xs font-medium text-slate-400 lg:hidden">
-                    CommunityCare
-                  </p>
-
-                  <h2 className="text-lg font-semibold text-slate-900">
+                  <h1 className="text-lg font-semibold text-slate-900">
                     {pageTitle}
-                  </h2>
+                  </h1>
+                  <p className="hidden text-xs text-slate-500 sm:block">
+                    Manage your community efficiently
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="hidden text-right sm:block">
                   <p className="text-sm font-medium text-slate-900">
-                    {user?.name ?? "User"}
+                    {user?.name || "User"}
                   </p>
-
                   <p className="text-xs text-slate-500">
-                    {user?.role ?? ""}
+                    {user?.email || ""}
                   </p>
                 </div>
 
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
-                  {user?.name?.charAt(0).toUpperCase() ?? "U"}
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+                  {user?.name?.charAt(0).toUpperCase() || "U"}
                 </div>
               </div>
             </div>
@@ -89,107 +88,101 @@ function DashboardLayout() {
           <button
             type="button"
             onClick={closeMobileMenu}
-            className="absolute inset-0 bg-slate-900/40"
-            aria-label="Close navigation menu"
+            className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+            aria-label="Close menu"
           />
 
-          <aside className="relative flex h-full w-72 max-w-[85%] flex-col bg-white shadow-xl">
+          <aside className="relative flex h-full w-72 flex-col bg-white shadow-2xl">
             <div className="flex h-16 items-center justify-between border-b border-slate-200 px-5">
-              <h1 className="text-lg font-bold text-slate-900">
+              <span className="text-lg font-bold tracking-tight text-slate-900">
                 CommunityCare
-              </h1>
+              </span>
 
               <button
                 type="button"
                 onClick={closeMobileMenu}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
-                aria-label="Close navigation menu"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100"
+                aria-label="Close menu"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <nav className="flex-1 p-4">
-              <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Menu
-              </p>
+            <nav className="flex-1 space-y-1 px-3 py-5">
+              <NavLink
+                to="/"
+                onClick={closeMobileMenu}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-slate-900 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
+              >
+                <Home size={19} />
+                Home
+              </NavLink>
 
-              <div className="space-y-1">
-                <NavLink
-                  to="/"
-                  onClick={closeMobileMenu}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
-                      isActive
-                        ? "bg-slate-900 text-white"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`
-                  }
-                >
-                  <Home size={18} />
-                  <span>Home</span>
-                </NavLink>
+              <NavLink
+                to="/dashboard"
+                onClick={closeMobileMenu}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-slate-900 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
+              >
+                <LayoutDashboard size={19} />
+                Dashboard
+              </NavLink>
 
-                <NavLink
-                  to="/dashboard"
-                  onClick={closeMobileMenu}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
-                      isActive
-                        ? "bg-slate-900 text-white"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`
-                  }
-                >
-                  <LayoutDashboard size={18} />
-                  <span>Dashboard</span>
-                </NavLink>
+              <NavLink
+                to="/maintenance"
+                onClick={closeMobileMenu}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-slate-900 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
+              >
+                <Wrench size={19} />
+                Maintenance
+              </NavLink>
 
-                <NavLink
-                  to="/maintenance"
-                  onClick={closeMobileMenu}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
-                      isActive
-                        ? "bg-slate-900 text-white"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`
-                  }
-                >
-                  <Wrench size={18} />
-                  <span>Maintenance</span>
-                </NavLink>
+              <NavLink
+                to="/technicians"
+                onClick={closeMobileMenu}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-slate-900 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
+              >
+                <Users size={19} />
+                Technicians
+              </NavLink>
 
-                <NavLink
-                  to="/technicians"
-                  onClick={closeMobileMenu}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
-                      isActive
-                        ? "bg-slate-900 text-white"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`
-                  }
-                >
-                  <Users size={18} />
-                  <span>Technicians</span>
-                </NavLink>
-
-                <NavLink
-                  to="/announcements"
-                  onClick={closeMobileMenu}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
-                      isActive
-                        ? "bg-slate-900 text-white"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`
-                  }
-                >
-                  <Megaphone size={18} />
-                  <span>Announcements</span>
-                </NavLink>
-              </div>
+              <NavLink
+                to="/announcements"
+                onClick={closeMobileMenu}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-slate-900 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
+              >
+                <Megaphone size={19} />
+                Announcements
+              </NavLink>
             </nav>
           </aside>
         </div>
