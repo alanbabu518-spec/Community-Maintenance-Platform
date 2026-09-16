@@ -1,6 +1,11 @@
 "use client";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./Accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./Accordion";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -45,7 +50,7 @@ export default function FAQs() {
   return (
     <section
       id="faqs"
-      className="scroll-mt-16 border-t border-slate-200 bg-white py-16 md:py-24"
+      className="scroll-mt-16 border-t border-slate-200 bg-white py-16 md:py-24 dark:border-slate-800 dark:bg-slate-950"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-5 md:gap-14">
@@ -54,27 +59,27 @@ export default function FAQs() {
               <HelpCircle size={21} />
             </div>
 
-            <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-slate-500">
+            <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Frequently Asked Questions
             </p>
 
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-white">
               Everything you need to know
             </h2>
 
-            <p className="mt-4 max-w-md text-base leading-7 text-slate-600 sm:text-lg">
+            <p className="mt-4 max-w-md text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
               Learn how CommunityCare helps residents, management teams, and
               technicians keep community maintenance organized.
             </p>
 
             <div className="mt-7 hidden md:block">
-              <p className="text-sm leading-6 text-slate-500">
+              <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">
                 Still have a question?
               </p>
 
               <Link
                 to="/maintenance/new"
-                className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 transition hover:text-slate-600"
+                className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 transition hover:text-slate-600 dark:text-white dark:hover:text-slate-300"
               >
                 Report an issue
                 <ArrowRight size={16} />
@@ -88,9 +93,9 @@ export default function FAQs() {
                 <AccordionItem
                   key={item.id}
                   value={item.id}
-                  className="border-b border-slate-200"
+                  className="border-b border-slate-200 dark:border-slate-800"
                 >
-                  <AccordionTrigger className="cursor-pointer text-base font-medium text-slate-900 hover:no-underline sm:text-lg">
+                  <AccordionTrigger className="cursor-pointer text-base font-medium text-slate-900 hover:no-underline sm:text-lg dark:text-white">
                     {item.question}
                   </AccordionTrigger>
 
@@ -103,13 +108,13 @@ export default function FAQs() {
           </div>
 
           <div className="md:hidden">
-            <p className="text-sm leading-6 text-slate-500">
+            <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">
               Still have a question?
             </p>
 
             <Link
               to="/maintenance/new"
-              className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 transition hover:text-slate-600"
+              className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 transition hover:text-slate-600 dark:text-white dark:hover:text-slate-300"
             >
               Report an issue
               <ArrowRight size={16} />
@@ -155,7 +160,7 @@ export const BlurredStagger = ({
         variants={container}
         initial="hidden"
         animate="show"
-        className="break-words whitespace-normal text-base leading-relaxed text-slate-600"
+        className="break-word whitespace-normal text-base leading-relaxed text-slate-600 dark:text-slate-300"
       >
         {text.split("").map((char, index) => (
           <motion.span

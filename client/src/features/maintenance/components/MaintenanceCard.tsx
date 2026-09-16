@@ -8,33 +8,38 @@ interface MaintenanceCardProps {
 
 function MaintenanceCard({ request }: MaintenanceCardProps) {
   const priorityStyles: Record<string, string> = {
-    LOW: "bg-slate-100 text-slate-700",
-    MEDIUM: "bg-amber-50 text-amber-700",
-    HIGH: "bg-orange-50 text-orange-700",
-    URGENT: "bg-red-50 text-red-700",
+    LOW: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+    MEDIUM: "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
+    HIGH: "bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300",
+    URGENT: "bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300",
   };
 
   const statusStyles: Record<string, string> = {
-    OPEN: "bg-blue-50 text-blue-700",
-    ACKNOWLEDGED: "bg-indigo-50 text-indigo-700",
-    ASSIGNED: "bg-purple-50 text-purple-700",
-    IN_PROGRESS: "bg-amber-50 text-amber-700",
-    RESOLVED: "bg-emerald-50 text-emerald-700",
-    CLOSED: "bg-slate-100 text-slate-700",
+    OPEN: "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300",
+    ACKNOWLEDGED:
+      "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300",
+    ASSIGNED:
+      "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300",
+    IN_PROGRESS:
+      "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
+    RESOLVED:
+      "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
+    CLOSED:
+      "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
   };
 
   return (
     <Link
       to={`/maintenance/${request.id}`}
-      className="group block rounded-xl border border-slate-200 bg-white p-4 transition duration-200 hover:border-slate-300 hover:shadow-sm sm:p-5"
+      className="group block rounded-xl border border-slate-200 bg-white p-4 transition duration-200 hover:border-slate-300 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 sm:p-5"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-base font-semibold text-slate-900 sm:text-lg">
+          <h3 className="truncate text-base font-semibold text-slate-900 dark:text-white sm:text-lg">
             {request.title}
           </h3>
 
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-500">
+          <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
             {request.description}
           </p>
         </div>
@@ -42,7 +47,7 @@ function MaintenanceCard({ request }: MaintenanceCardProps) {
         <Badge
           className={
             statusStyles[request.status] ??
-            "bg-slate-100 text-slate-700"
+            "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
           }
         >
           {request.status}
@@ -50,21 +55,21 @@ function MaintenanceCard({ request }: MaintenanceCardProps) {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Badge className="bg-slate-100 text-slate-700">
+        <Badge className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
           {request.category}
         </Badge>
 
         <Badge
           className={
             priorityStyles[request.priority] ??
-            "bg-slate-100 text-slate-700"
+            "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
           }
         >
           {request.priority}
         </Badge>
       </div>
 
-      <div className="mt-4 text-sm font-medium text-slate-500 transition group-hover:text-slate-900">
+      <div className="mt-4 text-sm font-medium text-slate-500 transition group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white">
         View details →
       </div>
     </Link>

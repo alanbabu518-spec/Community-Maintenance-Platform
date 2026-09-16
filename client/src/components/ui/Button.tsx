@@ -11,8 +11,8 @@ function Button({ children, className = "", ...props }: ButtonProps) {
         bg-[#2da0a8]
         text-white
         text-xs
-        px-[45px]
-        py-[10px]
+        px-11.25
+        py-2.5
         border
         border-transparent
         rounded-lg

@@ -19,19 +19,19 @@ function MaintenanceDetails() {
     return (
       <PageTransition>
         <div className="mx-auto w-full max-w-3xl">
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6">
-            <h1 className="text-lg font-semibold text-red-800">
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 dark:border-red-900/50 dark:bg-red-950/30">
+            <h1 className="text-lg font-semibold text-red-800 dark:text-red-300">
               Unable to load maintenance request
             </h1>
 
-            <p className="mt-2 text-sm text-red-700">
+            <p className="mt-2 text-sm text-red-700 dark:text-red-400">
               The request could not be found or you are not authorized to
               view it.
             </p>
 
             <Link
               to="/maintenance"
-              className="mt-5 inline-flex rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="mt-5 inline-flex rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
             >
               Back to Maintenance
             </Link>
@@ -44,19 +44,27 @@ function MaintenanceDetails() {
   const { request } = data;
 
   const priorityStyles: Record<string, string> = {
-    LOW: "bg-slate-100 text-slate-700",
-    MEDIUM: "bg-amber-50 text-amber-700",
-    HIGH: "bg-orange-50 text-orange-700",
-    URGENT: "bg-red-50 text-red-700",
+    LOW: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+    MEDIUM:
+      "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
+    HIGH:
+      "bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300",
+    URGENT:
+      "bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300",
   };
 
   const statusStyles: Record<string, string> = {
-    OPEN: "bg-blue-50 text-blue-700",
-    ACKNOWLEDGED: "bg-indigo-50 text-indigo-700",
-    ASSIGNED: "bg-purple-50 text-purple-700",
-    IN_PROGRESS: "bg-amber-50 text-amber-700",
-    RESOLVED: "bg-emerald-50 text-emerald-700",
-    CLOSED: "bg-slate-100 text-slate-700",
+    OPEN: "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300",
+    ACKNOWLEDGED:
+      "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300",
+    ASSIGNED:
+      "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300",
+    IN_PROGRESS:
+      "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
+    RESOLVED:
+      "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
+    CLOSED:
+      "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
   };
 
   return (
@@ -65,31 +73,31 @@ function MaintenanceDetails() {
         <div>
           <Link
             to="/maintenance"
-            className="text-sm font-medium text-slate-500 transition hover:text-slate-900"
+            className="text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
           >
             ← Back to Maintenance
           </Link>
 
           <div className="mt-4">
-            <p className="text-sm font-medium text-slate-500">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Maintenance Request #{request.id}
             </p>
 
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               {request.title}
             </h1>
           </div>
         </div>
 
-        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 p-5 sm:p-6">
+        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="border-b border-slate-200 p-5 dark:border-slate-800 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                   Request Details
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Information about this maintenance issue.
                 </p>
               </div>
@@ -97,7 +105,7 @@ function MaintenanceDetails() {
               <Badge
                 className={
                   statusStyles[request.status] ??
-                  "bg-slate-100 text-slate-700"
+                  "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 }
               >
                 {request.status}
@@ -107,28 +115,28 @@ function MaintenanceDetails() {
 
           <div className="space-y-6 p-5 sm:p-6">
             <div>
-              <p className="text-sm font-medium text-slate-500">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                 Description
               </p>
 
-              <p className="mt-2 text-sm leading-7 text-slate-700">
+              <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-300">
                 {request.description}
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                   Category
                 </p>
 
-                <p className="mt-1 text-sm font-semibold text-slate-900">
+                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
                   {request.category}
                 </p>
               </div>
 
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                   Priority
                 </p>
 
@@ -136,7 +144,7 @@ function MaintenanceDetails() {
                   <Badge
                     className={
                       priorityStyles[request.priority] ??
-                      "bg-slate-100 text-slate-700"
+                      "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                     }
                   >
                     {request.priority}
@@ -145,40 +153,40 @@ function MaintenanceDetails() {
               </div>
 
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                   Unit
                 </p>
 
-                <p className="mt-1 text-sm font-semibold text-slate-900">
+                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
                   {request.unit.unitNumber}
                 </p>
               </div>
             </div>
 
-            <div className="border-t border-slate-200 pt-6">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                 Location
               </p>
 
-              <p className="mt-1 text-sm font-semibold text-slate-900">
+              <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
                 {request.unit.building.name}
               </p>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 {request.unit.building.community.name}
               </p>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 {request.unit.building.community.address}
               </p>
             </div>
 
-            <div className="border-t border-slate-200 pt-6">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                 Submitted
               </p>
 
-              <p className="mt-1 text-sm font-semibold text-slate-900">
+              <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
                 {new Date(request.createdAt).toLocaleString()}
               </p>
             </div>
@@ -186,13 +194,13 @@ function MaintenanceDetails() {
         </section>
 
         {request.attachments.length > 0 && (
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                 Photos
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Photos attached to this maintenance issue.
               </p>
             </div>
@@ -204,7 +212,7 @@ function MaintenanceDetails() {
                   href={attachment.fileUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="group overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
+                  className="group overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950"
                 >
                   <img
                     src={attachment.fileUrl}
@@ -217,23 +225,23 @@ function MaintenanceDetails() {
           </section>
         )}
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-lg font-semibold text-slate-900">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
             Assigned Technician
           </h2>
 
           {request.technician ? (
             <div className="mt-4">
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">
                 {request.technician.name}
               </p>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 {request.technician.email}
               </p>
             </div>
           ) : (
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
               No technician has been assigned yet.
             </p>
           )}

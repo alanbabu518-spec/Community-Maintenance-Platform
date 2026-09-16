@@ -47,14 +47,18 @@ function Maintenance() {
   const sortByParam = searchParams.get("sortBy");
   const sortOrderParam = searchParams.get("sortOrder");
 
-  const sortBy: SortBy = sortByParam === "priority" ? "priority" : "createdAt";
+  const sortBy: SortBy =
+    sortByParam === "priority" ? "priority" : "createdAt";
 
-  const sortOrder: SortOrder = sortOrderParam === "asc" ? "asc" : "desc";
+  const sortOrder: SortOrder =
+    sortOrderParam === "asc" ? "asc" : "desc";
 
   const pageParam = searchParams.get("page");
 
   const page =
-    pageParam && /^\d+$/.test(pageParam) ? Math.max(1, Number(pageParam)) : 1;
+    pageParam && /^\d+$/.test(pageParam)
+      ? Math.max(1, Number(pageParam))
+      : 1;
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -233,7 +237,10 @@ function Maintenance() {
   }
 
   const handleSortChange = (value: string) => {
-    const [newSortBy, newSortOrder] = value.split("-") as [SortBy, SortOrder];
+    const [newSortBy, newSortOrder] = value.split("-") as [
+      SortBy,
+      SortOrder,
+    ];
 
     setSearchParams((currentParams) => {
       const nextParams = new URLSearchParams(currentParams);
@@ -260,11 +267,11 @@ function Maintenance() {
     <PageTransition>
       <div className="mx-auto w-full max-w-7xl space-y-6">
         {showSuccess && successMessage && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/30">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
                 <svg
-                  className="h-4 w-4 text-emerald-600"
+                  className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -279,12 +286,12 @@ function Maintenance() {
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-emerald-800">
+                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
                   {successMessage}
                 </p>
 
                 {successDescription && (
-                  <p className="mt-1 text-sm leading-6 text-emerald-700">
+                  <p className="mt-1 text-sm leading-6 text-emerald-700 dark:text-emerald-400">
                     {successDescription}
                   </p>
                 )}
@@ -295,34 +302,34 @@ function Maintenance() {
 
         <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-slate-500">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Community Management
             </p>
 
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               Maintenance Requests
             </h1>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              View, search, filter, and track maintenance issues reported in the
-              community.
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+              View, search, filter, and track maintenance issues reported in
+              the community.
             </p>
           </div>
 
           <button
             type="button"
             onClick={() => navigate("/maintenance/new")}
-            className="inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto"
+            className="inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 sm:w-auto"
           >
             Report an Issue
           </button>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-4 w-4 text-slate-500" />
+            <SlidersHorizontal className="h-4 w-4 text-slate-500 dark:text-slate-400" />
 
-            <h2 className="text-sm font-semibold text-slate-900">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
               Find Requests
             </h2>
           </div>
@@ -331,7 +338,7 @@ function Maintenance() {
             <div className="md:col-span-2 xl:col-span-1">
               <label
                 htmlFor="maintenance-search"
-                className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500"
+                className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
               >
                 Search
               </label>
@@ -361,7 +368,7 @@ function Maintenance() {
                       return nextParams;
                     });
                   }}
-                  className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
+                  className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-white dark:focus:ring-white/10"
                 />
               </div>
             </div>
@@ -369,7 +376,7 @@ function Maintenance() {
             <div>
               <label
                 htmlFor="maintenance-status"
-                className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500"
+                className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
               >
                 Status
               </label>
@@ -394,7 +401,7 @@ function Maintenance() {
                     return nextParams;
                   });
                 }}
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
+                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-white dark:focus:ring-white/10"
               >
                 <option value="">All Statuses</option>
                 <option value="OPEN">Open</option>
@@ -409,7 +416,7 @@ function Maintenance() {
             <div>
               <label
                 htmlFor="maintenance-sort"
-                className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500"
+                className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
               >
                 Sort By
               </label>
@@ -418,7 +425,7 @@ function Maintenance() {
                 id="maintenance-sort"
                 value={`${sortBy}-${sortOrder}`}
                 onChange={(event) => handleSortChange(event.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
+                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-white dark:focus:ring-white/10"
               >
                 <option value="createdAt-desc">Newest first</option>
                 <option value="createdAt-asc">Oldest first</option>
@@ -432,25 +439,25 @@ function Maintenance() {
             status ||
             sortBy !== "createdAt" ||
             sortOrder !== "desc") && (
-            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
-              <span className="text-xs font-medium text-slate-500">
+            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 Active filters:
               </span>
 
               {search && (
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                   Search: {search}
                 </span>
               )}
 
               {status && (
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                   Status: {status}
                 </span>
               )}
 
               {sortBy === "priority" && (
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                   Priority sorting
                 </span>
               )}
@@ -458,7 +465,7 @@ function Maintenance() {
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="ml-auto text-xs font-semibold text-slate-600 transition hover:text-slate-900"
+                className="ml-auto text-xs font-semibold text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               >
                 Clear filters
               </button>
@@ -468,42 +475,42 @@ function Maintenance() {
 
         <section className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-slate-900">
+            <p className="text-sm font-semibold text-slate-900 dark:text-white">
               {totalRequests} {totalRequests === 1 ? "request" : "requests"}
             </p>
 
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
               Showing page {data?.pagination.page ?? page} of {totalPages}
             </p>
           </div>
 
           {isFetching && (
-            <div className="flex items-center gap-2 text-sm text-slate-500">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900" />
+            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900 dark:border-slate-700 dark:border-t-white" />
               Updating results...
             </div>
           )}
         </section>
 
         {requests.length === 0 ? (
-          <section className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
-              <Search className="h-5 w-5 text-slate-500" />
+          <section className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+              <Search className="h-5 w-5 text-slate-500 dark:text-slate-400" />
             </div>
 
-            <h2 className="mt-4 text-lg font-semibold text-slate-900">
+            <h2 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
               No maintenance requests found
             </h2>
 
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-              Try changing your search or filters. If there are no requests yet,
-              you can report a new maintenance issue.
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
+              Try changing your search or filters. If there are no requests
+              yet, you can report a new maintenance issue.
             </p>
 
             <button
               type="button"
               onClick={() => navigate("/maintenance/new")}
-              className="mt-5 inline-flex items-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="mt-5 inline-flex items-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
             >
               Report an Issue
             </button>
@@ -517,14 +524,16 @@ function Maintenance() {
         )}
 
         {requests.length > 0 && (
-          <section className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-slate-500">
+          <section className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Page{" "}
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-slate-900 dark:text-white">
                 {data?.pagination.page ?? page}
               </span>{" "}
               of{" "}
-              <span className="font-semibold text-slate-900">{totalPages}</span>
+              <span className="font-semibold text-slate-900 dark:text-white">
+                {totalPages}
+              </span>
             </p>
 
             <div className="flex items-center gap-2">
@@ -532,13 +541,13 @@ function Maintenance() {
                 type="button"
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page === 1}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 <ChevronLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Previous</span>
               </button>
 
-              <div className="min-w-10 rounded-lg bg-slate-900 px-3 py-2 text-center text-sm font-semibold text-white">
+              <div className="min-w-10 rounded-lg bg-slate-900 px-3 py-2 text-center text-sm font-semibold text-white dark:bg-white dark:text-slate-900">
                 {page}
               </div>
 
@@ -546,7 +555,7 @@ function Maintenance() {
                 type="button"
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page >= totalPages}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 <span className="hidden sm:inline">Next</span>
                 <ChevronRight className="h-4 w-4" />

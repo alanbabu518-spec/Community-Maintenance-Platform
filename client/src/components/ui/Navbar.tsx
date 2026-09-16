@@ -9,6 +9,8 @@ import {
   Settings,
   LogOut,
   Bell,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { getCurrentUser, logoutUser } from "../../services/auth.api";
 import { removeToken } from "../../services/auth";
@@ -16,6 +18,7 @@ import {
   getAnnouncementCount,
   getAnnouncementEventName,
 } from "../../features/announcements/utils/announcementStorage";
+import { useTheme } from "../../context/ThemeContext";
 
 type User = {
   name?: string;
@@ -23,6 +26,8 @@ type User = {
 };
 
 function Navbar() {
+  const { theme, toggleTheme } = useTheme();
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -83,10 +88,12 @@ function Navbar() {
       const target = event.target as Node;
 
       const clickedDesktop =
-        desktopProfileRef.current && desktopProfileRef.current.contains(target);
+        desktopProfileRef.current &&
+        desktopProfileRef.current.contains(target);
 
       const clickedMobile =
-        mobileProfileRef.current && mobileProfileRef.current.contains(target);
+        mobileProfileRef.current &&
+        mobileProfileRef.current.contains(target);
 
       if (!clickedDesktop && !clickedMobile) {
         setProfileOpen(false);
@@ -185,19 +192,19 @@ function Navbar() {
     }
 
     return (
-      <div className="absolute right-0 top-[calc(100%+10px)] z-[100] w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15">
-        <div className="border-b border-slate-100 p-4">
+      <div className="absolute right-0 top-[calc(100%+10px)] z-100 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15 dark:border-slate-700 dark:bg-slate-900 dark:shadow-black/30">
+        <div className="border-b border-slate-100 p-4 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-900 text-base font-bold text-white">
               {getUserInitial()}
             </div>
 
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-900">
+              <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
                 {user.name || "User"}
               </p>
 
-              <p className="truncate text-xs text-slate-500">
+              <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                 {user.email || ""}
               </p>
             </div>
@@ -208,7 +215,7 @@ function Navbar() {
           <Link
             to="/dashboard"
             onClick={closeProfile}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             <UserRound size={18} />
             My Profile
@@ -220,7 +227,7 @@ function Navbar() {
               closeProfile();
               navigate("/login");
             }}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             <Users size={18} />
             Switch Account
@@ -229,18 +236,18 @@ function Navbar() {
           <Link
             to="/settings"
             onClick={closeProfile}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             <Settings size={18} />
             Settings
           </Link>
         </div>
 
-        <div className="border-t border-slate-100 p-2">
+        <div className="border-t border-slate-100 p-2 dark:border-slate-800">
           <button
             type="button"
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/30"
           >
             <LogOut size={18} />
             Logout
@@ -257,17 +264,17 @@ function Navbar() {
       }`}
     >
       <nav
-        className={`relative mx-auto flex items-center justify-between transition-all duration-500 ${
+        className={`relative mx-auto flex items-center justify-between bg-white/90 backdrop-blur-xl transition-all duration-500 dark:bg-slate-950/90 ${
           isScrolled
-            ? "max-w-6xl rounded-full border border-slate-200/80 bg-white/90 px-4 py-2.5 shadow-lg shadow-slate-900/10 backdrop-blur-xl"
-            : "w-full border-b border-transparent bg-white/90 px-4 py-4 backdrop-blur-xl sm:px-6 lg:px-8"
+            ? "max-w-6xl rounded-full border border-slate-200/80 px-4 py-2.5 shadow-lg shadow-slate-900/10 dark:border-slate-700/80 dark:shadow-black/20"
+            : "w-full border-b border-transparent px-4 py-4 sm:px-6 lg:px-8"
         }`}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <button
             type="button"
             onClick={() => setMobileMenuOpen((open) => !open)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-700 transition hover:bg-slate-50 md:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 md:hidden"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -276,13 +283,19 @@ function Navbar() {
           <Link
             to="/"
             onClick={closeMobileMenu}
-            className="flex shrink-0 items-center gap-2"
+            className="flex min-w-0 shrink items-center gap-2"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white">
               <UsersRound size={21} />
             </div>
 
-            <span className="text-lg font-bold tracking-tight text-slate-900">
+            <span
+              className={`overflow-hidden whitespace-nowrap text-lg font-bold tracking-tight text-slate-900 transition-all duration-300 dark:text-white ${
+                isScrolled
+                  ? "max-w-0 opacity-0 md:max-w-none md:opacity-100"
+                  : "max-w-40 opacity-100"
+              }`}
+            >
               CommunityCare
             </span>
           </Link>
@@ -294,7 +307,7 @@ function Navbar() {
               key={item.id}
               type="button"
               onClick={() => scrollToSection(item.id)}
-              className="rounded-full px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+              className="rounded-full px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
             >
               {item.label}
             </button>
@@ -309,8 +322,22 @@ function Navbar() {
             <>
               <button
                 type="button"
+                onClick={toggleTheme}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                aria-label={`Switch to ${
+                  theme === "light" ? "dark" : "light"
+                } mode`}
+                title={`Switch to ${
+                  theme === "light" ? "dark" : "light"
+                } mode`}
+              >
+                {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+              </button>
+
+              <button
+                type="button"
                 onClick={handleNotificationsClick}
-                className="relative mr-2 flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                className="relative mr-2 flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                 aria-label="View announcements"
                 title="Announcements"
               >
@@ -348,9 +375,23 @@ function Navbar() {
             </>
           ) : (
             <>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                aria-label={`Switch to ${
+                  theme === "light" ? "dark" : "light"
+                } mode`}
+                title={`Switch to ${
+                  theme === "light" ? "dark" : "light"
+                } mode`}
+              >
+                {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+              </button>
+
               <Link
                 to="/login"
-                className="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
+                className="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
               >
                 Sign In
               </Link>
@@ -367,14 +408,28 @@ function Navbar() {
 
         <div
           ref={mobileProfileRef}
-          className="relative flex items-center gap-2 md:hidden"
+          className="relative flex shrink-0 items-center gap-1 md:hidden"
         >
           {user ? (
             <>
               <button
                 type="button"
+                onClick={toggleTheme}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                aria-label={`Switch to ${
+                  theme === "light" ? "dark" : "light"
+                } mode`}
+                title={`Switch to ${
+                  theme === "light" ? "dark" : "light"
+                } mode`}
+              >
+                {theme === "light" ? <Moon size={19} /> : <Sun size={19} />}
+              </button>
+
+              <button
+                type="button"
                 onClick={handleNotificationsClick}
-                className="relative flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                 aria-label="View announcements"
                 title="Announcements"
               >
@@ -393,7 +448,7 @@ function Navbar() {
                   event.stopPropagation();
                   setProfileOpen((open) => !open);
                 }}
-                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white transition hover:bg-slate-800"
+                className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white transition hover:bg-slate-800"
                 title={user.name || user.email || "User"}
                 aria-label="Open profile menu"
                 aria-expanded={profileOpen}
@@ -404,20 +459,24 @@ function Navbar() {
               <ProfileMenu />
             </>
           ) : (
-            <div className="h-10 w-10" />
+            <ThemeToggleButton
+              theme={theme}
+              toggleTheme={toggleTheme}
+              mobile
+            />
           )}
         </div>
       </nav>
 
       {mobileMenuOpen && (
-        <div className="border-t border-slate-200 bg-white px-4 py-4 md:hidden">
+        <div className="border-t border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950 md:hidden">
           <div className="mx-auto flex max-w-7xl flex-col gap-1">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => scrollToSection(item.id)}
-                className="rounded-lg px-3 py-3 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+                className="rounded-lg px-3 py-3 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
               >
                 {item.label}
               </button>
@@ -436,7 +495,7 @@ function Navbar() {
                 <Link
                   to="/login"
                   onClick={closeMobileMenu}
-                  className="mt-2 rounded-lg px-4 py-3 text-center text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+                  className="mt-2 rounded-lg px-4 py-3 text-center text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                 >
                   Sign In
                 </Link>
@@ -454,6 +513,34 @@ function Navbar() {
         </div>
       )}
     </header>
+  );
+}
+
+function ThemeToggleButton({
+  theme,
+  toggleTheme,
+  mobile = false,
+}: {
+  theme: "light" | "dark";
+  toggleTheme: () => void;
+  mobile?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={toggleTheme}
+      className={`flex items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white ${
+        mobile ? "h-10 w-10" : "h-9 w-9"
+      }`}
+      aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+      title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+    >
+      {theme === "light" ? (
+        <Moon size={mobile ? 19 : 18} />
+      ) : (
+        <Sun size={mobile ? 19 : 18} />
+      )}
+    </button>
   );
 }
 

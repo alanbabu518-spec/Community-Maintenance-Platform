@@ -11,8 +11,8 @@ function Input({ className = "", ...props }: InputProps) {
         border-none
         outline-none
         rounded-lg
-        px-[15px]
-        py-[11px]
+        px-3.75
+        py-2.75
         text-[13px]
         my-1
         ${className}

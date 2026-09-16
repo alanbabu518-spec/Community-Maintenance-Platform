@@ -31,30 +31,31 @@ function DashboardLayout() {
   const pageTitle = pageTitles[location.pathname] ?? "Dashboard";
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="flex min-h-screen">
         <div className="sticky top-0 hidden h-screen shrink-0 lg:block">
           <Sidebar />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
+          <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">
             <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(true)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 lg:hidden"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
                   aria-label="Open menu"
                 >
                   <Menu size={20} />
                 </button>
 
                 <div>
-                  <h1 className="text-lg font-semibold text-slate-900">
+                  <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
                     {pageTitle}
                   </h1>
-                  <p className="hidden text-xs text-slate-500 sm:block">
+
+                  <p className="hidden text-xs text-slate-500 dark:text-slate-400 sm:block">
                     Manage your community efficiently
                   </p>
                 </div>
@@ -62,15 +63,16 @@ function DashboardLayout() {
 
               <div className="flex items-center gap-3">
                 <div className="hidden text-right sm:block">
-                  <p className="text-sm font-medium text-slate-900">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">
                     {user?.name || "User"}
                   </p>
-                  <p className="text-xs text-slate-500">
+
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {user?.email || ""}
                   </p>
                 </div>
 
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white dark:bg-white dark:text-slate-900">
                   {user?.name?.charAt(0).toUpperCase() || "U"}
                 </div>
               </div>
@@ -92,16 +94,16 @@ function DashboardLayout() {
             aria-label="Close menu"
           />
 
-          <aside className="relative flex h-full w-72 flex-col bg-white shadow-2xl">
-            <div className="flex h-16 items-center justify-between border-b border-slate-200 px-5">
-              <span className="text-lg font-bold tracking-tight text-slate-900">
+          <aside className="relative flex h-full w-72 flex-col bg-white shadow-2xl dark:bg-slate-950">
+            <div className="flex h-16 items-center justify-between border-b border-slate-200 px-5 dark:border-slate-800">
+              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
                 CommunityCare
               </span>
 
               <button
                 type="button"
                 onClick={closeMobileMenu}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                 aria-label="Close menu"
               >
                 <X size={20} />
@@ -115,8 +117,8 @@ function DashboardLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
                     isActive
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white"
                   }`
                 }
               >
@@ -130,8 +132,8 @@ function DashboardLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
                     isActive
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white"
                   }`
                 }
               >
@@ -145,8 +147,8 @@ function DashboardLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
                     isActive
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white"
                   }`
                 }
               >
@@ -160,8 +162,8 @@ function DashboardLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
                     isActive
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white"
                   }`
                 }
               >
@@ -175,8 +177,8 @@ function DashboardLayout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
                     isActive
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white"
                   }`
                 }
               >

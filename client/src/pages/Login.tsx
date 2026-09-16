@@ -96,7 +96,7 @@ function Login() {
     <PageTransition>
       <div className="flex min-h-screen items-center justify-center bg-[#080808] px-4 py-6 sm:px-6">
         <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-slate-800 bg-[#0d0d0d] shadow-2xl lg:grid-cols-[42%_58%]">
-          <section className="relative hidden min-h-[570px] overflow-hidden bg-[#111111] lg:block">
+          <section className="relative hidden min-h-570px overflow-hidden bg-[#111111] lg:block">
             <AnimatedLines />
 
             <div className="relative z-10 flex h-full flex-col justify-between p-7">
@@ -132,8 +132,8 @@ function Login() {
             </div>
           </section>
 
-          <section className="flex min-h-[570px] items-center justify-center px-6 py-7 sm:px-10">
-            <div className="w-full max-w-[390px]">
+          <section className="flex min-h-570px items-center justify-center px-6 py-7 sm:px-10">
+            <div className="w-full max-w-390px">
               <button
                 type="button"
                 onClick={() => navigate("/")}

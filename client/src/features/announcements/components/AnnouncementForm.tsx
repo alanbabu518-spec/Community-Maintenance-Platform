@@ -1,4 +1,4 @@
-import type{ FormEvent } from "react";
+import type { FormEvent } from "react";
 import { Send } from "lucide-react";
 import { useState } from "react";
 
@@ -50,13 +50,13 @@ function AnnouncementForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
     >
       <div className="space-y-6 p-6 sm:p-8">
         <div>
           <label
             htmlFor="announcement-title"
-            className="mb-2 block text-sm font-semibold text-slate-800"
+            className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200"
           >
             Announcement Title
           </label>
@@ -67,14 +67,14 @@ function AnnouncementForm({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Enter announcement title"
-            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-slate-500 dark:focus:bg-slate-950"
           />
         </div>
 
         <div>
           <label
             htmlFor="announcement-content"
-            className="mb-2 block text-sm font-semibold text-slate-800"
+            className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200"
           >
             Announcement Content
           </label>
@@ -85,7 +85,7 @@ function AnnouncementForm({
             onChange={(event) => setContent(event.target.value)}
             placeholder="Write your announcement..."
             rows={8}
-            className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
+            className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-slate-500 dark:focus:bg-slate-950"
           />
         </div>
 
@@ -93,7 +93,7 @@ function AnnouncementForm({
           <div>
             <label
               htmlFor="announcement-category"
-              className="mb-2 block text-sm font-semibold text-slate-800"
+              className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200"
             >
               Category
             </label>
@@ -102,7 +102,7 @@ function AnnouncementForm({
               id="announcement-category"
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white"
+              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:focus:border-slate-500 dark:focus:bg-slate-950"
             >
               <option value="General">General</option>
               <option value="Maintenance">Maintenance</option>
@@ -114,7 +114,7 @@ function AnnouncementForm({
           <div>
             <label
               htmlFor="announcement-priority"
-              className="mb-2 block text-sm font-semibold text-slate-800"
+              className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200"
             >
               Priority
             </label>
@@ -123,7 +123,7 @@ function AnnouncementForm({
               id="announcement-priority"
               value={priority}
               onChange={(event) => setPriority(event.target.value)}
-              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white"
+              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:focus:border-slate-500 dark:focus:bg-slate-950"
             >
               <option value="Low">Low</option>
               <option value="Medium">Medium</option>
@@ -133,24 +133,24 @@ function AnnouncementForm({
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
             {error}
           </div>
         )}
       </div>
 
-      <div className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50 px-6 py-5 sm:flex-row sm:justify-end sm:px-8">
+      <div className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50 px-6 py-5 dark:border-slate-800 dark:bg-slate-950 sm:flex-row sm:justify-end sm:px-8">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           Cancel
         </button>
 
         <button
           type="submit"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
         >
           <Send size={17} />
           Create Announcement

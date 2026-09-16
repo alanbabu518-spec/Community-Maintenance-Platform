@@ -14,7 +14,7 @@ function FormField({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-xs font-medium text-gray-700 mb-1">
+        <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-slate-300">
           {label}
         </label>
       )}
@@ -22,7 +22,7 @@ function FormField({
       {children}
 
       {error && (
-        <p className="text-xs text-red-500 mt-1">
+        <p className="mt-1 text-xs text-red-500">
           {error}
         </p>
       )}
