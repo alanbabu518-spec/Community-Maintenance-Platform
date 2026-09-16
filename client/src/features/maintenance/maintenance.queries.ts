@@ -13,6 +13,8 @@ export function maintenanceListQuery(params: MaintenanceQueryParams) {
         page: params.page,
         limit: MAINTENANCE_PAGE_SIZE,
         search: params.search,
+        sortBy: params.sortBy,
+        sortOrder: params.sortOrder,
       }),
     staleTime: 30 * 1000,
     placeholderData: (previousData: any) => previousData,

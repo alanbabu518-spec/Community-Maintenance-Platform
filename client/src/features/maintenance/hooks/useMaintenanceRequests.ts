@@ -12,6 +12,8 @@ interface UseMaintenanceRequestsParams {
     | "CLOSED";
   page: number;
   search: string;
+  sortBy?: "createdAt" | "priority";
+  sortOrder?: "asc" | "desc";
 }
 
 function useMaintenanceRequests(params: UseMaintenanceRequestsParams) {
@@ -20,10 +22,7 @@ function useMaintenanceRequests(params: UseMaintenanceRequestsParams) {
   const query = useQuery(maintenanceListQuery(params));
 
   useEffect(() => {
-    if (
-      query.data &&
-      params.page < query.data.pagination.totalPages
-    ) {
+    if (query.data && params.page < query.data.pagination.totalPages) {
       queryClient.prefetchQuery(
         maintenanceListQuery({
           ...params,
@@ -31,11 +30,7 @@ function useMaintenanceRequests(params: UseMaintenanceRequestsParams) {
         }),
       );
     }
-  }, [
-    query.data,
-    params,
-    queryClient,
-  ]);
+  }, [query.data, params, queryClient]);
 
   return query;
 }

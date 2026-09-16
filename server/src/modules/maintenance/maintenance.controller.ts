@@ -9,31 +9,31 @@ import {
 
 export const maintenanceController = {
   async createRequest(req: Request, res: Response, next: NextFunction) {
-  try {
-    const data = createMaintenanceRequestSchema.parse(req.body);
+    try {
+      const data = createMaintenanceRequestSchema.parse(req.body);
 
-    if (!req.user) {
-      return res.status(401).json({
-        message: "Authentication required",
+      if (!req.user) {
+        return res.status(401).json({
+          message: "Authentication required",
+        });
+      }
+
+      const files = (req.files ?? []) as Express.Multer.File[];
+
+      const request = await maintenanceService.createRequest(
+        data,
+        req.user.userId,
+        files,
+      );
+
+      return res.status(201).json({
+        message: "Maintenance request created successfully",
+        request,
       });
+    } catch (error) {
+      next(error);
     }
-
-    const files = (req.files ?? []) as Express.Multer.File[];
-
-    const request = await maintenanceService.createRequest(
-      data,
-      req.user.userId,
-      files,
-    );
-
-    return res.status(201).json({
-      message: "Maintenance request created successfully",
-      request,
-    });
-  } catch (error) {
-    next(error);
-  }
-},
+  },
 
   async getRequests(req: Request, res: Response, next: NextFunction) {
     try {
@@ -45,13 +45,24 @@ export const maintenanceController = {
 
       const query = maintenanceQuerySchema.parse(req.query);
 
-      const { page, limit, search, status, priority, category } = query;
-
-      const filters = {
+      const {
+        page,
+        limit,
         search,
         status,
         priority,
         category,
+        sortBy,
+        sortOrder,
+      } = query;
+
+      const filters = {
+        ...(search !== undefined && { search }),
+        ...(status !== undefined && { status }),
+        ...(priority !== undefined && { priority }),
+        ...(category !== undefined && { category }),
+        sortBy,
+        sortOrder,
       };
 
       const result = await maintenanceService.getRequests(

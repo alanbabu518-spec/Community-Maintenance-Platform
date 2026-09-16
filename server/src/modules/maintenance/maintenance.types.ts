@@ -1,3 +1,7 @@
+export type MaintenanceSortBy = "createdAt" | "priority";
+
+export type MaintenanceSortOrder = "asc" | "desc";
+
 export interface CreateMaintenanceRequestInput {
   title: string;
   description: string;
@@ -24,20 +28,18 @@ export interface UpdateMaintenanceRequestInput {
 }
 
 export interface MaintenanceFilters {
-  search?: string | undefined;
-
+  search?: string;
   status?:
     | "OPEN"
     | "ACKNOWLEDGED"
     | "ASSIGNED"
     | "IN_PROGRESS"
     | "RESOLVED"
-    | "CLOSED"
-    | undefined;
-
-  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT" | undefined;
-
-  category?: string | undefined;
+    | "CLOSED";
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  category?: string;
+  sortBy?: MaintenanceSortBy;
+  sortOrder?: MaintenanceSortOrder;
 }
 
 export interface MaintenanceRequestResponse {

@@ -14,6 +14,8 @@ export interface MaintenanceQueryParams {
     | "CLOSED";
   priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   category?: string;
+  sortBy?: "createdAt" | "priority";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface MaintenanceRequestDetailResponse {

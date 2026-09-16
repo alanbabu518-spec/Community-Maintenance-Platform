@@ -27,6 +27,15 @@ export const maintenanceRepository = {
   },
 
   findAll(skip: number, limit: number, filters: MaintenanceFilters) {
+    const orderBy =
+      filters.sortBy === "priority"
+        ? {
+            priority: filters.sortOrder ?? "desc",
+          }
+        : {
+            createdAt: filters.sortOrder ?? "desc",
+          };
+
     return prisma.maintenanceRequest.findMany({
       where: {
         ...(filters.search !== undefined &&
@@ -59,6 +68,11 @@ export const maintenanceRepository = {
           category: filters.category,
         }),
       },
+
+      skip,
+      take: limit,
+
+      orderBy,
     });
   },
 
@@ -144,9 +158,36 @@ export const maintenanceRepository = {
     limit: number,
     filters: MaintenanceFilters,
   ) {
+    const orderBy =
+      filters.sortBy === "priority"
+        ? {
+            priority: filters.sortOrder ?? "desc",
+          }
+        : {
+            createdAt: filters.sortOrder ?? "desc",
+          };
+
     return prisma.maintenanceRequest.findMany({
       where: {
         residentId,
+
+        ...(filters.search !== undefined &&
+          filters.search !== "" && {
+            OR: [
+              {
+                title: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                description: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          }),
 
         ...(filters.status !== undefined && {
           status: filters.status,
@@ -164,9 +205,7 @@ export const maintenanceRepository = {
       skip,
       take: limit,
 
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy,
     });
   },
 
@@ -176,9 +215,36 @@ export const maintenanceRepository = {
     limit: number,
     filters: MaintenanceFilters,
   ) {
+    const orderBy =
+      filters.sortBy === "priority"
+        ? {
+            priority: filters.sortOrder ?? "desc",
+          }
+        : {
+            createdAt: filters.sortOrder ?? "desc",
+          };
+
     return prisma.maintenanceRequest.findMany({
       where: {
         technicianId,
+
+        ...(filters.search !== undefined &&
+          filters.search !== "" && {
+            OR: [
+              {
+                title: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                description: {
+                  contains: filters.search,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          }),
 
         ...(filters.status !== undefined && {
           status: filters.status,
@@ -196,9 +262,7 @@ export const maintenanceRepository = {
       skip,
       take: limit,
 
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy,
     });
   },
 

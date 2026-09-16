@@ -1059,3 +1059,62 @@ Authorization: Bearer <JWT>
 - Separating file storage from database metadata
 - Production-oriented file upload architecture
 - Responsive frontend architecture
+
+## Day 30 — Maintenance Data Architecture, Filtering & Sorting
+
+### Completed
+
+- Improved Maintenance Requests page UI
+- Added professional responsive maintenance layout
+- Added server-side search
+- Added debounced search
+- Added status filtering
+- Added server-side pagination
+- Added pagination metadata
+- Added server-side sorting
+- Added newest-first sorting
+- Added oldest-first sorting
+- Added highest-priority sorting
+- Added lowest-priority sorting
+- Implemented correct priority ordering
+- Applied sorting across resident, technician, manager, and admin queries
+- Added search support across maintenance request queries
+- Added pagination reset when search changes
+- Added pagination reset when filters change
+- Added pagination reset when sorting changes
+- Added active filter indicators
+- Added clear filters functionality
+- Added result count
+- Added professional search and filter controls
+- Added improved pagination controls
+- Added responsive empty state
+- Added background fetching indicator
+- Preserved global API error handling
+- Tested search functionality
+- Tested status filtering
+- Tested all sorting options
+- Tested combined search, filtering, and sorting
+- Tested pagination with filters and sorting
+- Verified responsive Maintenance UI
+- Verified frontend production build
+- Verified backend production build
+
+### Learned
+
+- Server-side sorting
+- Server-side filtering
+- Server-side search
+- PostgreSQL enum ordering
+- Priority ordering
+- Query parameter design
+- Zod query validation
+- Sorting with Prisma
+- Pagination with sorting
+- Combining search, filters, sorting, and pagination
+- TanStack Query query keys
+- Server-state synchronization
+- Debounced search
+- Pagination state management
+- Responsive dashboard UI
+- Production-oriented data-fetching architecture
+- Frontend-to-database request flow

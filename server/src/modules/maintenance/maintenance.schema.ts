@@ -29,8 +29,11 @@ export const assignTechnicianSchema = z.object({
 
 export const maintenanceQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
+
   limit: z.coerce.number().int().min(1).max(100).default(10),
+
   search: z.string().trim().optional(),
+
   status: z
     .enum([
       "OPEN",
@@ -41,6 +44,16 @@ export const maintenanceQuerySchema = z.object({
       "CLOSED",
     ])
     .optional(),
+
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
+
   category: z.string().trim().min(1).optional(),
+
+  sortBy: z
+    .enum(["createdAt", "priority"])
+    .default("createdAt"),
+
+  sortOrder: z
+    .enum(["asc", "desc"])
+    .default("desc"),
 });
