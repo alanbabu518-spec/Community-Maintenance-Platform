@@ -1,5 +1,14 @@
 import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
+import {
+  Home,
+  LayoutDashboard,
+  Wrench,
+  Users,
+  Megaphone,
+  Menu,
+  X,
+} from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useAuth } from "../../context/AuthContext";
 
@@ -7,11 +16,11 @@ function DashboardLayout() {
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const location = useLocation();
+
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
-
-  const location = useLocation();
 
   const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
@@ -37,19 +46,7 @@ function DashboardLayout() {
                   className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-700 transition hover:bg-slate-50 lg:hidden"
                   aria-label="Open navigation menu"
                 >
-                  <svg
-                    className="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
+                  <Menu size={20} />
                 </button>
 
                 <div>
@@ -69,7 +66,9 @@ function DashboardLayout() {
                     {user?.name ?? "User"}
                   </p>
 
-                  <p className="text-xs text-slate-500">{user?.role ?? ""}</p>
+                  <p className="text-xs text-slate-500">
+                    {user?.role ?? ""}
+                  </p>
                 </div>
 
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
@@ -106,19 +105,7 @@ function DashboardLayout() {
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
                 aria-label="Close navigation menu"
               >
-                <svg
-                  className="h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 6l12 12M18 6L6 18"
-                  />
-                </svg>
+                <X size={20} />
               </button>
             </div>
 
@@ -129,59 +116,78 @@ function DashboardLayout() {
 
               <div className="space-y-1">
                 <NavLink
-                  to="/dashboard"
+                  to="/"
                   onClick={closeMobileMenu}
                   className={({ isActive }) =>
-                    `block rounded-lg px-3 py-3 text-sm font-medium transition ${
+                    `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
                       isActive
                         ? "bg-slate-900 text-white"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`
                   }
                 >
-                  Dashboard
+                  <Home size={18} />
+                  <span>Home</span>
+                </NavLink>
+
+                <NavLink
+                  to="/dashboard"
+                  onClick={closeMobileMenu}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
+                      isActive
+                        ? "bg-slate-900 text-white"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    }`
+                  }
+                >
+                  <LayoutDashboard size={18} />
+                  <span>Dashboard</span>
                 </NavLink>
 
                 <NavLink
                   to="/maintenance"
                   onClick={closeMobileMenu}
                   className={({ isActive }) =>
-                    `block rounded-lg px-3 py-3 text-sm font-medium transition ${
+                    `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
                       isActive
                         ? "bg-slate-900 text-white"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`
                   }
                 >
-                  Maintenance
+                  <Wrench size={18} />
+                  <span>Maintenance</span>
                 </NavLink>
 
                 <NavLink
                   to="/technicians"
                   onClick={closeMobileMenu}
                   className={({ isActive }) =>
-                    `block rounded-lg px-3 py-3 text-sm font-medium transition ${
+                    `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
                       isActive
                         ? "bg-slate-900 text-white"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`
                   }
                 >
-                  Technicians
+                  <Users size={18} />
+                  <span>Technicians</span>
                 </NavLink>
 
                 <NavLink
                   to="/announcements"
                   onClick={closeMobileMenu}
                   className={({ isActive }) =>
-                    `block rounded-lg px-3 py-3 text-sm font-medium transition ${
+                    `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition ${
                       isActive
                         ? "bg-slate-900 text-white"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`
                   }
                 >
-                  Announcements
+                  <Megaphone size={18} />
+                  <span>Announcements</span>
                 </NavLink>
               </div>
             </nav>

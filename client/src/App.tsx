@@ -35,7 +35,7 @@ function App() {
           <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/login" element={<Login />} />
           <Route
-            path="/Home"
+            path="/"
             element={
               <ProtectedRoute>
                 <Home />

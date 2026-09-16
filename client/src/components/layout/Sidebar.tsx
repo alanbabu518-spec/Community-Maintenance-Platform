@@ -1,6 +1,41 @@
 import { NavLink } from "react-router-dom";
+import {
+  Home,
+  LayoutDashboard,
+  Wrench,
+  Users,
+  Megaphone,
+} from "lucide-react";
 
 function Sidebar() {
+  const navigationItems = [
+    {
+      name: "Home",
+      path: "/",
+      icon: Home,
+    },
+    {
+      name: "Dashboard",
+      path: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      name: "Maintenance",
+      path: "/maintenance",
+      icon: Wrench,
+    },
+    {
+      name: "Technicians",
+      path: "/technicians",
+      icon: Users,
+    },
+    {
+      name: "Announcements",
+      path: "/announcements",
+      icon: Megaphone,
+    },
+  ];
+
   return (
     <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white lg:flex lg:flex-col">
       <div className="flex h-16 items-center border-b border-slate-200 px-6">
@@ -15,57 +50,26 @@ function Sidebar() {
         </p>
 
         <div className="space-y-1">
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) =>
-              `block rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                isActive
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-              }`
-            }
-          >
-            Dashboard
-          </NavLink>
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
 
-          <NavLink
-            to="/maintenance"
-            className={({ isActive }) =>
-              `block rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                isActive
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-              }`
-            }
-          >
-            Maintenance
-          </NavLink>
-
-          <NavLink
-            to="/technicians"
-            className={({ isActive }) =>
-              `block rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                isActive
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-              }`
-            }
-          >
-            Technicians
-          </NavLink>
-
-          <NavLink
-            to="/announcements"
-            className={({ isActive }) =>
-              `block rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                isActive
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-              }`
-            }
-          >
-            Announcements
-          </NavLink>
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-slate-900 text-white"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`
+                }
+              >
+                <Icon size={18} />
+                <span>{item.name}</span>
+              </NavLink>
+            );
+          })}
         </div>
       </nav>
     </aside>

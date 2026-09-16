@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { ArrowLeft, RefreshCw } from "lucide-react";
-import AuroraBackground from "./aurora-background-2";
+import AuroraBackground from "./Aurora-background-2";
 
 interface ErrorPageProps {
   title?: string;

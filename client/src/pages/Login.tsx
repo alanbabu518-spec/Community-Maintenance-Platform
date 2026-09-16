@@ -1,12 +1,67 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
-import Spinner from "../components/ui/Spinner";
+import { ArrowLeft, Mail, Lock } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebookF } from "react-icons/fa";
 import PageTransition from "../components/ui/PageTransition";
-import FormField from "../components/ui/FormField";
-import SocialButtons from "../components/ui/SocialButtons";
+import Spinner from "../components/ui/Spinner";
 import { useAuth } from "../context/AuthContext";
+import { UsersRound } from "lucide-react";
+
+function AnimatedLines() {
+  return (
+    <svg
+      className="absolute inset-0 h-full w-full"
+      viewBox="0 0 500 600"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1"
+        className="text-slate-600"
+      >
+        <path
+          className="auth-line"
+          d="M-80 260 C 100 300 160 310 270 370 C 350 415 400 490 540 620"
+        />
+        <path
+          className="auth-line"
+          d="M-80 275 C 100 315 165 325 275 385 C 355 430 410 505 550 635"
+        />
+        <path
+          className="auth-line"
+          d="M-80 290 C 100 330 170 340 280 400 C 360 445 420 520 560 650"
+        />
+        <path
+          className="auth-line"
+          d="M-80 305 C 100 345 175 355 285 415 C 365 460 430 535 570 665"
+        />
+        <path
+          className="auth-line"
+          d="M-80 320 C 100 360 180 370 290 430 C 370 475 440 550 580 680"
+        />
+        <path
+          className="auth-line"
+          d="M-80 335 C 100 375 185 385 295 445 C 375 490 450 565 590 695"
+        />
+        <path
+          className="auth-line"
+          d="M-80 350 C 100 390 190 400 300 460 C 380 505 460 580 600 710"
+        />
+        <path
+          className="auth-line"
+          d="M-80 365 C 100 405 195 415 305 475 C 385 520 470 595 610 725"
+        />
+        <path
+          className="auth-line"
+          d="M-80 380 C 100 420 200 430 310 490 C 390 535 480 610 620 740"
+        />
+      </g>
+    </svg>
+  );
+}
 
 function Login() {
   const navigate = useNavigate();
@@ -24,9 +79,10 @@ function Login() {
     try {
       setError("");
       setLoading(true);
+
       await login(email, password);
 
-      navigate("/Home");
+      navigate("/");
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Invalid email or password",
@@ -38,135 +94,185 @@ function Login() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gradient-to-r from-[#e2e2e2] to-[#c9d6ff] flex items-center justify-center px-4 py-6 font-['Montserrat']">
-        <div
-          className="
-            w-full
-            max-w-[900px]
-            bg-white
-            rounded-[30px]
-            shadow-[0_5px_15px_rgba(0,0,0,0.35)]
-            overflow-hidden
-            flex
-            flex-col
-            md:flex-row
-          "
-        >
-          <div
-            className="
-              w-full
-              md:w-1/2
-              min-h-[230px]
-              md:min-h-[520px]
-              bg-gradient-to-r
-              from-[#2da0a8]
-              to-[#5c6bc0]
-              text-white
-              flex
-              items-center
-              justify-center
-              text-center
-              px-8
-              py-10
-              rounded-b-[80px]
-              md:rounded-b-none
-              md:rounded-l-[150px]
-              md:order-2
-            "
-          >
-            <div className="max-w-[300px]">
-              <h1 className="text-3xl md:text-4xl font-bold">Hello, Friend!</h1>
+      <div className="flex min-h-screen items-center justify-center bg-[#080808] px-4 py-6 sm:px-6">
+        <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-slate-800 bg-[#0d0d0d] shadow-2xl lg:grid-cols-[42%_58%]">
+          <section className="relative hidden min-h-[570px] overflow-hidden bg-[#111111] lg:block">
+            <AnimatedLines />
 
-              <p className="text-sm leading-6 tracking-[0.3px] my-5">
-                Register with your personal details to use all of site features.
-              </p>
-
-              <Button
-                type="button"
-                onClick={() => navigate("/register")}
-                className="
-                  bg-transparent
-                  border-white
-                  hover:bg-white
-                  hover:text-[#2da0a8]
-                "
-              >
-                Sign Up
-              </Button>
-            </div>
-          </div>
-
-          <div
-            className="
-              w-full
-              md:w-1/2
-              flex
-              items-center
-              justify-center
-              px-6
-              sm:px-10
-              py-10
-              md:py-12
-              md:order-1
-            "
-          >
-            <form
-              onSubmit={handleSubmit}
-              className="w-full max-w-[360px] flex flex-col items-center gap-1"
-            >
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-                Sign In
-              </h1>
-
-              <SocialButtons />
-
-              <span className="text-xs text-[#333] mb-3 text-center">
-                or use your email for login
-              </span>
-
-              <FormField label="Email">
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </FormField>
-
-              <FormField label="Password">
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </FormField>
-
+            <div className="relative z-10 flex h-full flex-col justify-between p-7">
               <button
                 type="button"
-                className="text-xs text-gray-600 hover:text-[#2da0a8] hover:underline mt-2"
+                onClick={() => navigate("/")}
+                className="flex w-fit items-center gap-2.5"
               >
-                Forgot your password?
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-600 bg-slate-900 text-sm font-bold text-white">
+                  <UsersRound size={22} />
+                </div>
+
+                <span className="text-base font-semibold text-white">
+                  CommunityCare
+                </span>
               </button>
 
-              {error && (
-                <p className="text-red-500 text-xs mt-2 text-center">{error}</p>
-              )}
+              <div className="max-w-sm">
+                <p className="text-lg leading-7 text-slate-200">
+                  “A simpler way to report, track, and resolve community
+                  maintenance issues.”
+                </p>
 
-              <Button type="submit" className="mt-4" disabled={loading}>
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <Spinner size="sm" />
-                    Signing In...
-                  </span>
-                ) : (
-                  "Sign In"
+                <div className="mt-4">
+                  <p className="text-sm font-semibold text-white">
+                    CommunityCare
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Community Maintenance Platform
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="flex min-h-[570px] items-center justify-center px-6 py-7 sm:px-10">
+            <div className="w-full max-w-[390px]">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="mb-5 inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 transition hover:text-white"
+              >
+                <ArrowLeft size={15} />
+                Home
+              </button>
+
+              <div className="mb-5">
+                <h1 className="text-2xl font-bold tracking-tight text-white sm:text-[28px]">
+                  Sign In or Join Now!
+                </h1>
+
+                <p className="mt-1.5 text-sm text-slate-500">
+                  Login to your CommunityCare account.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  className="flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-slate-900 transition hover:bg-slate-100"
+                >
+                  <FcGoogle size={18} />
+                  Google
+                </button>
+
+                <button
+                  type="button"
+                  className="flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-slate-900 transition hover:bg-slate-100"
+                >
+                  <FaFacebookF size={15} className="text-[#1877F2]" />
+                  Facebook
+                </button>
+              </div>
+
+              <div className="my-5 flex items-center gap-3">
+                <div className="h-px flex-1 bg-slate-800" />
+                <span className="text-[10px] text-slate-600">OR</span>
+                <div className="h-px flex-1 bg-slate-800" />
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-3.5">
+                <div>
+                  <label
+                    htmlFor="login-email"
+                    className="mb-1.5 block text-xs font-medium text-slate-400"
+                  >
+                    Email address
+                  </label>
+
+                  <div className="relative">
+                    <Mail
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                    />
+
+                    <input
+                      id="login-email"
+                      type="email"
+                      placeholder="your.email@example.com"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      required
+                      className="h-10.5 w-full rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-slate-600"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="login-password"
+                    className="mb-1.5 block text-xs font-medium text-slate-400"
+                  >
+                    Password
+                  </label>
+
+                  <div className="relative">
+                    <Lock
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                    />
+
+                    <input
+                      id="login-password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      required
+                      className="h-10.5 w-full rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-slate-600"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    className="text-xs text-slate-500 transition hover:text-white hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+
+                {error && (
+                  <div className="rounded-lg border border-red-900/50 bg-red-950/30 px-3 py-2.5 text-xs text-red-400">
+                    {error}
+                  </div>
                 )}
-              </Button>
-            </form>
-          </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex h-10.5 w-full items-center justify-center rounded-lg bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <Spinner size="sm" />
+                      Signing In...
+                    </span>
+                  ) : (
+                    "Sign in"
+                  )}
+                </button>
+              </form>
+
+              <p className="mt-5 text-center text-xs text-slate-600">
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => navigate("/register")}
+                  className="font-semibold text-slate-300 transition hover:text-white"
+                >
+                  Create one
+                </button>
+              </p>
+            </div>
+          </section>
         </div>
       </div>
     </PageTransition>
