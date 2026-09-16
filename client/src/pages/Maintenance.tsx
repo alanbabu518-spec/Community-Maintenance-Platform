@@ -2,10 +2,12 @@ import useMaintenanceRequests from "../features/maintenance/hooks/useMaintenance
 import { useState, useEffect } from "react";
 import MaintenanceCard from "../features/maintenance/components/MaintenanceCard";
 import Loading from "../components/ui/Loading";
-import ErrorMessage from "../components/ui/ErrorMessage";
 import PageTransition from "../components/ui/PageTransition";
 import useDebounce from "../hooks/useDebounce";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import ErrorPage from "../components/ui/ErrorPage";
+import { ApiError } from "../services/apiClient";
 
 function Maintenance() {
   const [status, setStatus] = useState<
@@ -29,6 +31,8 @@ function Maintenance() {
   const successDescription = location.state?.successDescription;
   const [showSuccess, setShowSuccess] = useState(Boolean(successMessage));
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (!successMessage) {
       return;
@@ -51,31 +55,65 @@ function Maintenance() {
   }, [page]);
 
   const { data, isLoading, isFetching, isError, error, refetch } =
-    useMaintenanceRequests({
-      status,
-      page,
-      search: debouncedSearch,
-    });
+  useMaintenanceRequests({
+    status,
+    page,
+    search: debouncedSearch,
+  });
 
-  const requests = data?.requests ?? [];
+const requests = data?.requests ?? [];
 
-  if (isLoading) {
-    return <Loading type="list" />;
-  }
+if (isLoading) {
+  return <Loading type="list" />;
+}
 
-  if (isError) {
+if (isError) {
+  const status = error instanceof ApiError ? error.status : 0;
+
+  if (status === 401) {
     return (
-      <ErrorMessage
-        message={
-          error instanceof Error
-            ? error.message
-            : "Failed to load maintenance requests"
-        }
-        onRetry={() => refetch()}
+      <ErrorPage
+        errorCode="401"
+        title="Session Expired"
+        message="Your session has expired. Please log in again."
+        onBack={() => navigate("/login")}
       />
     );
   }
 
+  if (status === 403) {
+    return (
+      <ErrorPage
+        errorCode="403"
+        title="Access Denied"
+        message="You don't have permission to view these maintenance requests."
+        onBack={() => navigate("/dashboard")}
+      />
+    );
+  }
+
+  if (status === 500) {
+    return (
+      <ErrorPage
+        errorCode="500"
+        title="Server Error"
+        message="The maintenance service encountered a problem. Please try again later."
+        onRetry={() => refetch()}
+        onBack={() => navigate("/dashboard")}
+      />
+    );
+  }
+
+  return (
+    <ErrorPage
+      errorCode={status === 0 ? "NETWORK" : String(status)}
+      title="Unable to Connect"
+      message="We couldn't connect to the maintenance service. Please check your connection and try again."
+      onRetry={() => refetch()}
+      onBack={() => navigate("/dashboard")}
+    />
+  );
+}
   return (
     <PageTransition>
       <div>
