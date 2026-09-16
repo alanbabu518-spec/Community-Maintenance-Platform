@@ -5,7 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import useMaintenanceRequests from "../features/maintenance/hooks/useMaintenanceRequests";
 import MaintenanceCard from "../features/maintenance/components/MaintenanceCard";
 import Loading from "../components/ui/Loading";
@@ -26,17 +26,35 @@ type SortBy = "createdAt" | "priority";
 type SortOrder = "asc" | "desc";
 
 function Maintenance() {
-  const [status, setStatus] = useState<MaintenanceStatus | undefined>(
-    undefined,
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [page, setPage] = useState(1);
+  const search = searchParams.get("search") ?? "";
 
-  const [search, setSearch] = useState("");
+  const statusParam = searchParams.get("status");
+
+  const status: MaintenanceStatus | undefined =
+    statusParam === "OPEN" ||
+    statusParam === "ACKNOWLEDGED" ||
+    statusParam === "ASSIGNED" ||
+    statusParam === "IN_PROGRESS" ||
+    statusParam === "RESOLVED" ||
+    statusParam === "CLOSED"
+      ? statusParam
+      : undefined;
+
   const debouncedSearch = useDebounce(search, 500);
 
-  const [sortBy, setSortBy] = useState<SortBy>("createdAt");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const sortByParam = searchParams.get("sortBy");
+  const sortOrderParam = searchParams.get("sortOrder");
+
+  const sortBy: SortBy = sortByParam === "priority" ? "priority" : "createdAt";
+
+  const sortOrder: SortOrder = sortOrderParam === "asc" ? "asc" : "desc";
+
+  const pageParam = searchParams.get("page");
+
+  const page =
+    pageParam && /^\d+$/.test(pageParam) ? Math.max(1, Number(pageParam)) : 1;
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -61,10 +79,6 @@ function Maintenance() {
   }, [successMessage]);
 
   useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch, status, sortBy, sortOrder]);
-
-  useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
@@ -80,9 +94,91 @@ function Maintenance() {
       sortOrder,
     });
 
+  useEffect(() => {
+    const validStatuses = [
+      "OPEN",
+      "ACKNOWLEDGED",
+      "ASSIGNED",
+      "IN_PROGRESS",
+      "RESOLVED",
+      "CLOSED",
+    ];
+
+    const validSortBy = ["createdAt", "priority"];
+    const validSortOrder = ["asc", "desc"];
+
+    const hasInvalidStatus =
+      statusParam !== null && !validStatuses.includes(statusParam);
+
+    const hasInvalidSortBy =
+      sortByParam !== null && !validSortBy.includes(sortByParam);
+
+    const hasInvalidSortOrder =
+      sortOrderParam !== null && !validSortOrder.includes(sortOrderParam);
+
+    if (!hasInvalidStatus && !hasInvalidSortBy && !hasInvalidSortOrder) {
+      return;
+    }
+
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams);
+
+      if (hasInvalidStatus) {
+        nextParams.delete("status");
+      }
+
+      if (hasInvalidSortBy) {
+        nextParams.delete("sortBy");
+      }
+
+      if (hasInvalidSortOrder) {
+        nextParams.delete("sortOrder");
+      }
+
+      nextParams.delete("page");
+
+      return nextParams;
+    });
+  }, [statusParam, sortByParam, sortOrderParam, setSearchParams]);
+
   const requests = data?.requests ?? [];
   const totalRequests = data?.pagination.total ?? 0;
   const totalPages = data?.pagination.totalPages ?? 1;
+
+  useEffect(() => {
+    if (isLoading || isFetching) return;
+
+    if (page > totalPages) {
+      setSearchParams((currentParams) => {
+        const nextParams = new URLSearchParams(currentParams);
+
+        if (totalPages === 1) {
+          nextParams.delete("page");
+        } else {
+          nextParams.set("page", String(totalPages));
+        }
+
+        return nextParams;
+      });
+    }
+  }, [page, totalPages, isLoading, isFetching, setSearchParams]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1) return;
+    if (newPage > totalPages) return;
+
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams);
+
+      if (newPage === 1) {
+        nextParams.delete("page");
+      } else {
+        nextParams.set("page", String(newPage));
+      }
+
+      return nextParams;
+    });
+  };
 
   if (isLoading) {
     return <Loading type="list" />;
@@ -139,8 +235,25 @@ function Maintenance() {
   const handleSortChange = (value: string) => {
     const [newSortBy, newSortOrder] = value.split("-") as [SortBy, SortOrder];
 
-    setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams);
+
+      if (newSortBy === "createdAt" && newSortOrder === "desc") {
+        nextParams.delete("sortBy");
+        nextParams.delete("sortOrder");
+      } else {
+        nextParams.set("sortBy", newSortBy);
+        nextParams.set("sortOrder", newSortOrder);
+      }
+
+      nextParams.delete("page");
+
+      return nextParams;
+    });
+  };
+
+  const handleClearFilters = () => {
+    setSearchParams({});
   };
 
   return (
@@ -232,8 +345,21 @@ function Maintenance() {
                   placeholder="Search requests..."
                   value={search}
                   onChange={(event) => {
-                    setPage(1);
-                    setSearch(event.target.value);
+                    const value = event.target.value;
+
+                    setSearchParams((currentParams) => {
+                      const nextParams = new URLSearchParams(currentParams);
+
+                      if (value.trim()) {
+                        nextParams.set("search", value);
+                      } else {
+                        nextParams.delete("search");
+                      }
+
+                      nextParams.delete("page");
+
+                      return nextParams;
+                    });
                   }}
                   className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
                 />
@@ -252,17 +378,25 @@ function Maintenance() {
                 id="maintenance-status"
                 value={status ?? ""}
                 onChange={(event) => {
-                  setPage(1);
+                  const value = event.target.value;
 
-                  setStatus(
-                    event.target.value === ""
-                      ? undefined
-                      : (event.target.value as MaintenanceStatus),
-                  );
+                  setSearchParams((currentParams) => {
+                    const nextParams = new URLSearchParams(currentParams);
+
+                    if (value) {
+                      nextParams.set("status", value);
+                    } else {
+                      nextParams.delete("status");
+                    }
+
+                    nextParams.delete("page");
+
+                    return nextParams;
+                  });
                 }}
                 className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
               >
-                <option value="">All Status</option>
+                <option value="">All Statuses</option>
                 <option value="OPEN">Open</option>
                 <option value="ACKNOWLEDGED">Acknowledged</option>
                 <option value="ASSIGNED">Assigned</option>
@@ -323,13 +457,7 @@ function Maintenance() {
 
               <button
                 type="button"
-                onClick={() => {
-                  setSearch("");
-                  setStatus(undefined);
-                  setSortBy("createdAt");
-                  setSortOrder("desc");
-                  setPage(1);
-                }}
+                onClick={handleClearFilters}
                 className="ml-auto text-xs font-semibold text-slate-600 transition hover:text-slate-900"
               >
                 Clear filters
@@ -402,7 +530,7 @@ function Maintenance() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setPage((currentPage) => currentPage - 1)}
+                onClick={() => handlePageChange(page - 1)}
                 disabled={page === 1}
                 className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
@@ -416,7 +544,7 @@ function Maintenance() {
 
               <button
                 type="button"
-                onClick={() => setPage((currentPage) => currentPage + 1)}
+                onClick={() => handlePageChange(page + 1)}
                 disabled={page >= totalPages}
                 className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
               >

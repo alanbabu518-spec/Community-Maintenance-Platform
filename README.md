@@ -1118,3 +1118,51 @@ Authorization: Bearer <JWT>
 - Responsive dashboard UI
 - Production-oriented data-fetching architecture
 - Frontend-to-database request flow
+
+## Day 31 — URL State Management & Maintenance UX
+
+### Completed
+
+- Migrated maintenance search state to URL parameters
+- Migrated maintenance status filter to URL parameters
+- Migrated maintenance sorting to URL parameters
+- Migrated maintenance pagination to URL parameters
+- Removed duplicated React state for URL-controlled values
+- Added browser Back/Forward state restoration
+- Added refresh persistence for maintenance filters and pagination
+- Added shareable maintenance URLs
+- Added URL state synchronization
+- Added invalid page handling
+- Automatically corrected out-of-range page numbers
+- Preserved filters when correcting invalid page numbers
+- Added invalid status parameter handling
+- Added invalid sorting parameter handling
+- Added automatic URL normalization
+- Reset pagination when changing search, status, or sorting
+- Preserved valid URL parameters
+- Tested combined search, filtering, sorting, and pagination
+- Tested browser Back/Forward navigation
+- Tested refresh and shareable URLs
+- Tested invalid URL parameters
+- Improved Maintenance page URL-state architecture
+
+### Learned
+
+- URL state management
+- React Router `useSearchParams`
+- Synchronizing URL state with React UI
+- Query parameters
+- URL-driven application state
+- Shareable application state
+- Browser history navigation
+- Back/Forward state restoration
+- URL parameter validation
+- URL normalization
+- Pagination state management
+- Filter and pagination synchronization
+- Sorting state management
+- Search state management
+- Handling invalid URL parameters
+- Managing derived state from URL parameters
+- Production-oriented frontend architecture
+- State persistence across page refreshes
