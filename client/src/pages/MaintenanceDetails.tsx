@@ -1,43 +1,97 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import PageTransition from "../components/ui/PageTransition";
 import Loading from "../components/ui/Loading";
 import Badge from "../components/ui/Badge";
 import useMaintenanceRequest from "../features/maintenance/hooks/useMaintenanceRequest";
+import { useAuth } from "../context/AuthContext";
+import useUpdateMaintenanceRequest from "../features/maintenance/hooks/useUpdateMaintenanceRequest";
+import useAssignMaintenanceRequest from "../features/maintenance/hooks/useAssignMaintenanceRequest";
+import type { UpdateMaintenanceRequestInput } from "../services/maintenance.api";
+import { getTechnicians } from "../services/users.api";
+import { ApiError } from "../services/apiClient";
+import ErrorPage from "../components/ui/ErrorPage";
 
 function MaintenanceDetails() {
   const { id } = useParams();
   const requestId = Number(id);
+  const { user } = useAuth();
 
-  const { data, isLoading, isError } =
+  const [selectedTechnicianId, setSelectedTechnicianId] = useState("");
+
+  const { data, isLoading, isError, error, refetch } =
     useMaintenanceRequest(requestId);
 
+  const statusMutation = useUpdateMaintenanceRequest(requestId);
+  const assignMutation = useAssignMaintenanceRequest(requestId);
+
+  const isManager = user?.role === "ADMIN" || user?.role === "MANAGER";
+
+  const canAssign =
+    isManager &&
+    requestId > 0 &&
+    data?.request.status === "ACKNOWLEDGED" &&
+    !data?.request.technician;
+
+  const {
+    data: technicians = [],
+    isLoading: techniciansLoading,
+    isError: techniciansError,
+  } = useQuery({
+    queryKey: ["technicians"],
+    queryFn: getTechnicians,
+    enabled: canAssign,
+    staleTime: 5 * 60 * 1000,
+  });
   if (isLoading) {
     return <Loading type="dashboard" />;
   }
 
   if (isError || !data) {
+    const status = error instanceof ApiError ? error.status : 0;
+
+    if (status === 403) {
+      return (
+        <ErrorPage
+          title="Access Denied"
+          message="You are not authorized to view this maintenance request."
+          errorCode="403"
+          onBack={() => window.history.back()}
+        />
+      );
+    }
+
+    if (status === 404) {
+      return (
+        <ErrorPage
+          title="Request Not Found"
+          message="The maintenance request you are looking for does not exist or may have been removed."
+          errorCode="404"
+          onBack={() => window.history.back()}
+        />
+      );
+    }
+
+    if (status === 401) {
+      return (
+        <ErrorPage
+          title="Session Expired"
+          message="Your session has expired. Please sign in again."
+          errorCode="401"
+          onBack={() => window.history.back()}
+        />
+      );
+    }
+
     return (
-      <PageTransition>
-        <div className="mx-auto w-full max-w-3xl">
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 dark:border-red-900/50 dark:bg-red-950/30">
-            <h1 className="text-lg font-semibold text-red-800 dark:text-red-300">
-              Unable to load maintenance request
-            </h1>
-
-            <p className="mt-2 text-sm text-red-700 dark:text-red-400">
-              The request could not be found or you are not authorized to
-              view it.
-            </p>
-
-            <Link
-              to="/maintenance"
-              className="mt-5 inline-flex rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-            >
-              Back to Maintenance
-            </Link>
-          </div>
-        </div>
-      </PageTransition>
+      <ErrorPage
+        title="Unable to Load Request"
+        message="We couldn't load this maintenance request. Please try again."
+        errorCode="500"
+        onRetry={() => refetch()}
+        onBack={() => window.history.back()}
+      />
     );
   }
 
@@ -47,10 +101,8 @@ function MaintenanceDetails() {
     LOW: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
     MEDIUM:
       "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
-    HIGH:
-      "bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300",
-    URGENT:
-      "bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300",
+    HIGH: "bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300",
+    URGENT: "bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300",
   };
 
   const statusStyles: Record<string, string> = {
@@ -63,9 +115,47 @@ function MaintenanceDetails() {
       "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
     RESOLVED:
       "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
-    CLOSED:
-      "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+    CLOSED: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
   };
+
+  const updateStatus = (status: UpdateMaintenanceRequestInput["status"]) => {
+    if (!status || statusMutation.isPending) {
+      return;
+    }
+
+    statusMutation.mutate({ status });
+  };
+
+  const assignTechnician = () => {
+    if (!selectedTechnicianId || assignMutation.isPending) {
+      return;
+    }
+
+    assignMutation.mutate(
+      {
+        technicianId: Number(selectedTechnicianId),
+      },
+      {
+        onSuccess: () => {
+          setSelectedTechnicianId("");
+        },
+      },
+    );
+  };
+
+  const canAcknowledge =
+    (user?.role === "ADMIN" || user?.role === "MANAGER") &&
+    request.status === "OPEN";
+
+  const canStartWork =
+    user?.role === "TECHNICIAN" && request.status === "ASSIGNED";
+
+  const canResolve =
+    user?.role === "TECHNICIAN" && request.status === "IN_PROGRESS";
+
+  const canClose =
+    (user?.role === "ADMIN" || user?.role === "MANAGER") &&
+    request.status === "RESOLVED";
 
   return (
     <PageTransition>
@@ -192,6 +282,142 @@ function MaintenanceDetails() {
             </div>
           </div>
         </section>
+
+        {canAssign && (
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Assign Technician
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Select a technician to handle this maintenance request.
+            </p>
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <select
+                value={selectedTechnicianId}
+                onChange={(event) =>
+                  setSelectedTechnicianId(event.target.value)
+                }
+                disabled={techniciansLoading || assignMutation.isPending}
+                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-slate-500 dark:focus:ring-slate-800 sm:max-w-md"
+              >
+                <option value="">
+                  {techniciansLoading
+                    ? "Loading technicians..."
+                    : "Select a technician"}
+                </option>
+
+                {technicians.map((technician) => (
+                  <option key={technician.id} value={technician.id}>
+                    {technician.name} — {technician.email}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={assignTechnician}
+                disabled={
+                  !selectedTechnicianId ||
+                  techniciansLoading ||
+                  assignMutation.isPending
+                }
+                className="rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {assignMutation.isPending
+                  ? "Assigning..."
+                  : "Assign Technician"}
+              </button>
+            </div>
+
+            {techniciansError && (
+              <p className="mt-4 text-sm text-red-600 dark:text-red-400">
+                Failed to load technicians. Please try again.
+              </p>
+            )}
+
+            {assignMutation.isError && (
+              <p className="mt-4 text-sm text-red-600 dark:text-red-400">
+                Failed to assign technician. Please try again.
+              </p>
+            )}
+
+            {!techniciansLoading &&
+              !techniciansError &&
+              technicians.length === 0 && (
+                <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                  No technicians are currently available.
+                </p>
+              )}
+          </section>
+        )}
+
+        {(canAcknowledge || canStartWork || canResolve || canClose) && (
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Request Actions
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Update the maintenance request status.
+            </p>
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              {canAcknowledge && (
+                <button
+                  type="button"
+                  onClick={() => updateStatus("ACKNOWLEDGED")}
+                  disabled={statusMutation.isPending}
+                  className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {statusMutation.isPending
+                    ? "Updating..."
+                    : "Acknowledge Request"}
+                </button>
+              )}
+
+              {canStartWork && (
+                <button
+                  type="button"
+                  onClick={() => updateStatus("IN_PROGRESS")}
+                  disabled={statusMutation.isPending}
+                  className="rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {statusMutation.isPending ? "Updating..." : "Start Work"}
+                </button>
+              )}
+
+              {canResolve && (
+                <button
+                  type="button"
+                  onClick={() => updateStatus("RESOLVED")}
+                  disabled={statusMutation.isPending}
+                  className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {statusMutation.isPending ? "Updating..." : "Mark Resolved"}
+                </button>
+              )}
+
+              {canClose && (
+                <button
+                  type="button"
+                  onClick={() => updateStatus("CLOSED")}
+                  disabled={statusMutation.isPending}
+                  className="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+                >
+                  {statusMutation.isPending ? "Updating..." : "Close Request"}
+                </button>
+              )}
+            </div>
+
+            {statusMutation.isError && (
+              <p className="mt-4 text-sm text-red-600 dark:text-red-400">
+                Failed to update the request. Please try again.
+              </p>
+            )}
+          </section>
+        )}
 
         {request.attachments.length > 0 && (
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">

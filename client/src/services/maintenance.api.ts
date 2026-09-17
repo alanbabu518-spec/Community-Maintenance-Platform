@@ -79,7 +79,29 @@ export async function getMaintenanceRequests(
 export async function getMaintenanceRequest(
   id: number,
 ): Promise<MaintenanceRequestDetailResponse> {
-  return apiClient<MaintenanceRequestDetailResponse>(`/maintenance/${id}`);
+  return apiClient<MaintenanceRequestDetailResponse>(
+    `/maintenance/${id}`,
+  );
+}
+
+export interface UpdateMaintenanceRequestInput {
+  status?:
+    | "OPEN"
+    | "ACKNOWLEDGED"
+    | "ASSIGNED"
+    | "IN_PROGRESS"
+    | "RESOLVED"
+    | "CLOSED";
+}
+
+export async function updateMaintenanceRequest(
+  id: number,
+  data: UpdateMaintenanceRequestInput,
+) {
+  return apiClient(`/maintenance/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
 }
 
 export interface CreateMaintenanceRequestInput {
@@ -124,4 +146,18 @@ export interface UnitsResponse {
 
 export async function getUnits(): Promise<UnitsResponse> {
   return apiClient<UnitsResponse>("/maintenance/units");
+}
+
+export interface AssignMaintenanceRequestInput {
+  technicianId: number;
+}
+
+export async function assignMaintenanceRequest(
+  id: number,
+  data: AssignMaintenanceRequestInput,
+) {
+  return apiClient(`/maintenance/${id}/assign`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
 }

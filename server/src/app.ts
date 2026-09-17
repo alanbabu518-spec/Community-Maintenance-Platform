@@ -1,15 +1,13 @@
 import express from "express";
 import cors from "cors";
-
 import cookieParser from "cookie-parser";
 import userRoutes from "./modules/users/user.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import maintenanceRoutes from "./modules/maintenance/maintenance.routes.js";
-
 import { errorMiddleware } from "./middleware/error.middleware.js";
-
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger.js";
+import dashboardRoutes from "./modules/dashboard/dashboard.routes.js"
 
 const app = express();
 
@@ -25,6 +23,7 @@ app.use(cookieParser());
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({

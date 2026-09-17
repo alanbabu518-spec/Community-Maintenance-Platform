@@ -286,7 +286,7 @@ router.get("/:id", authMiddleware, maintenanceController.getRequestById);
 router.patch(
   "/:id",
   authMiddleware,
-  authorize("ADMIN", "MANAGER"),
+  authorize("ADMIN", "MANAGER", "TECHNICIAN"),
   maintenanceController.updateRequest,
 );
 

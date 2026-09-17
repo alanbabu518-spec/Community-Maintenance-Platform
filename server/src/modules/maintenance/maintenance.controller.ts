@@ -133,6 +133,12 @@ export const maintenanceController = {
 
   async updateRequest(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!req.user) {
+        return res.status(401).json({
+          message: "Authentication required",
+        });
+      }
+
       const id = Number(req.params.id);
 
       if (Number.isNaN(id)) {
@@ -143,7 +149,12 @@ export const maintenanceController = {
 
       const data = updateMaintenanceRequestSchema.parse(req.body);
 
-      const request = await maintenanceService.updateRequest(id, data);
+      const request = await maintenanceService.updateRequest(
+        id,
+        data,
+        req.user.userId,
+        req.user.role,
+      );
 
       return res.status(200).json({
         message: "Maintenance request updated successfully",

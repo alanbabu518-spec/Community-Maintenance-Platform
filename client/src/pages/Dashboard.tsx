@@ -1,54 +1,50 @@
-import { useEffect, useMemo, useState } from "react";
-import { getMaintenanceRequests } from "../services/maintenance.api";
+import { useQuery } from "@tanstack/react-query";
 import StatCard from "../components/ui/StatCard";
 import MaintenanceCard from "../features/maintenance/components/MaintenanceCard";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import type { MaintenanceRequest } from "../features/maintenance/types";
 import Loading from "../components/ui/Loading";
 import PageTransition from "../components/ui/PageTransition";
+import { useDashboardStats } from "../features/dashboard/hooks/useDashboardStats";
+import { dashboardMaintenanceQuery } from "../features/dashboard/dashboard.queries";
 
 function Dashboard() {
-  const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
-  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
-    async function loadRequests() {
-      try {
-        const result = await getMaintenanceRequests();
-        setRequests(result.requests);
-      } catch (error) {
-        console.error("Failed to load dashboard data:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
+  const {
+    data: dashboardStats,
+    isLoading: statsLoading,
+    isError: statsError,
+  } = useDashboardStats();
 
-    loadRequests();
-  }, []);
+  const {
+    data: maintenanceData,
+    isLoading: maintenanceLoading,
+    isError: maintenanceError,
+  } = useQuery(dashboardMaintenanceQuery());
 
-  const statistics = useMemo(() => {
-    let open = 0;
-    let assigned = 0;
-    let resolved = 0;
+  const requests = maintenanceData?.requests ?? [];
 
-    for (const request of requests) {
-      if (request.status === "OPEN") open++;
-      if (request.status === "ASSIGNED") assigned++;
-      if (request.status === "RESOLVED") resolved++;
-    }
-
-    return {
-      total: requests.length,
-      open,
-      assigned,
-      resolved,
-    };
-  }, [requests]);
-
-  if (loading) {
+  if (statsLoading || maintenanceLoading) {
     return <Loading type="dashboard" />;
+  }
+
+  if (statsError || maintenanceError) {
+    return (
+      <PageTransition>
+        <div className="mx-auto w-full max-w-7xl">
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Unable to load dashboard data
+            </h2>
+
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              Please refresh the page and try again.
+            </p>
+          </div>
+        </div>
+      </PageTransition>
+    );
   }
 
   return (
@@ -102,25 +98,25 @@ function Dashboard() {
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             title="Total Requests"
-            value={statistics.total}
+            value={dashboardStats?.totalRequests ?? 0}
             description="All maintenance requests"
           />
 
           <StatCard
             title="Open Requests"
-            value={statistics.open}
+            value={dashboardStats?.openRequests ?? 0}
             description="Waiting for action"
           />
 
           <StatCard
             title="Assigned Requests"
-            value={statistics.assigned}
+            value={dashboardStats?.assignedRequests ?? 0}
             description="Assigned to technicians"
           />
 
           <StatCard
             title="Resolved Requests"
-            value={statistics.resolved}
+            value={dashboardStats?.resolvedRequests ?? 0}
             description="Successfully resolved"
           />
         </section>
@@ -157,7 +153,7 @@ function Dashboard() {
                 </p>
               </div>
             ) : (
-              requests.slice(0, 5).map((request) => (
+              requests.map((request) => (
                 <div key={request.id} className="p-4 sm:p-5">
                   <MaintenanceCard request={request} />
                 </div>

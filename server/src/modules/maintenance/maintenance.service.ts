@@ -133,11 +133,27 @@ export const maintenanceService = {
     );
   },
 
-  async updateRequest(id: number, data: UpdateMaintenanceRequestInput) {
+  async updateRequest(
+    id: number,
+    data: UpdateMaintenanceRequestInput,
+    userId?: number,
+    role?: UserRole,
+  ) {
     const request = await maintenanceRepository.findById(id);
 
     if (!request) {
       return null;
+    }
+
+    if (
+      role === "TECHNICIAN" &&
+      userId !== undefined &&
+      request.technicianId !== userId
+    ) {
+      throw new AppError(
+        "You are not authorized to update this maintenance request",
+        403,
+      );
     }
 
     if (data.status) {

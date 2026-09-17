@@ -1166,3 +1166,46 @@ Authorization: Bearer <JWT>
 - Managing derived state from URL parameters
 - Production-oriented frontend architecture
 - State persistence across page refreshes
+
+## Day 32 — API Architecture, CRUD & RBAC
+
+Day 32 focused on connecting the React frontend with the Express backend and building a secure maintenance request workflow.
+
+### Completed
+
+- Built REST APIs for maintenance requests
+- Implemented maintenance request creation
+- Implemented maintenance request listing
+- Implemented maintenance request details
+- Implemented maintenance request updates
+- Added pagination
+- Added search
+- Added filtering by status, priority and category
+- Added sorting
+- Added role-based maintenance request access
+- Added resident ownership protection
+- Added technician ownership protection
+- Added technician assignment
+- Implemented maintenance status workflow
+- Added role-based dashboard statistics
+- Integrated frontend APIs with React Query
+- Added centralized API error handling
+- Added HTTP status-aware error handling
+- Added custom error pages for API failures
+- Tested authentication and authorization through the application
+
+### Maintenance Workflow
+
+```text
+OPEN
+  ↓
+ACKNOWLEDGED
+  ↓
+ASSIGNED
+  ↓
+IN_PROGRESS
+  ↓
+RESOLVED
+  ↓
+CLOSED
+```

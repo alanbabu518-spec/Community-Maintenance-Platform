@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import Badge from "../../../components/ui/Badge";
-import type { MaintenanceRequest } from "../types";
+import type { MaintenanceRequest } from "../types/maintenance.types";
 
 interface MaintenanceCardProps {
   request: MaintenanceRequest;
