@@ -10,12 +10,14 @@ export function errorMiddleware(
 ) {
   if (error instanceof AppError) {
     return res.status(error.statusCode).json({
+      success: false,
       message: error.message,
     });
   }
 
   if (error instanceof ZodError) {
     return res.status(400).json({
+      success: false,
       message: "Validation failed",
       errors: error.issues,
     });
@@ -24,6 +26,7 @@ export function errorMiddleware(
   console.error(error);
 
   return res.status(500).json({
+    success: false,
     message: "Internal server error",
   });
 }

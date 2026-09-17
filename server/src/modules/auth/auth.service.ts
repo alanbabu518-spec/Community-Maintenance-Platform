@@ -13,7 +13,7 @@ export const authService = {
       name: data.name,
       email: data.email,
       passwordHash,
-      role: data.role,
+      role: "RESIDENT",
     });
 
     const otp = generateOtp();

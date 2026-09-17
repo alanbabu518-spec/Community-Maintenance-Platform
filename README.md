@@ -1247,3 +1247,69 @@ src/features/maintenance/
 ├── maintenance.keys.ts
 └── maintenance.queries.ts
 ```
+
+## Day 34 — Backend Architecture, Security & Performance
+
+### Goals
+
+- Review backend architecture
+- Improve Controller, Service and Repository separation
+- Standardize API errors and validation
+- Strengthen authentication and authorization
+- Implement rate limiting
+- Prevent role escalation
+- Improve database performance
+- Update frontend/backend contracts
+
+### Completed
+
+#### 1. Backend Architecture
+
+Maintained the layered architecture:
+
+Request → Route → Middleware → Controller → Service → Repository → Prisma → PostgreSQL
+
+Refactored duplicated maintenance repository logic.
+
+#### 2. API & Validation
+
+- Standardized error responses
+- Strengthened Zod validation
+- Added centralized error handling
+
+#### 3. Security
+
+- JWT authentication with HttpOnly cookies
+- CORS with environment-based client URL
+- RBAC and ownership checks
+- Sensitive data protection
+- Rate limiting for authentication and OTP
+- Public registration restricted to `RESIDENT`
+
+#### 4. Database Performance
+
+Added indexes for frequently queried fields:
+
+- residentId
+- technicianId
+- status
+- priority
+- category
+- createdAt
+
+#### 5. Frontend Integration
+
+Updated registration to send only:
+
+- name
+- email
+- password
+
+The backend automatically assigns the `RESIDENT` role.
+
+### Verification
+
+- Backend build passed
+- Frontend build passed
+- Maintenance list API tests verified
+- Full test-suite cleanup postponed to final testing

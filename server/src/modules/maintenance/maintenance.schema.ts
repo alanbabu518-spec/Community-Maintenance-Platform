@@ -24,7 +24,7 @@ export const updateMaintenanceRequestSchema = z.object({
 });
 
 export const assignTechnicianSchema = z.object({
-  technicianId: z.number().int().positive(),
+  technicianId: z.coerce.number().int().positive(),
 });
 
 export const maintenanceQuerySchema = z.object({
@@ -49,11 +49,7 @@ export const maintenanceQuerySchema = z.object({
 
   category: z.string().trim().min(1).optional(),
 
-  sortBy: z
-    .enum(["createdAt", "priority"])
-    .default("createdAt"),
+  sortBy: z.enum(["createdAt", "priority"]).default("createdAt"),
 
-  sortOrder: z
-    .enum(["asc", "desc"])
-    .default("desc"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });

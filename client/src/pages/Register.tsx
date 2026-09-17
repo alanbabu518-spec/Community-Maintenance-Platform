@@ -14,8 +14,6 @@ import { registerUser } from "../services/auth.api";
 import Spinner from "../components/ui/Spinner";
 import PageTransition from "../components/ui/PageTransition";
 
-type UserRole = "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
-
 function AnimatedLines() {
   return (
     <svg
@@ -77,7 +75,6 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<UserRole>("RESIDENT");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -93,14 +90,11 @@ function Register() {
         name,
         email,
         password,
-        role,
       });
 
       navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Registration failed",
-      );
+      setError(error instanceof Error ? error.message : "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -269,36 +263,6 @@ function Register() {
                       minLength={8}
                       className="h-10 w-full rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-slate-600"
                     />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="register-role"
-                    className="mb-1.5 block text-xs font-medium text-slate-400"
-                  >
-                    Account role
-                  </label>
-
-                  <div className="relative">
-                    <ShieldCheck
-                      size={16}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
-                    />
-
-                    <select
-                      id="register-role"
-                      value={role}
-                      onChange={(event) =>
-                        setRole(event.target.value as UserRole)
-                      }
-                      className="h-10 w-full appearance-none rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-3 text-sm text-white outline-none transition focus:border-slate-600"
-                    >
-                      <option value="RESIDENT">Resident</option>
-                      <option value="TECHNICIAN">Technician</option>
-                      <option value="MANAGER">Manager</option>
-                      <option value="ADMIN">Admin</option>
-                    </select>
                   </div>
                 </div>
 

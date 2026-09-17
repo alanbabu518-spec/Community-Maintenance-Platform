@@ -32,12 +32,11 @@ export interface MaintenanceListResponse {
   };
 }
 
-export interface RegisterInput {
+export type RegisterInput = {
   name: string;
   email: string;
   password: string;
-  role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
-}
+};
 
 export interface RegisterResponse {
   message: string;

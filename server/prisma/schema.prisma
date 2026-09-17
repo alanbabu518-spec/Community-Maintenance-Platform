@@ -100,6 +100,13 @@ model MaintenanceRequest {
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
   maintenanceAttachments MaintenanceAttachment[]
+
+  @@index([residentId])
+  @@index([technicianId])
+  @@index([status])
+  @@index([priority])
+  @@index([category])
+  @@index([createdAt])
 }
 
 model MaintenanceAttachment {

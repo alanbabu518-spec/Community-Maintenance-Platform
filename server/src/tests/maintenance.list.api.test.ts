@@ -25,7 +25,7 @@ describe("GET /api/maintenance", () => {
 
     const response = await request(app)
       .get("/api/maintenance")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", `access_token=${token}`);
 
     expect(response.status).toBe(200);
 
@@ -45,9 +45,8 @@ describe("GET /api/maintenance", () => {
       1,
       10,
       {
-        status: undefined,
-        priority: undefined,
-        category: undefined,
+        sortBy: "createdAt",
+        sortOrder: "desc",
       },
     );
   });
@@ -67,7 +66,7 @@ describe("GET /api/maintenance", () => {
   it("should return 401 when an invalid JWT is provided", async () => {
     const response = await request(app)
       .get("/api/maintenance")
-      .set("Authorization", "Bearer invalid-token");
+      .set("Cookie", "access_token=invalid-token");
 
     expect(response.status).toBe(401);
 
@@ -94,7 +93,7 @@ describe("GET /api/maintenance", () => {
       .get(
         "/api/maintenance?page=2&limit=5&status=OPEN&priority=HIGH&category=PLUMBING",
       )
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", `access_token=${token}`);
 
     expect(response.status).toBe(200);
 
@@ -114,6 +113,8 @@ describe("GET /api/maintenance", () => {
         status: "OPEN",
         priority: "HIGH",
         category: "PLUMBING",
+        sortBy: "createdAt",
+        sortOrder: "desc",
       },
     );
   });
@@ -127,7 +128,7 @@ describe("GET /api/maintenance", () => {
 
     const response = await request(app)
       .get("/api/maintenance?page=0&limit=500")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", `access_token=${token}`);
 
     expect(response.status).toBe(400);
 
