@@ -1209,3 +1209,41 @@ RESOLVED
   ↓
 CLOSED
 ```
+
+## Day 33 — Frontend Architecture & Performance
+
+### Goal
+
+Improve the frontend architecture of CommunityCare and apply practical React performance and scalability techniques.
+
+### Topics Covered
+
+- Frontend architecture review
+- Feature-based folder structure
+- React Query optimization
+- Query key architecture
+- Query prefetching
+- Route-level code splitting
+- React rendering optimization
+- Error and loading architecture
+- Form architecture and validation
+- File preview memory management
+- Production build verification
+
+---
+
+### 1. Frontend Architecture Review
+
+Reviewed the frontend structure and moved feature-specific code into their respective feature modules.
+
+Example:
+
+```text
+src/features/maintenance/
+├── components/
+├── hooks/
+├── services/
+├── types/
+├── maintenance.keys.ts
+└── maintenance.queries.ts
+```

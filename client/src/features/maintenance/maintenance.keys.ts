@@ -1,4 +1,4 @@
-import type { MaintenanceQueryParams } from "../../services/maintenance.api";
+import type { MaintenanceQueryParams } from "../../features/maintenance/services/maintenance.api";
 
 export const maintenanceKeys = {
   all: ["maintenance-requests"] as const,

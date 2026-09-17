@@ -1,4 +1,4 @@
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
 type AnnouncementFilterProps = {
   search: string;
@@ -9,6 +9,49 @@ type AnnouncementFilterProps = {
   onPriorityChange: (value: string) => void;
 };
 
+const categories = ["All", "General", "Maintenance", "Event", "Emergency"];
+const priorities = ["All", "Low", "Medium", "High"];
+
+function PillGroup({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="mr-1 text-xs text-stone-400 dark:text-stone-500">
+        {label}
+      </span>
+
+      {options.map((option) => {
+        const active = option === value;
+
+        return (
+          <button
+            key={option}
+            type="button"
+            onClick={() => onChange(option)}
+            aria-pressed={active}
+            className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+              active
+                ? "bg-stone-900 text-white dark:bg-white dark:text-stone-900"
+                : "bg-stone-100 text-stone-600 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+            }`}
+          >
+            {option}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function AnnouncementFilter({
   search,
   category,
@@ -18,59 +61,36 @@ function AnnouncementFilter({
   onPriorityChange,
 }: AnnouncementFilterProps) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex flex-col gap-3 lg:flex-row">
-        <div className="relative flex-1">
-          <Search
-            size={18}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
-          />
+    <section className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-800 dark:bg-stone-900">
+      <div className="relative">
+        <Search
+          size={17}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 dark:text-stone-500"
+        />
 
-          <input
-            type="text"
-            value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search announcements..."
-            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-slate-500 dark:focus:bg-slate-950"
-          />
-        </div>
+        <input
+          type="text"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder="Search announcements..."
+          className="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 pl-10 pr-4 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-400 focus:bg-white dark:border-stone-700 dark:bg-stone-950 dark:text-white dark:placeholder:text-stone-500 dark:focus:border-stone-500"
+        />
+      </div>
 
-        <div className="relative">
-          <select
-            value={category}
-            onChange={(event) => onCategoryChange(event.target.value)}
-            className="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 pl-4 pr-10 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:focus:border-slate-500 dark:focus:bg-slate-950 sm:w-48"
-          >
-            <option value="All">All Categories</option>
-            <option value="General">General</option>
-            <option value="Maintenance">Maintenance</option>
-            <option value="Event">Event</option>
-            <option value="Emergency">Emergency</option>
-          </select>
+      <div className="mt-4 flex flex-col gap-3 border-t border-stone-100 pt-4 dark:border-stone-800">
+        <PillGroup
+          label="Category"
+          options={categories}
+          value={category}
+          onChange={onCategoryChange}
+        />
 
-          <ChevronDown
-            size={16}
-            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
-          />
-        </div>
-
-        <div className="relative">
-          <select
-            value={priority}
-            onChange={(event) => onPriorityChange(event.target.value)}
-            className="h-11 w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 pl-4 pr-10 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:focus:border-slate-500 dark:focus:bg-slate-950 sm:w-44"
-          >
-            <option value="All">All Priorities</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
-
-          <ChevronDown
-            size={16}
-            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
-          />
-        </div>
+        <PillGroup
+          label="Priority"
+          options={priorities}
+          value={priority}
+          onChange={onPriorityChange}
+        />
       </div>
     </section>
   );

@@ -4,6 +4,9 @@ import {
   SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
+  CheckCircle2,
+  ListFilter,
+  X,
 } from "lucide-react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import useMaintenanceRequests from "../features/maintenance/hooks/useMaintenanceRequests";
@@ -267,22 +270,13 @@ function Maintenance() {
     <PageTransition>
       <div className="mx-auto w-full max-w-7xl space-y-6">
         {showSuccess && successMessage && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm dark:border-emerald-900/50 dark:bg-emerald-950/30">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
-                <svg
+                <CheckCircle2
                   className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                  strokeWidth={2.25}
+                />
               </div>
 
               <div>
@@ -300,7 +294,7 @@ function Maintenance() {
           </div>
         )}
 
-        <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <section className="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-linear-to-br from-white to-slate-50 p-6 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-900/60 sm:flex-row sm:items-end sm:justify-between sm:p-8">
           <div>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Community Management
@@ -319,7 +313,7 @@ function Maintenance() {
           <button
             type="button"
             onClick={() => navigate("/maintenance/new")}
-            className="inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 sm:w-auto"
+            className="inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 sm:w-auto"
           >
             Report an Issue
           </button>
@@ -327,7 +321,9 @@ function Maintenance() {
 
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+              <SlidersHorizontal className="h-4 w-4" strokeWidth={2.25} />
+            </div>
 
             <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
               Find Requests
@@ -344,7 +340,7 @@ function Maintenance() {
               </label>
 
               <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
 
                 <input
                   id="maintenance-search"
@@ -440,7 +436,8 @@ function Maintenance() {
             sortBy !== "createdAt" ||
             sortOrder !== "desc") && (
             <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                <ListFilter className="h-3.5 w-3.5" />
                 Active filters:
               </span>
 
@@ -465,8 +462,9 @@ function Maintenance() {
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="ml-auto text-xs font-semibold text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               >
+                <X className="h-3.5 w-3.5" />
                 Clear filters
               </button>
             </div>
@@ -510,7 +508,7 @@ function Maintenance() {
             <button
               type="button"
               onClick={() => navigate("/maintenance/new")}
-              className="mt-5 inline-flex items-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+              className="mt-5 inline-flex items-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
             >
               Report an Issue
             </button>
@@ -541,13 +539,13 @@ function Maintenance() {
                 type="button"
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page === 1}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800"
               >
                 <ChevronLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Previous</span>
               </button>
 
-              <div className="min-w-10 rounded-lg bg-slate-900 px-3 py-2 text-center text-sm font-semibold text-white dark:bg-white dark:text-slate-900">
+              <div className="min-w-10 rounded-lg bg-slate-900 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm dark:bg-white dark:text-slate-900">
                 {page}
               </div>
 
@@ -555,7 +553,7 @@ function Maintenance() {
                 type="button"
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page >= totalPages}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800"
               >
                 <span className="hidden sm:inline">Next</span>
                 <ChevronRight className="h-4 w-4" />

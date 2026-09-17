@@ -11,6 +11,7 @@ import AnnouncementCard, {
 } from "../features/announcements/components/AnnouncementCard";
 import AnnouncementFilter from "../features/announcements/components/AnnouncementFilters";
 import AnnouncementSkeleton from "../features/announcements/components/AnnouncementSkeleton";
+import { useAuth } from "../context/AuthContext";
 
 const announcements: Announcement[] = [
   {
@@ -77,12 +78,16 @@ const announcements: Announcement[] = [
 
 function AnnouncementsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [priority, setPriority] = useState("All");
 
   const isLoading = false;
+
+  // const canCreateAnnouncement =
+  //   user?.role === "admin" || user?.role === "manager";
 
   const filteredAnnouncements = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -117,35 +122,39 @@ function AnnouncementsPage() {
 
   return (
     <div>
-      <section className="mb-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900">
-              <Megaphone size={21} />
+      <section className="mb-8 border-b border-stone-200 pb-8 dark:border-stone-800">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-stone-900 text-stone-900 dark:border-white dark:text-white">
+              <Megaphone size={20} />
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
-              Announcements
-            </h1>
+            <div>
+              <h1 className="font-serif text-3xl font-medium tracking-tight text-stone-900 dark:text-white sm:text-4xl">
+                Announcements
+              </h1>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400 sm:text-base">
-              Stay updated with the latest news, maintenance updates, events,
-              and important information from your community.
-            </p>
+              <p className="mt-2 max-w-xl text-[15px] leading-6 text-stone-500 dark:text-stone-400">
+                Everything posted for the community — maintenance notices,
+                events, and updates from your association.
+              </p>
+            </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigate("/announcements/new")}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-          >
-            <Plus size={18} />
-            Create Announcement
-          </button>
+          {/* {canCreateAnnouncement && (
+            <button
+              type="button"
+              onClick={() => navigate("/announcements/new")}
+              className="inline-flex items-center justify-center gap-2 self-start rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700 dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200"
+            >
+              <Plus size={17} />
+              Post an announcement
+            </button>
+          )} */}
         </div>
       </section>
 
-      <section className="mb-7">
+      <section className="mb-8">
         <AnnouncementFilter
           search={search}
           category={category}
@@ -157,23 +166,19 @@ function AnnouncementsPage() {
       </section>
 
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-              Latest Announcements
-            </h2>
+        <div className="mb-5 flex items-center justify-between">
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            <span className="font-semibold text-stone-900 dark:text-white">
+              {filteredAnnouncements.length}
+            </span>{" "}
+            {filteredAnnouncements.length === 1
+              ? "announcement"
+              : "announcements"}
+          </p>
 
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              {filteredAnnouncements.length}{" "}
-              {filteredAnnouncements.length === 1
-                ? "announcement"
-                : "announcements"}
-            </p>
-          </div>
-
-          <div className="hidden items-center gap-2 text-sm text-slate-500 dark:text-slate-400 sm:flex">
-            <Bell size={16} />
-            Community Updates
+          <div className="hidden items-center gap-1.5 text-xs text-stone-400 dark:text-stone-500 sm:flex">
+            <Bell size={14} />
+            Updated as they're posted
           </div>
         </div>
 
@@ -197,25 +202,26 @@ function AnnouncementsPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+          <div className="rounded-2xl border border-dashed border-stone-300 bg-white px-6 py-16 text-center dark:border-stone-700 dark:bg-stone-900">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400">
               <Search size={20} />
             </div>
 
-            <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">
-              No announcements found
+            <h3 className="mt-4 font-serif text-lg font-medium text-stone-900 dark:text-white">
+              Nothing matches yet
             </h3>
 
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
-              Try changing your search or filter to find another announcement.
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-stone-500 dark:text-stone-400">
+              Try a different search term, or clear your filters to see
+              everything again.
             </p>
 
             <button
               type="button"
               onClick={clearFilters}
-              className="mt-5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+              className="mt-5 rounded-full bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-700 dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200"
             >
-              Clear Filters
+              Clear filters
             </button>
           </div>
         )}

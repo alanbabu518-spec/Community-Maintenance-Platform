@@ -1,7 +1,8 @@
-import { getMaintenanceRequests } from "../../services/maintenance.api";
+import { getMaintenanceRequests } from "../maintenance/services/maintenance.api";
+import { dashboardKeys } from "./dashboard.keys";
 
 export const dashboardMaintenanceQuery = () => ({
-  queryKey: ["dashboard", "maintenance"],
+  queryKey: dashboardKeys.maintenance(),
   queryFn: () =>
     getMaintenanceRequests({
       page: 1,

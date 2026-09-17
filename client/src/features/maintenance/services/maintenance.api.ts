@@ -1,5 +1,5 @@
-import apiClient from "./apiClient";
-import type { MaintenanceListResponse } from "../types/api";
+import apiClient from "../../../services/apiClient";
+import type { MaintenanceListResponse } from "../../../types/api";
 
 export interface MaintenanceQueryParams {
   page: number;

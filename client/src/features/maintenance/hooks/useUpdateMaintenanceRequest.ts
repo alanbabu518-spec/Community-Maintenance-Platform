@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   updateMaintenanceRequest,
   type UpdateMaintenanceRequestInput,
-} from "../../../services/maintenance.api";
+} from "../services/maintenance.api";
 import { maintenanceKeys } from "../maintenance.keys";
 
 function useUpdateMaintenanceRequest(requestId: number) {

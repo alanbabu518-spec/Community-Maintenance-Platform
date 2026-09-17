@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createMaintenanceRequest } from "../../../services/maintenance.api";
+import { createMaintenanceRequest } from "../services/maintenance.api";
 import { maintenanceKeys } from "../maintenance.keys";
 
 function useCreateMaintenanceRequest() {

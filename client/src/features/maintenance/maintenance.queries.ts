@@ -1,5 +1,5 @@
-import { getMaintenanceRequests } from "../../services/maintenance.api";
-import type { MaintenanceQueryParams } from "../../services/maintenance.api";
+import { getMaintenanceRequests } from "../../features/maintenance/services/maintenance.api";
+import type { MaintenanceQueryParams} from "../../features/maintenance/services/maintenance.api";
 import { maintenanceKeys } from "./maintenance.keys";
 
 export const MAINTENANCE_PAGE_SIZE = 10;

@@ -1,20 +1,27 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
-import Register from "./pages/Register";
-import VerifyOtp from "./pages/VerifyOtp";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./components/layout/DashboardLayout";
-import Maintenance from "./pages/Maintenance";
-import ReportIssue from "./pages/ReportIssue";
-import MaintenanceDetails from "./pages/MaintenanceDetails";
 import ErrorPage from "./components/ui/ErrorPage";
-import AnnouncementsPage from "./pages/AnnouncementsPage";
-import AnnouncementDetails from "./pages/AnnouncementDetailsPage";
-import CreateAnnouncement from "./pages/CreateAnnouncement";
+import Loading from "./components/ui/Loading";
+
+const Register = lazy(() => import("./pages/Register"));
+const VerifyOtp = lazy(() => import("./pages/VerifyOtp"));
+const Login = lazy(() => import("./pages/Login"));
+const Home = lazy(() => import("./pages/Home"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Maintenance = lazy(() => import("./pages/Maintenance"));
+const ReportIssue = lazy(() => import("./pages/ReportIssue"));
+const MaintenanceDetails = lazy(() => import("./pages/MaintenanceDetails"));
+const AnnouncementsPage = lazy(() => import("./pages/AnnouncementsPage"));
+const AnnouncementDetails = lazy(
+  () => import("./pages/AnnouncementDetailsPage"),
+);
+const CreateAnnouncement = lazy(
+  () => import("./pages/CreateAnnouncement"),
+);
 
 function NotFoundPage() {
   const navigate = useNavigate();
@@ -33,38 +40,46 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify-otp" element={<VerifyOtp />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            element={
-              <ProtectedRoute>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/maintenance" element={<Maintenance />} />
-            <Route path="/maintenance/new" element={<ReportIssue />} />
-            <Route path="/announcements" element={<AnnouncementsPage />} />
-            <Route path="/maintenance/:id" element={<MaintenanceDetails />} />
+        <Suspense fallback={<Loading type="dashboard" />}>
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify-otp" element={<VerifyOtp />} />
+            <Route path="/login" element={<Login />} />
+
             <Route
-              path="/announcements/:id"
-              element={<AnnouncementDetails />}
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
             />
-            <Route path="/announcements/new" element={<CreateAnnouncement />} />
-          </Route>
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+
+            <Route
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/maintenance" element={<Maintenance />} />
+              <Route path="/maintenance/new" element={<ReportIssue />} />
+              <Route path="/announcements" element={<AnnouncementsPage />} />
+              <Route path="/maintenance/:id" element={<MaintenanceDetails />} />
+              <Route
+                path="/announcements/:id"
+                element={<AnnouncementDetails />}
+              />
+              <Route
+                path="/announcements/new"
+                element={<CreateAnnouncement />}
+              />
+            </Route>
+
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </AuthProvider>
   );

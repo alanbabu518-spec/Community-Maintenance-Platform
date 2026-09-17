@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMaintenanceRequest } from "../../../services/maintenance.api";
+import { getMaintenanceRequest } from "../services/maintenance.api";
 import { maintenanceKeys } from "../maintenance.keys";
 
 function useMaintenanceRequest(id: number) {

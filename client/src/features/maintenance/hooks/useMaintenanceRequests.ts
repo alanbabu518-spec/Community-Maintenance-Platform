@@ -30,7 +30,15 @@ function useMaintenanceRequests(params: UseMaintenanceRequestsParams) {
         }),
       );
     }
-  }, [query.data, params, queryClient]);
+  }, [
+    query.data,
+    params.page,
+    params.search,
+    params.status,
+    params.sortBy,
+    params.sortOrder,
+    queryClient,
+  ]);
 
   return query;
 }

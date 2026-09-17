@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUnits } from "../../../services/maintenance.api";
+import { getUnits } from "../services/maintenance.api";
 
 function useUnits() {
   return useQuery({
