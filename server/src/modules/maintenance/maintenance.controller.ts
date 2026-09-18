@@ -27,7 +27,7 @@ export const maintenanceController = {
       );
 
       return res.status(201).json({
-        message: "COMMUNITYCARE-QUEUE-TEST",
+        message: "Maintenance request created successfully",
         request,
       });
     } catch (error) {

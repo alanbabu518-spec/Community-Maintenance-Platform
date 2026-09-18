@@ -39,9 +39,26 @@ model User {
 
   maintenanceRequests MaintenanceRequest[] @relation("ResidentRequests")
   assignedRequests    MaintenanceRequest[] @relation("TechnicianRequests")
+  notifications       Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
 }
 
 model Community {

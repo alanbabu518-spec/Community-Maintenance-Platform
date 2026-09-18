@@ -1612,3 +1612,55 @@ The worker received and processed the job successfully.
 ### Result
 
 CommunityCare can now move notification-related work into background jobs instead of processing everything synchronously during the HTTP request.
+
+## Day 40 — Notification System
+
+### Overview
+
+Implemented the notification system that connects maintenance requests with background jobs and persistent user notifications.
+
+The notification flow is:
+
+Maintenance Request → BullMQ Queue → Notification Worker → Notification Service → PostgreSQL → Notification API
+
+### Features
+
+- Notification database model using Prisma
+- User-to-notification relationship
+- Notification repository layer
+- Notification service layer
+- Notification controller
+- Protected notification routes
+- BullMQ worker creates notifications asynchronously
+- Redis used by BullMQ for background job processing
+- Notification pagination
+- Mark notifications as read
+- `isRead` and `readAt` tracking
+- Database indexes for notification queries
+- Unit-test mocking for BullMQ/Redis dependencies
+
+### Notification Model
+
+The `Notification` model contains:
+
+- `id` — Unique notification ID
+- `userId` — User receiving the notification
+- `type` — Notification type
+- `title` — Notification title
+- `message` — Notification message
+- `isRead` — Whether the notification has been read
+- `readAt` — Timestamp when it was read
+- `createdAt` — Notification creation timestamp
+
+Indexes:
+
+- `[userId, isRead]`
+- `[createdAt]`
+
+### API Endpoints
+
+#### Get My Notifications
+
+```http
+GET /api/notifications
+```

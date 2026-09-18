@@ -9,6 +9,12 @@ vi.mock("../config/redis.js", () => ({
   },
 }));
 
+vi.mock("../config/queue.js", () => ({
+  notificationQueue: {
+    add: vi.fn(),
+  },
+}));
+
 vi.mock("../utils/cloudinaryUpload.js", () => ({
   uploadImage: vi.fn(),
 }));

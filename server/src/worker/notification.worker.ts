@@ -1,5 +1,6 @@
 import { Worker } from "bullmq";
 import { Redis } from "ioredis";
+import { createUserNotification } from "../modules/notifications/notification.service.js";
 
 if (!process.env.REDIS_URL) {
   throw new Error("REDIS_URL is not defined");
@@ -12,13 +13,14 @@ const workerRedisClient = new Redis(process.env.REDIS_URL, {
 export const notificationWorker = new Worker(
   "notification",
   async (job) => {
-    console.log(
-      `Processing notification job ${job.id}, attempt ${job.attemptsMade + 1}`,
-    );
-
-    console.log("Notification data:", job.data);
+    await createUserNotification({
+      userId: job.data.residentId,
+      type: "MAINTENANCE_CREATED",
+      title: job.data.title,
+      message: job.data.message,
+    });
   },
-
+  
   {
     connection: workerRedisClient,
   },
