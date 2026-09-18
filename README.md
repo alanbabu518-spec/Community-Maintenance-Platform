@@ -1413,3 +1413,76 @@ CREATE / UPDATE
 ### Result
 
 Maintenance list responses are cached in Redis to reduce repeated database queries while invalidating stale cache data whenever maintenance requests are created or updated.
+
+## Day 37 — Redis Caching, Resilience & Testing
+
+### Goals
+
+- Improve Redis configuration
+- Handle Redis failures gracefully
+- Design structured cache keys
+- Measure cache performance
+- Add automated cache tests
+- Verify backend resilience
+
+### Completed
+
+- Environment-based Redis configuration
+- Graceful Redis error handling
+- PostgreSQL fallback when Redis is unavailable
+- Structured maintenance cache keys
+- Cache-aside pattern
+- 60-second TTL
+- Cache invalidation
+- Cache hit/miss performance verification
+- Redis utility tests
+- Full backend test verification
+
+### Cache Flow
+
+GET Maintenance
+→ Generate Cache Key
+→ Check Redis
+→ Cache Hit → Return Cached Data
+→ Cache Miss → PostgreSQL → Store in Redis
+
+When data changes:
+
+CREATE / UPDATE / ASSIGN
+→ PostgreSQL
+→ Invalidate Maintenance Cache
+→ Next GET fetches fresh data
+
+### Resilience
+
+If Redis becomes unavailable:
+
+Request
+→ Redis fails
+→ Continue without cache
+→ PostgreSQL
+→ Return response
+
+The API remains available even when Redis is unavailable.
+
+### Testing
+
+- 13 test files passed
+- 71 tests passed
+- Production build passed
+
+### Key Concepts
+
+- Redis
+- Cache-Aside Pattern
+- Cache Keys
+- TTL
+- Cache Invalidation
+- Cache Consistency
+- Graceful Degradation
+- Performance Measurement
+- Automated Testing
+
+### Result
+
+The application now uses Redis for performance optimization while remaining functional when Redis is unavailable.

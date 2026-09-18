@@ -12,7 +12,8 @@ import {
   toMaintenanceRequestDetailResponse,
 } from "./maintenance.mapper.js";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload.js";
-import { getCache, setCache, deleteCacheByPattern } from "../../utils/cashe.js";
+import { getCache, setCache, deleteCacheByPattern } from "../../utils/cache.js";
+import { maintenanceListCacheKey } from "../../utils/cacheKeys.js";
 
 export const maintenanceService = {
   async createRequest(
@@ -67,7 +68,15 @@ export const maintenanceService = {
     limit: number,
     filters: MaintenanceFilters,
   ) {
-    const cacheKey = `maintenance:list:${role}:${userId}:${page}:${limit}:${JSON.stringify(filters)}`;
+    const cacheKey = maintenanceListCacheKey(
+      role,
+      userId,
+      page,
+      limit,
+      filters,
+    );
+
+    const cacheStart = performance.now();
 
     const cachedResult = await getCache<{
       requests: ReturnType<typeof toMaintenanceRequestResponse>[];
@@ -77,7 +86,6 @@ export const maintenanceService = {
     if (cachedResult) {
       return cachedResult;
     }
-
     const skip = (page - 1) * limit;
 
     let result: {

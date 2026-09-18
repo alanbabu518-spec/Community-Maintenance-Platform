@@ -1,5 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("../config/redis.js", () => ({
+  redisClient: {
+    get: vi.fn(),
+    set: vi.fn(),
+    del: vi.fn(),
+    keys: vi.fn(),
+  },
+}));
+
 vi.mock("../utils/cloudinaryUpload.js", () => ({
   uploadImage: vi.fn(),
 }));
