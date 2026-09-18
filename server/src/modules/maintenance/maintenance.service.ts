@@ -12,6 +12,7 @@ import {
   toMaintenanceRequestDetailResponse,
 } from "./maintenance.mapper.js";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload.js";
+import { getCache, setCache, deleteCacheByPattern } from "../../utils/cashe.js";
 
 export const maintenanceService = {
   async createRequest(
@@ -46,6 +47,8 @@ export const maintenanceService = {
       request.id,
     );
 
+    await deleteCacheByPattern("maintenance:list:*");
+
     if (!requestWithAttachments) {
       throw new Error("Maintenance request not found");
     }
@@ -64,7 +67,23 @@ export const maintenanceService = {
     limit: number,
     filters: MaintenanceFilters,
   ) {
+    const cacheKey = `maintenance:list:${role}:${userId}:${page}:${limit}:${JSON.stringify(filters)}`;
+
+    const cachedResult = await getCache<{
+      requests: ReturnType<typeof toMaintenanceRequestResponse>[];
+      total: number;
+    }>(cacheKey);
+
+    if (cachedResult) {
+      return cachedResult;
+    }
+
     const skip = (page - 1) * limit;
+
+    let result: {
+      requests: any[];
+      total: number;
+    };
 
     if (role === "RESIDENT") {
       const [requests, total] = await Promise.all([
@@ -72,40 +91,36 @@ export const maintenanceService = {
         maintenanceRepository.countByResidentId(userId, filters),
       ]);
 
-      return {
-        requests: requests.map(toMaintenanceRequestResponse),
-        total,
-      };
-    }
-
-    if (role === "TECHNICIAN") {
+      result = { requests, total };
+    } else if (role === "TECHNICIAN") {
       const [requests, total] = await Promise.all([
         maintenanceRepository.findByTechnicianId(userId, skip, limit, filters),
         maintenanceRepository.countByTechnicianId(userId, filters),
       ]);
 
-      return {
-        requests: requests.map(toMaintenanceRequestResponse),
-        total,
-      };
-    }
-
-    if (role === "ADMIN" || role === "MANAGER") {
+      result = { requests, total };
+    } else if (role === "ADMIN" || role === "MANAGER") {
       const [requests, total] = await Promise.all([
         maintenanceRepository.findAll(skip, limit, filters),
         maintenanceRepository.countAll(filters),
       ]);
 
-      return {
-        requests: requests.map(toMaintenanceRequestResponse),
-        total,
+      result = { requests, total };
+    } else {
+      result = {
+        requests: [],
+        total: 0,
       };
     }
 
-    return {
-      requests: [],
-      total: 0,
+    const response = {
+      requests: result.requests.map(toMaintenanceRequestResponse),
+      total: result.total,
     };
+
+    await setCache(cacheKey, response, 60);
+
+    return response;
   },
 
   async getRequestById(id: number, userId: number, role: UserRole) {
@@ -175,8 +190,9 @@ export const maintenanceService = {
         );
       }
     }
-
     const updatedRequest = await maintenanceRepository.update(id, data);
+
+    await deleteCacheByPattern("maintenance:list:*");
 
     return toMaintenanceRequestResponse(updatedRequest);
   },
@@ -209,6 +225,8 @@ export const maintenanceService = {
       technicianId,
       status: "ASSIGNED",
     });
+
+    await deleteCacheByPattern("maintenance:list:*");
 
     return toMaintenanceRequestResponse(updatedRequest);
   },

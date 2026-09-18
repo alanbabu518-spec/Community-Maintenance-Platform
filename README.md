@@ -1355,3 +1355,61 @@ The backend automatically assigns the `RESIDENT` role.
 - Backend build passed
 - Frontend build passed
 - Full test suite passed
+
+## Day 36 — Redis Caching & Performance
+
+### Goals
+
+- Understand caching
+- Implement Cache-Aside pattern
+- Cache maintenance list responses
+- Add Redis TTL
+- Implement cache invalidation
+- Prevent stale data
+
+### Completed
+
+- Redis caching utility
+- Maintenance list caching
+- 60-second TTL
+- Cache invalidation after create
+- Cache invalidation after update
+- Cache expiration testing
+- Redis cache verification
+
+### Cache Flow
+
+GET Maintenance
+→ Check Redis
+→ Cache Hit → Return cached data
+→ Cache Miss → PostgreSQL → Store in Redis
+
+When data changes:
+
+CREATE / UPDATE
+→ PostgreSQL
+→ Invalidate Redis
+→ Next GET fetches fresh data
+
+### Key Concepts
+
+- Redis
+- Caching
+- Cache-Aside Pattern
+- TTL
+- Cache Invalidation
+- Cache Consistency
+- Performance Optimization
+
+### Verification
+
+- Redis connection verified
+- Cache creation verified
+- 60-second TTL verified
+- Cache expiration verified
+- Update invalidation verified
+- Create invalidation verified
+
+### Result
+
+Maintenance list responses are cached in Redis to reduce repeated database queries while invalidating stale cache data whenever maintenance requests are created or updated.

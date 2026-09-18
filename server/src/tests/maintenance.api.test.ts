@@ -25,6 +25,10 @@ function createAuthToken(userId: number, role: string) {
   );
 }
 
+function authCookie(token: string) {
+  return [`access_token=${token}`];
+}
+
 describe("GET /api/maintenance", () => {
   it("should return 401 when no authentication token is provided", async () => {
     const response = await request(app).get("/api/maintenance");
@@ -39,7 +43,7 @@ describe("GET /api/maintenance", () => {
   it("should return 401 when an invalid JWT is provided", async () => {
     const response = await request(app)
       .get("/api/maintenance")
-      .set("Cookie", ["access_token=invalid-token"]);
+      .set("Cookie", authCookie("invalid-token"));
 
     expect(response.status).toBe(401);
 
@@ -58,7 +62,7 @@ describe("GET /api/maintenance", () => {
 
     const response = await request(app)
       .get("/api/maintenance")
-      .set("Cookie", [`access_token=${token}`]);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(200);
   });
@@ -70,7 +74,7 @@ describe("GET /api/users", () => {
 
     const response = await request(app)
       .get("/api/users")
-      .set("Cookie", [`access_token=${token}`]);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(403);
 
@@ -84,7 +88,7 @@ describe("GET /api/users", () => {
 
     const response = await request(app)
       .get("/api/users")
-      .set("Cookie", [`access_token=${token}`]);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(200);
 
@@ -112,7 +116,7 @@ describe("GET /api/maintenance/:id", () => {
 
     const response = await request(app)
       .get("/api/maintenance/17")
-      .set("Cookie", [`access_token=${token}`]);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(200);
 
@@ -134,7 +138,7 @@ describe("GET /api/maintenance/:id", () => {
 
     const response = await request(app)
       .get("/api/maintenance/17")
-      .set("Cookie", [`access_token=${token}`]);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(403);
 
@@ -169,7 +173,7 @@ describe("GET /api/maintenance/:id", () => {
 
     const response = await request(app)
       .get("/api/maintenance/17")
-      .set("Cookie", [`access_token=${token}`]);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(200);
 
@@ -191,7 +195,7 @@ describe("GET /api/maintenance/:id", () => {
 
     const response = await request(app)
       .get("/api/maintenance/18")
-      .set("Cookie", [`access_token=${token}`]);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(403);
 
@@ -226,7 +230,7 @@ describe("GET /api/maintenance/:id", () => {
 
     const response = await request(app)
       .get("/api/maintenance/18")
-      .set("Cookie", [`access_token=${token}`]);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(200);
 
