@@ -21,12 +21,10 @@ describe("POST /api/auth/login", () => {
       token: "test-jwt-token",
     });
 
-    const response = await request(app)
-      .post("/api/auth/login")
-      .send({
-        email: "jacob20@example.com",
-        password: "correct-password",
-      });
+    const response = await request(app).post("/api/auth/login").send({
+      email: "jacob20@example.com",
+      password: "correct-password",
+    });
 
     expect(response.status).toBe(200);
 
@@ -38,8 +36,12 @@ describe("POST /api/auth/login", () => {
         email: "jacob20@example.com",
         role: "RESIDENT",
       },
-      token: "test-jwt-token",
     });
+
+    expect(response.headers["set-cookie"]).toBeDefined();
+    expect(response.headers["set-cookie"]?.[0]).toContain(
+      "access_token=test-jwt-token",
+    );
 
     expect(authService.login).toHaveBeenCalledWith({
       email: "jacob20@example.com",
@@ -52,12 +54,10 @@ describe("POST /api/auth/login", () => {
       new Error("Invalid Email or Password"),
     );
 
-    const response = await request(app)
-      .post("/api/auth/login")
-      .send({
-        email: "jacob20@example.com",
-        password: "wrong-password",
-      });
+    const response = await request(app).post("/api/auth/login").send({
+      email: "jacob20@example.com",
+      password: "wrong-password",
+    });
 
     expect(response.status).toBe(401);
 
@@ -72,12 +72,10 @@ describe("POST /api/auth/login", () => {
   });
 
   it("should return 401 when login validation fails", async () => {
-    const response = await request(app)
-      .post("/api/auth/login")
-      .send({
-        email: "not-an-email",
-        password: "123",
-      });
+    const response = await request(app).post("/api/auth/login").send({
+      email: "not-an-email",
+      password: "123",
+    });
 
     expect(response.status).toBe(401);
 

@@ -1313,3 +1313,45 @@ The backend automatically assigns the `RESIDENT` role.
 - Frontend build passed
 - Maintenance list API tests verified
 - Full test-suite cleanup postponed to final testing
+
+## Day 35 — User Management & Admin Foundation
+
+### Goals
+
+- Build User Management
+- Implement Admin-only authorization
+- Create Manager and Technician accounts
+- Add pagination, search, filtering and sorting
+- Protect sensitive user data
+- Build Admin User Management UI
+- Complete testing
+
+### Completed
+
+- User Management API
+- Admin-only RBAC
+- Staff creation
+- bcrypt password hashing
+- Sensitive data protection
+- User search, filtering, sorting and pagination
+- React Query integration
+- Protected `/users` route
+- Access Denied page
+- Full test suite fixed and passed
+- Cloudinary mocked in service tests
+
+### Key Concepts
+
+- RBAC
+- Password hashing
+- API pagination
+- React Query mutations
+- Query invalidation
+- Protected routes
+- Unit testing and mocking
+
+### Verification
+
+- Backend build passed
+- Frontend build passed
+- Full test suite passed

@@ -1,6 +1,12 @@
 import type { FormEvent } from "react";
-import { Send } from "lucide-react";
 import { useState } from "react";
+import {
+  AlertTriangle,
+  Info,
+  PartyPopper,
+  Send,
+  Wrench,
+} from "lucide-react";
 
 export type AnnouncementFormData = {
   title: string;
@@ -12,6 +18,40 @@ export type AnnouncementFormData = {
 type AnnouncementFormProps = {
   onSubmit: (data: AnnouncementFormData) => void;
   onCancel: () => void;
+};
+
+const categories = [
+  { value: "General", icon: Info },
+  { value: "Maintenance", icon: Wrench },
+  { value: "Event", icon: PartyPopper },
+  { value: "Emergency", icon: AlertTriangle },
+] as const;
+
+const categoryActive = {
+  General:
+    "border-stone-400 bg-stone-100 text-stone-800 dark:border-stone-500 dark:bg-stone-800 dark:text-stone-100",
+  Maintenance:
+    "border-teal-600 bg-teal-50 text-teal-800 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-400",
+  Event:
+    "border-violet-600 bg-violet-50 text-violet-800 dark:border-violet-500 dark:bg-violet-950/40 dark:text-violet-400",
+  Emergency:
+    "border-orange-600 bg-orange-50 text-orange-800 dark:border-orange-500 dark:bg-orange-950/40 dark:text-orange-400",
+};
+
+const priorities = ["Low", "Medium", "High"] as const;
+
+const priorityActive = {
+  Low: "border-stone-400 bg-stone-100 text-stone-800 dark:border-stone-500 dark:bg-stone-800 dark:text-stone-100",
+  Medium:
+    "border-amber-500 bg-amber-50 text-amber-800 dark:border-amber-500 dark:bg-amber-950/40 dark:text-amber-400",
+  High:
+    "border-orange-600 bg-orange-50 text-orange-800 dark:border-orange-500 dark:bg-orange-950/40 dark:text-orange-400",
+};
+
+const priorityDot = {
+  Low: "bg-stone-400",
+  Medium: "bg-amber-500",
+  High: "bg-orange-600",
 };
 
 function AnnouncementForm({
@@ -50,15 +90,15 @@ function AnnouncementForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+      className="overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900"
     >
-      <div className="space-y-6 p-6 sm:p-8">
+      <div className="space-y-7 p-6 sm:p-8">
         <div>
           <label
             htmlFor="announcement-title"
-            className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200"
+            className="mb-2 block text-sm font-semibold text-stone-800 dark:text-stone-200"
           >
-            Announcement Title
+            Title
           </label>
 
           <input
@@ -66,94 +106,111 @@ function AnnouncementForm({
             type="text"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="Enter announcement title"
-            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-slate-500 dark:focus:bg-slate-950"
+            placeholder="e.g. Water supply maintenance"
+            className="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-400 focus:bg-white dark:border-stone-700 dark:bg-stone-950 dark:text-white dark:placeholder:text-stone-500 dark:focus:border-stone-500"
           />
         </div>
 
         <div>
           <label
             htmlFor="announcement-content"
-            className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200"
+            className="mb-2 block text-sm font-semibold text-stone-800 dark:text-stone-200"
           >
-            Announcement Content
+            Content
           </label>
 
           <textarea
             id="announcement-content"
             value={content}
             onChange={(event) => setContent(event.target.value)}
-            placeholder="Write your announcement..."
-            rows={8}
-            className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-slate-500 dark:focus:bg-slate-950"
+            placeholder="Write what residents need to know..."
+            rows={7}
+            className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-400 focus:bg-white dark:border-stone-700 dark:bg-stone-950 dark:text-white dark:placeholder:text-stone-500 dark:focus:border-stone-500"
           />
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label
-              htmlFor="announcement-category"
-              className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200"
-            >
-              Category
-            </label>
+        <div>
+          <span className="mb-2 block text-sm font-semibold text-stone-800 dark:text-stone-200">
+            Category
+          </span>
 
-            <select
-              id="announcement-category"
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:focus:border-slate-500 dark:focus:bg-slate-950"
-            >
-              <option value="General">General</option>
-              <option value="Maintenance">Maintenance</option>
-              <option value="Event">Event</option>
-              <option value="Emergency">Emergency</option>
-            </select>
+          <div className="flex flex-wrap gap-2">
+            {categories.map(({ value, icon: Icon }) => {
+              const active = category === value;
+
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setCategory(value)}
+                  aria-pressed={active}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition ${
+                    active
+                      ? categoryActive[value]
+                      : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-400 dark:hover:text-stone-200"
+                  }`}
+                >
+                  <Icon size={15} />
+                  {value}
+                </button>
+              );
+            })}
           </div>
+        </div>
 
-          <div>
-            <label
-              htmlFor="announcement-priority"
-              className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200"
-            >
-              Priority
-            </label>
+        <div>
+          <span className="mb-2 block text-sm font-semibold text-stone-800 dark:text-stone-200">
+            Priority
+          </span>
 
-            <select
-              id="announcement-priority"
-              value={priority}
-              onChange={(event) => setPriority(event.target.value)}
-              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:focus:border-slate-500 dark:focus:bg-slate-950"
-            >
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
+          <div className="flex flex-wrap gap-2">
+            {priorities.map((value) => {
+              const active = priority === value;
+
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setPriority(value)}
+                  aria-pressed={active}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition ${
+                    active
+                      ? priorityActive[value]
+                      : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-400 dark:hover:text-stone-200"
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${priorityDot[value]}`}
+                  />
+                  {value}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400">
             {error}
           </div>
         )}
       </div>
 
-      <div className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50 px-6 py-5 dark:border-slate-800 dark:bg-slate-950 sm:flex-row sm:justify-end sm:px-8">
+      <div className="flex flex-col-reverse gap-3 border-t border-stone-100 bg-stone-50 px-6 py-5 dark:border-stone-800 dark:bg-stone-950/60 sm:flex-row sm:justify-end sm:px-8">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-semibold text-stone-700 transition hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300 dark:hover:bg-stone-800"
         >
           Cancel
         </button>
 
         <button
           type="submit"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-stone-700 dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200"
         >
-          <Send size={17} />
-          Create Announcement
+          <Send size={16} />
+          Post announcement
         </button>
       </div>
     </form>

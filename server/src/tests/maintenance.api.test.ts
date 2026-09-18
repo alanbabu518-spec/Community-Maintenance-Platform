@@ -12,6 +12,19 @@ vi.mock("../modules/maintenance/maintenance.service.js", () => ({
   },
 }));
 
+function createAuthToken(userId: number, role: string) {
+  return jwt.sign(
+    {
+      userId,
+      role,
+    },
+    process.env.JWT_SECRET!,
+    {
+      expiresIn: "1h",
+    },
+  );
+}
+
 describe("GET /api/maintenance", () => {
   it("should return 401 when no authentication token is provided", async () => {
     const response = await request(app).get("/api/maintenance");
@@ -26,7 +39,7 @@ describe("GET /api/maintenance", () => {
   it("should return 401 when an invalid JWT is provided", async () => {
     const response = await request(app)
       .get("/api/maintenance")
-      .set("Authorization", "Bearer invalid-token");
+      .set("Cookie", ["access_token=invalid-token"]);
 
     expect(response.status).toBe(401);
 
@@ -41,20 +54,11 @@ describe("GET /api/maintenance", () => {
       total: 0,
     });
 
-    const token = jwt.sign(
-      {
-        userId: 32,
-        role: "RESIDENT",
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1h",
-      },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .get("/api/maintenance")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", [`access_token=${token}`]);
 
     expect(response.status).toBe(200);
   });
@@ -62,20 +66,11 @@ describe("GET /api/maintenance", () => {
 
 describe("GET /api/users", () => {
   it("should return 403 when a resident tries to access the users endpoint", async () => {
-    const token = jwt.sign(
-      {
-        userId: 32,
-        role: "RESIDENT",
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1h",
-      },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .get("/api/users")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", [`access_token=${token}`]);
 
     expect(response.status).toBe(403);
 
@@ -85,20 +80,11 @@ describe("GET /api/users", () => {
   });
 
   it("should allow an admin to access the users endpoint", async () => {
-    const token = jwt.sign(
-      {
-        userId: 1,
-        role: "ADMIN",
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1h",
-      },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .get("/api/users")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", [`access_token=${token}`]);
 
     expect(response.status).toBe(200);
 
@@ -122,20 +108,11 @@ describe("GET /api/maintenance/:id", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      {
-        userId: 32,
-        role: "RESIDENT",
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1h",
-      },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .get("/api/maintenance/17")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", [`access_token=${token}`]);
 
     expect(response.status).toBe(200);
 
@@ -153,24 +130,16 @@ describe("GET /api/maintenance/:id", () => {
       new AppError("Access denied", 403),
     );
 
-    const token = jwt.sign(
-      {
-        userId: 32,
-        role: "RESIDENT",
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1h",
-      },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .get("/api/maintenance/17")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", [`access_token=${token}`]);
 
     expect(response.status).toBe(403);
 
     expect(response.body).toEqual({
+      success: false,
       message: "Access denied",
     });
 
@@ -196,20 +165,11 @@ describe("GET /api/maintenance/:id", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      {
-        userId: 29,
-        role: "TECHNICIAN",
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1h",
-      },
-    );
+    const token = createAuthToken(29, "TECHNICIAN");
 
     const response = await request(app)
       .get("/api/maintenance/17")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", [`access_token=${token}`]);
 
     expect(response.status).toBe(200);
 
@@ -227,24 +187,16 @@ describe("GET /api/maintenance/:id", () => {
       new AppError("Access denied", 403),
     );
 
-    const token = jwt.sign(
-      {
-        userId: 29,
-        role: "TECHNICIAN",
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1h",
-      },
-    );
+    const token = createAuthToken(29, "TECHNICIAN");
 
     const response = await request(app)
       .get("/api/maintenance/18")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", [`access_token=${token}`]);
 
     expect(response.status).toBe(403);
 
     expect(response.body).toEqual({
+      success: false,
       message: "Access denied",
     });
 
@@ -270,20 +222,11 @@ describe("GET /api/maintenance/:id", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      {
-        userId: 2,
-        role: "MANAGER",
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "1h",
-      },
-    );
+    const token = createAuthToken(2, "MANAGER");
 
     const response = await request(app)
       .get("/api/maintenance/18")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", [`access_token=${token}`]);
 
     expect(response.status).toBe(200);
 

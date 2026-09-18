@@ -10,6 +10,16 @@ vi.mock("../modules/maintenance/maintenance.service.js", () => ({
   },
 }));
 
+function createAuthToken(userId: number, role: string) {
+  return jwt.sign({ userId, role }, process.env.JWT_SECRET!, {
+    expiresIn: "1h",
+  });
+}
+
+function authCookie(token: string) {
+  return [`access_token=${token}`];
+}
+
 describe("POST /api/maintenance", () => {
   it("should create a maintenance request successfully", async () => {
     vi.mocked(maintenanceService.createRequest).mockResolvedValue({
@@ -26,15 +36,11 @@ describe("POST /api/maintenance", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      { userId: 32, role: "RESIDENT" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .post("/api/maintenance")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         title: "Water leakage",
         description: "Water is leaking from the bathroom",
@@ -61,19 +67,18 @@ describe("POST /api/maintenance", () => {
         unitId: 1,
       },
       32,
+      [],
     );
   });
 
   it("should return 401 when no authentication token is provided", async () => {
-    const response = await request(app)
-      .post("/api/maintenance")
-      .send({
-        title: "Water leakage",
-        description: "Water is leaking from the bathroom",
-        category: "PLUMBING",
-        priority: "HIGH",
-        unitId: 1,
-      });
+    const response = await request(app).post("/api/maintenance").send({
+      title: "Water leakage",
+      description: "Water is leaking from the bathroom",
+      category: "PLUMBING",
+      priority: "HIGH",
+      unitId: 1,
+    });
 
     expect(response.status).toBe(401);
 
@@ -85,15 +90,11 @@ describe("POST /api/maintenance", () => {
   });
 
   it("should return 403 when an admin tries to create a maintenance request", async () => {
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .post("/api/maintenance")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         title: "Water leakage",
         description: "Water is leaking from the bathroom",
@@ -112,15 +113,11 @@ describe("POST /api/maintenance", () => {
   });
 
   it("should return 400 when request validation fails", async () => {
-    const token = jwt.sign(
-      { userId: 32, role: "RESIDENT" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .post("/api/maintenance")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         title: "",
         description: "",

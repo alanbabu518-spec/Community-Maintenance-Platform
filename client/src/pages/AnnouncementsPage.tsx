@@ -86,8 +86,8 @@ function AnnouncementsPage() {
 
   const isLoading = false;
 
-  // const canCreateAnnouncement =
-  //   user?.role === "admin" || user?.role === "manager";
+  const canCreateAnnouncement =
+    user?.role === "ADMIN" || user?.role === "MANAGER";
 
   const filteredAnnouncements = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -141,7 +141,7 @@ function AnnouncementsPage() {
             </div>
           </div>
 
-          {/* {canCreateAnnouncement && (
+          {canCreateAnnouncement && (
             <button
               type="button"
               onClick={() => navigate("/announcements/new")}
@@ -150,7 +150,7 @@ function AnnouncementsPage() {
               <Plus size={17} />
               Post an announcement
             </button>
-          )} */}
+          )}
         </div>
       </section>
 

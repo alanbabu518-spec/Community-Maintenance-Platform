@@ -11,6 +11,18 @@ vi.mock("../modules/maintenance/maintenance.service.js", () => ({
   },
 }));
 
+function createAuthToken(userId: number, role: string) {
+  return jwt.sign(
+    { userId, role },
+    process.env.JWT_SECRET!,
+    { expiresIn: "1h" },
+  );
+}
+
+function authCookie(token: string) {
+  return [`access_token=${token}`];
+}
+
 describe("PATCH /api/maintenance/:id/assign", () => {
   it("should assign a technician successfully", async () => {
     vi.mocked(maintenanceService.assignTechnician).mockResolvedValue({
@@ -27,15 +39,11 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .patch("/api/maintenance/20/assign")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         technicianId: 29,
       });
@@ -64,15 +72,11 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       technicianId: 29,
     } as any);
 
-    const token = jwt.sign(
-      { userId: 2, role: "MANAGER" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(2, "MANAGER");
 
     const response = await request(app)
       .patch("/api/maintenance/20/assign")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         technicianId: 29,
       });
@@ -81,15 +85,11 @@ describe("PATCH /api/maintenance/:id/assign", () => {
   });
 
   it("should return 403 when a resident tries to assign a technician", async () => {
-    const token = jwt.sign(
-      { userId: 32, role: "RESIDENT" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .patch("/api/maintenance/20/assign")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         technicianId: 29,
       });
@@ -120,15 +120,11 @@ describe("PATCH /api/maintenance/:id/assign", () => {
   });
 
   it("should return 400 when the request ID is invalid", async () => {
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .patch("/api/maintenance/abc/assign")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         technicianId: 29,
       });
@@ -147,15 +143,11 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       new AppError("Technician not found", 404),
     );
 
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .patch("/api/maintenance/20/assign")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         technicianId: 999,
       });
@@ -163,6 +155,7 @@ describe("PATCH /api/maintenance/:id/assign", () => {
     expect(response.status).toBe(404);
 
     expect(response.body).toEqual({
+      success: false,
       message: "Technician not found",
     });
   });
@@ -172,15 +165,11 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       new AppError("User is not a technician", 400),
     );
 
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .patch("/api/maintenance/20/assign")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         technicianId: 2,
       });
@@ -188,6 +177,7 @@ describe("PATCH /api/maintenance/:id/assign", () => {
     expect(response.status).toBe(400);
 
     expect(response.body).toEqual({
+      success: false,
       message: "User is not a technician",
     });
   });
@@ -197,15 +187,11 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       new AppError("Maintenance request not found", 404),
     );
 
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .patch("/api/maintenance/999/assign")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         technicianId: 29,
       });
@@ -213,6 +199,7 @@ describe("PATCH /api/maintenance/:id/assign", () => {
     expect(response.status).toBe(404);
 
     expect(response.body).toEqual({
+      success: false,
       message: "Maintenance request not found",
     });
   });
@@ -225,15 +212,11 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       ),
     );
 
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .patch("/api/maintenance/20/assign")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         technicianId: 29,
       });
@@ -241,21 +224,18 @@ describe("PATCH /api/maintenance/:id/assign", () => {
     expect(response.status).toBe(400);
 
     expect(response.body).toEqual({
+      success: false,
       message:
         "Technician can only be assigned to an acknowledged request",
     });
   });
 
   it("should return 400 when technicianId validation fails", async () => {
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .patch("/api/maintenance/20/assign")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         technicianId: "invalid",
       });

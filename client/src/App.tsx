@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import ErrorPage from "./components/ui/ErrorPage";
 import Loading from "./components/ui/Loading";
+import UserManagement from "./pages/UserManagement";
 
 const Register = lazy(() => import("./pages/Register"));
 const VerifyOtp = lazy(() => import("./pages/VerifyOtp"));
@@ -19,9 +20,8 @@ const AnnouncementsPage = lazy(() => import("./pages/AnnouncementsPage"));
 const AnnouncementDetails = lazy(
   () => import("./pages/AnnouncementDetailsPage"),
 );
-const CreateAnnouncement = lazy(
-  () => import("./pages/CreateAnnouncement"),
-);
+const CreateAnnouncement = lazy(() => import("./pages/CreateAnnouncement"));
+const AccessDenied = lazy(() => import("./pages/AccessDenied"));
 
 function NotFoundPage() {
   const navigate = useNavigate();
@@ -64,6 +64,14 @@ function App() {
             >
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/maintenance" element={<Maintenance />} />
+              <Route
+                path="/users"
+                element={
+                  <ProtectedRoute allowedRoles={["ADMIN"]}>
+                    <UserManagement />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/maintenance/new" element={<ReportIssue />} />
               <Route path="/announcements" element={<AnnouncementsPage />} />
               <Route path="/maintenance/:id" element={<MaintenanceDetails />} />
@@ -77,6 +85,7 @@ function App() {
               />
             </Route>
 
+            <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

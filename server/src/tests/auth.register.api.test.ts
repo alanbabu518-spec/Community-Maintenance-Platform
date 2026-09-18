@@ -25,7 +25,6 @@ describe("POST /api/auth/register", () => {
         name: "Test Resident",
         email: "test@example.com",
         password: "password123",
-        role: "RESIDENT",
       });
 
     expect(response.status).toBe(201);
@@ -46,7 +45,6 @@ describe("POST /api/auth/register", () => {
       name: "Test Resident",
       email: "test@example.com",
       password: "password123",
-      role: "RESIDENT",
     });
   });
 
@@ -57,7 +55,6 @@ describe("POST /api/auth/register", () => {
         name: "A",
         email: "invalid-email",
         password: "123",
-        role: "RESIDENT",
       });
 
     expect(response.status).toBe(400);
@@ -89,7 +86,6 @@ describe("POST /api/auth/register", () => {
         name: "Existing User",
         email: "existing@example.com",
         password: "password123",
-        role: "RESIDENT",
       });
 
     expect(response.status).toBe(409);
@@ -102,7 +98,6 @@ describe("POST /api/auth/register", () => {
       name: "Existing User",
       email: "existing@example.com",
       password: "password123",
-      role: "RESIDENT",
     });
   });
 });

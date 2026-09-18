@@ -1,4 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("../utils/cloudinaryUpload.js", () => ({
+  uploadImage: vi.fn(),
+}));
+
 import { maintenanceService } from "../modules/maintenance/maintenance.service.js";
 import { maintenanceRepository } from "../modules/maintenance/maintenance.repository.js";
 import { userRepository } from "../modules/users/user.repository.js";
@@ -33,9 +38,14 @@ describe("maintenanceService.updateRequest", () => {
     } as any);
 
     await expect(
-      maintenanceService.updateRequest(17, {
-        status: "ASSIGNED",
-      }),
+      maintenanceService.updateRequest(
+        17,
+        {
+          status: "ASSIGNED",
+        },
+        1,
+        "MANAGER",
+      ),
     ).rejects.toThrow("Invalid status transition");
 
     expect(maintenanceRepository.update).not.toHaveBeenCalled();
@@ -70,9 +80,14 @@ describe("maintenanceService.updateRequest", () => {
       updatedAt: new Date(),
     } as any);
 
-    await maintenanceService.updateRequest(17, {
-      status: "ACKNOWLEDGED",
-    });
+    await maintenanceService.updateRequest(
+      17,
+      {
+        status: "ACKNOWLEDGED",
+      },
+      1,
+      "MANAGER",
+    );
 
     expect(maintenanceRepository.update).toHaveBeenCalledWith(17, {
       status: "ACKNOWLEDGED",
@@ -117,9 +132,14 @@ describe("maintenanceService.updateRequest", () => {
         updatedAt: new Date(),
       } as any);
 
-      await maintenanceService.updateRequest(17, {
-        status: nextStatus,
-      });
+      await maintenanceService.updateRequest(
+        17,
+        {
+          status: nextStatus,
+        },
+        1,
+        "MANAGER",
+      );
 
       expect(maintenanceRepository.update).toHaveBeenCalledWith(17, {
         status: nextStatus,
@@ -130,9 +150,14 @@ describe("maintenanceService.updateRequest", () => {
   it("should return null when maintenance request does not exist", async () => {
     vi.mocked(maintenanceRepository.findById).mockResolvedValue(null);
 
-    const result = await maintenanceService.updateRequest(999, {
-      status: "ACKNOWLEDGED",
-    });
+    const result = await maintenanceService.updateRequest(
+      999,
+      {
+        status: "ACKNOWLEDGED",
+      },
+      1,
+      "MANAGER",
+    );
 
     expect(result).toBeNull();
 
@@ -199,9 +224,9 @@ describe("maintenanceService.assignTechnician", () => {
       updatedAt: new Date(),
     } as any);
 
-    await expect(
-      maintenanceService.assignTechnician(17, 30),
-    ).rejects.toThrow("User is not a technician");
+    await expect(maintenanceService.assignTechnician(17, 30)).rejects.toThrow(
+      "User is not a technician",
+    );
 
     expect(maintenanceRepository.update).not.toHaveBeenCalled();
   });
@@ -209,9 +234,9 @@ describe("maintenanceService.assignTechnician", () => {
   it("should reject when technician does not exist", async () => {
     vi.mocked(userRepository.findById).mockResolvedValue(null);
 
-    await expect(
-      maintenanceService.assignTechnician(17, 999),
-    ).rejects.toThrow("Technician not found");
+    await expect(maintenanceService.assignTechnician(17, 999)).rejects.toThrow(
+      "Technician not found",
+    );
 
     expect(maintenanceRepository.findById).not.toHaveBeenCalled();
     expect(maintenanceRepository.update).not.toHaveBeenCalled();

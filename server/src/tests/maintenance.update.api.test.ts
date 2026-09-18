@@ -11,6 +11,16 @@ vi.mock("../modules/maintenance/maintenance.service.js", () => ({
   },
 }));
 
+function createAuthToken(userId: number, role: string) {
+  return jwt.sign({ userId, role }, process.env.JWT_SECRET!, {
+    expiresIn: "1h",
+  });
+}
+
+function authCookie(token: string) {
+  return [`access_token=${token}`];
+}
+
 describe("PATCH /api/maintenance/:id", () => {
   it("should update a maintenance request successfully", async () => {
     vi.mocked(maintenanceService.updateRequest).mockResolvedValue({
@@ -27,15 +37,11 @@ describe("PATCH /api/maintenance/:id", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .patch("/api/maintenance/20")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         title: "Updated water leakage",
         priority: "URGENT",
@@ -50,9 +56,14 @@ describe("PATCH /api/maintenance/:id", () => {
 
     expect(response.body).toHaveProperty("request");
 
-    expect(maintenanceService.updateRequest).toHaveBeenCalledWith(20, {
-      priority: "URGENT",
-    });
+    expect(maintenanceService.updateRequest).toHaveBeenCalledWith(
+      20,
+      {
+        priority: "URGENT",
+      },
+      1,
+      "ADMIN",
+    );
   });
 
   it("should allow a valid status transition", async () => {
@@ -70,24 +81,25 @@ describe("PATCH /api/maintenance/:id", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      { userId: 1, role: "MANAGER" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "MANAGER");
 
     const response = await request(app)
       .patch("/api/maintenance/20")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         status: "ACKNOWLEDGED",
       });
 
     expect(response.status).toBe(200);
 
-    expect(maintenanceService.updateRequest).toHaveBeenCalledWith(20, {
-      status: "ACKNOWLEDGED",
-    });
+    expect(maintenanceService.updateRequest).toHaveBeenCalledWith(
+      20,
+      {
+        status: "ACKNOWLEDGED",
+      },
+      1,
+      "MANAGER",
+    );
   });
 
   it("should return 400 when an invalid status transition occurs", async () => {
@@ -95,15 +107,11 @@ describe("PATCH /api/maintenance/:id", () => {
       new AppError("Invalid status transition: OPEN → RESOLVED", 400),
     );
 
-    const token = jwt.sign(
-      { userId: 1, role: "MANAGER" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "MANAGER");
 
     const response = await request(app)
       .patch("/api/maintenance/20")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         status: "RESOLVED",
       });
@@ -111,6 +119,7 @@ describe("PATCH /api/maintenance/:id", () => {
     expect(response.status).toBe(400);
 
     expect(response.body).toEqual({
+      success: false,
       message: "Invalid status transition: OPEN → RESOLVED",
     });
   });
@@ -120,15 +129,11 @@ describe("PATCH /api/maintenance/:id", () => {
       new AppError("Maintenance request not found", 404),
     );
 
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .patch("/api/maintenance/999")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         priority: "HIGH",
       });
@@ -136,20 +141,17 @@ describe("PATCH /api/maintenance/:id", () => {
     expect(response.status).toBe(404);
 
     expect(response.body).toEqual({
+      success: false,
       message: "Maintenance request not found",
     });
   });
 
   it("should return 400 when the request ID is invalid", async () => {
-    const token = jwt.sign(
-      { userId: 1, role: "ADMIN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(1, "ADMIN");
 
     const response = await request(app)
       .patch("/api/maintenance/abc")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         priority: "HIGH",
       });
@@ -164,15 +166,11 @@ describe("PATCH /api/maintenance/:id", () => {
   });
 
   it("should return 403 when a resident tries to update a request", async () => {
-    const token = jwt.sign(
-      { userId: 32, role: "RESIDENT" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .patch("/api/maintenance/20")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         priority: "HIGH",
       });
@@ -201,15 +199,11 @@ describe("PATCH /api/maintenance/:id", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      { userId: 2, role: "MANAGER" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(2, "MANAGER");
 
     const response = await request(app)
       .patch("/api/maintenance/20")
-      .set("Authorization", `Bearer ${token}`)
+      .set("Cookie", authCookie(token))
       .send({
         priority: "HIGH",
       });

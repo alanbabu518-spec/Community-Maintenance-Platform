@@ -24,6 +24,13 @@ vi.mock("jsonwebtoken", () => ({
   },
 }));
 
+vi.mock("../utils/otp.js", () => ({
+  generateOtp: vi.fn(() => "123456"),
+  storeOtp: vi.fn(),
+  getOtp: vi.fn(),
+  deleteOtp: vi.fn(),
+}));
+
 describe("authService.login", () => {
   it("should login successfully with valid credentials", async () => {
     vi.mocked(userRepository.findByEmail).mockResolvedValue({
@@ -132,13 +139,11 @@ describe("authService.login", () => {
 
 describe("authService.register", () => {
   it("should hash the password and create a user", async () => {
-    vi.mocked(bcrypt.hash).mockResolvedValue(
-      "hashed-password" as never,
-    );
+    vi.mocked(bcrypt.hash).mockResolvedValue("hashed-password" as never);
 
     vi.mocked(userRepository.create).mockResolvedValue({
       id: 33,
-      name: "Test Resident",
+      name: "Test User",
       email: "test@example.com",
       passwordHash: "hashed-password",
       role: "RESIDENT",
@@ -146,20 +151,18 @@ describe("authService.register", () => {
       updatedAt: new Date(),
     } as any);
 
-    const result = await authService.register({
-      name: "Test Resident",
+    const input = {
+      name: "Test User",
       email: "test@example.com",
-      password: "plain-password",
-      role: "RESIDENT",
-    });
+      password: "password123",
+    };
 
-    expect(bcrypt.hash).toHaveBeenCalledWith(
-      "plain-password",
-      10,
-    );
+    const result = await authService.register(input);
+
+    expect(bcrypt.hash).toHaveBeenCalledWith("password123", 10);
 
     expect(userRepository.create).toHaveBeenCalledWith({
-      name: "Test Resident",
+      name: "Test User",
       email: "test@example.com",
       passwordHash: "hashed-password",
       role: "RESIDENT",
@@ -167,7 +170,7 @@ describe("authService.register", () => {
 
     expect(result).toEqual({
       id: 33,
-      name: "Test Resident",
+      name: "Test User",
       email: "test@example.com",
       role: "RESIDENT",
     });

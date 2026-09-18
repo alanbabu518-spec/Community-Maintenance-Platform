@@ -23,12 +23,7 @@ const router = Router();
  *         description: Access denied
  */
 
-router.get(
-  "/",
-  authMiddleware,
-  authorize("ADMIN", "MANAGER"),
-  userController.getUsers,
-);
+router.get("/", authMiddleware, authorize("ADMIN"), userController.getUsers);
 
 /**
  * @openapi
@@ -74,6 +69,11 @@ router.get(
  *         description: Invalid user data
  */
 
-router.post("/", userController.createUser);
+router.post(
+  "/staff",
+  authMiddleware,
+  authorize("ADMIN"),
+  userController.createStaff,
+);
 
 export default router;

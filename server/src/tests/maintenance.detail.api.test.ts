@@ -11,6 +11,18 @@ vi.mock("../modules/maintenance/maintenance.service.js", () => ({
   },
 }));
 
+function createAuthToken(userId: number, role: string) {
+  return jwt.sign(
+    { userId, role },
+    process.env.JWT_SECRET!,
+    { expiresIn: "1h" },
+  );
+}
+
+function authCookie(token: string) {
+  return [`access_token=${token}`];
+}
+
 describe("GET /api/maintenance/:id", () => {
   it("should return a maintenance request for the resident who owns it", async () => {
     vi.mocked(maintenanceService.getRequestById).mockResolvedValue({
@@ -27,15 +39,11 @@ describe("GET /api/maintenance/:id", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      { userId: 32, role: "RESIDENT" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .get("/api/maintenance/20")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("request");
@@ -55,19 +63,16 @@ describe("GET /api/maintenance/:id", () => {
       ),
     );
 
-    const token = jwt.sign(
-      { userId: 32, role: "RESIDENT" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .get("/api/maintenance/20")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(403);
 
     expect(response.body).toEqual({
+      success: false,
       message: "You are not authorized to access this maintenance request",
     });
   });
@@ -87,15 +92,11 @@ describe("GET /api/maintenance/:id", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      { userId: 29, role: "TECHNICIAN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(29, "TECHNICIAN");
 
     const response = await request(app)
       .get("/api/maintenance/20")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(200);
 
@@ -114,19 +115,16 @@ describe("GET /api/maintenance/:id", () => {
       ),
     );
 
-    const token = jwt.sign(
-      { userId: 29, role: "TECHNICIAN" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(29, "TECHNICIAN");
 
     const response = await request(app)
       .get("/api/maintenance/20")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(403);
 
     expect(response.body).toEqual({
+      success: false,
       message: "You are not authorized to access this maintenance request",
     });
   });
@@ -146,15 +144,11 @@ describe("GET /api/maintenance/:id", () => {
       updatedAt: new Date(),
     } as any);
 
-    const token = jwt.sign(
-      { userId: 2, role: "MANAGER" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(2, "MANAGER");
 
     const response = await request(app)
       .get("/api/maintenance/20")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(200);
 
@@ -170,33 +164,26 @@ describe("GET /api/maintenance/:id", () => {
       new AppError("Maintenance request not found", 404),
     );
 
-    const token = jwt.sign(
-      { userId: 2, role: "MANAGER" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(2, "MANAGER");
 
     const response = await request(app)
       .get("/api/maintenance/999")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(404);
 
     expect(response.body).toEqual({
+      success: false,
       message: "Maintenance request not found",
     });
   });
 
   it("should return 400 when the request ID is invalid", async () => {
-    const token = jwt.sign(
-      { userId: 32, role: "RESIDENT" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" },
-    );
+    const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .get("/api/maintenance/abc")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(400);
 

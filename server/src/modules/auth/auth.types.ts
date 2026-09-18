@@ -1,11 +1,10 @@
 export interface RegisterInput {
-    name: string;
-    email: string;
-    password: string;
-    role: "RESIDENT" | "ADMIN" | "MANAGER" | "TECHNICIAN";
+  name: string;
+  email: string;
+  password: string;
 }
 
 export interface LoginInput {
-    email: string;
-    password:  string;
+  email: string;
+  password: string;
 }

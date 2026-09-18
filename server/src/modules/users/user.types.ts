@@ -6,3 +6,11 @@ export interface UserResponse {
   email: string;
   role: UserRole;
 }
+
+export interface UserFilters {
+  page: number;
+  limit: number;
+  search?: string | undefined;
+  role?: UserRole | undefined;
+  sortOrder: "asc" | "desc";
+}

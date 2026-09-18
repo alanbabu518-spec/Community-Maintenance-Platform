@@ -5,7 +5,6 @@ import {
   Mail,
   Lock,
   UserRound,
-  ShieldCheck,
   UsersRound,
 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
