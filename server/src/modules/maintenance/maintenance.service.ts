@@ -14,6 +14,7 @@ import {
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload.js";
 import { getCache, setCache, deleteCacheByPattern } from "../../utils/cache.js";
 import { maintenanceListCacheKey } from "../../utils/cacheKeys.js";
+import { notificationQueue } from "../../config/queue.js";
 
 export const maintenanceService = {
   async createRequest(
@@ -53,6 +54,13 @@ export const maintenanceService = {
     if (!requestWithAttachments) {
       throw new Error("Maintenance request not found");
     }
+
+    await notificationQueue.add("maintenance-created", {
+      maintenanceRequestId: requestWithAttachments.id,
+      residentId,
+      title: requestWithAttachments.title,
+      message: "New maintenance request created",
+    });
 
     return toMaintenanceRequestResponse(requestWithAttachments);
   },

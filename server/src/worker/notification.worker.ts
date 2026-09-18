@@ -18,6 +18,7 @@ export const notificationWorker = new Worker(
 
     console.log("Notification data:", job.data);
   },
+
   {
     connection: workerRedisClient,
   },

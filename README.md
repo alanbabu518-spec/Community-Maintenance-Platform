@@ -1538,3 +1538,77 @@ SCAN processes keys incrementally, making it more suitable for production worklo
 ### Result
 
 Redis cache invalidation now uses SCAN instead of KEYS, making the implementation safer for larger production environments.
+
+## Day 39 — Background Jobs & Queues
+
+### Goals
+
+- Understand background jobs
+- Understand queues and workers
+- Implement BullMQ
+- Use Redis as the queue backend
+- Add retry handling
+- Connect maintenance requests to background jobs
+
+### Completed
+
+- Installed BullMQ
+- Created notification queue
+- Created notification worker
+- Connected BullMQ to Redis
+- Added job retry configuration
+- Added exponential backoff
+- Tested failed jobs and retries
+- Connected maintenance request creation to the notification queue
+- Verified real frontend → queue → worker flow
+
+### Queue Flow
+
+Maintenance Request
+→ PostgreSQL
+→ BullMQ Queue
+→ Redis
+→ Notification Worker
+→ Process Notification
+→ Completed
+
+### Retry Configuration
+
+- Maximum attempts: 3
+- Backoff: exponential
+- Initial delay: 1000ms
+- Completed jobs retained: 100
+- Failed jobs retained: 500
+
+### Failure Handling
+
+A test job was intentionally failed to verify retry behavior.
+
+Result:
+
+Attempt 1 → Failed
+Attempt 2 → Failed
+Attempt 3 → Failed
+
+### Real Integration Test
+
+A maintenance request created from the frontend successfully created a
+`maintenance-created` BullMQ job.
+
+The worker received and processed the job successfully.
+
+### Key Concepts
+
+- Background Jobs
+- Message Queues
+- BullMQ
+- Redis
+- Workers
+- Retry Mechanism
+- Exponential Backoff
+- Failure Handling
+- Asynchronous Processing
+
+### Result
+
+CommunityCare can now move notification-related work into background jobs instead of processing everything synchronously during the HTTP request.
