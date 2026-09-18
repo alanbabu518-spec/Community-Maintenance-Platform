@@ -5,7 +5,7 @@ vi.mock("../config/redis.js", () => ({
     get: vi.fn(),
     set: vi.fn(),
     del: vi.fn(),
-    keys: vi.fn(),
+    scan: vi.fn(),
   },
 }));
 
@@ -69,19 +69,53 @@ describe("cache utilities", () => {
   });
 
   it("deletes cache keys matching a pattern", async () => {
-    vi.mocked(redisClient.keys).mockResolvedValue([
-      "maintenance:list:ADMIN:25:1:10",
-      "maintenance:list:ADMIN:25:2:10",
-    ]);
+    vi.mocked(redisClient.scan).mockResolvedValue({
+      cursor: "0",
+      keys: [
+        "maintenance:list:ADMIN:25:1:10",
+        "maintenance:list:ADMIN:25:2:10",
+      ],
+    });
 
     vi.mocked(redisClient.del).mockResolvedValue(2);
 
     await deleteCacheByPattern("maintenance:list:*");
 
-    expect(redisClient.keys).toHaveBeenCalledWith("maintenance:list:*");
+    expect(redisClient.scan).toHaveBeenCalledWith("0", {
+      MATCH: "maintenance:list:*",
+      COUNT: 100,
+    });
+
     expect(redisClient.del).toHaveBeenCalledWith([
       "maintenance:list:ADMIN:25:1:10",
       "maintenance:list:ADMIN:25:2:10",
     ]);
+  });
+  it("continues scanning until the cursor reaches zero", async () => {
+    vi.mocked(redisClient.scan)
+      .mockResolvedValueOnce({
+        cursor: "42",
+        keys: ["maintenance:list:ADMIN:25:1:10"],
+      })
+      .mockResolvedValueOnce({
+        cursor: "0",
+        keys: ["maintenance:list:ADMIN:25:2:10"],
+      });
+
+    vi.mocked(redisClient.del).mockResolvedValue(1);
+
+    await deleteCacheByPattern("maintenance:list:*");
+
+    expect(redisClient.scan).toHaveBeenNthCalledWith(1, "0", {
+      MATCH: "maintenance:list:*",
+      COUNT: 100,
+    });
+
+    expect(redisClient.scan).toHaveBeenNthCalledWith(2, "42", {
+      MATCH: "maintenance:list:*",
+      COUNT: 100,
+    });
+
+    expect(redisClient.del).toHaveBeenCalledTimes(2);
   });
 });
