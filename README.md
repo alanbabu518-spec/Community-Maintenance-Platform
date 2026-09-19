@@ -1664,3 +1664,159 @@ Indexes:
 ```http
 GET /api/notifications
 ```
+
+# Day 41 — Real-Time & Push Notifications
+
+## Goal
+
+Build a complete notification system for CommunityCare that supports:
+
+- Real-time in-app notifications
+- Persistent notifications in PostgreSQL
+- Unread notification count
+- Marking notifications as read
+- Web Push notifications
+- Notifications when the application is closed or in the background
+
+## What Was Built
+
+### 1. Socket.IO Real-Time Notifications
+
+Integrated Socket.IO between the backend and frontend.
+
+Flow:
+
+Maintenance Request
+→ BullMQ
+→ Notification Worker
+→ PostgreSQL
+→ Socket.IO
+→ Resident UI
+
+Each authenticated user joins a private Socket.IO room:
+
+`user:{userId}`
+
+Notifications are emitted only to the intended user.
+
+### 2. Notification Database
+
+Added the `Notification` model with:
+
+- User association
+- Notification type
+- Title
+- Message
+- Read/unread status
+- Read timestamp
+- Creation timestamp
+
+Indexes were added for efficient user notification queries.
+
+### 3. Notification API
+
+Implemented:
+
+- Get current user's notifications
+- Pagination
+- Mark a notification as read
+
+Endpoints:
+
+`GET /api/notifications`
+
+`PATCH /api/notifications/:id/read`
+
+### 4. Notification Worker
+
+Updated the BullMQ notification worker to:
+
+1. Create the notification in PostgreSQL
+2. Send a Web Push notification
+3. Emit a Socket.IO event
+
+This keeps notification processing outside the HTTP request.
+
+### 5. Notification Dropdown
+
+Added a frontend notification dropdown containing:
+
+- Notification title
+- Notification message
+- Creation time
+- Read/unread state
+- Unread indicator
+- Mark-as-read functionality
+
+### 6. Unread Notification Count
+
+Added an unread notification badge to the Navbar.
+
+The count is synchronized when:
+
+- Notifications are loaded
+- A notification is marked as read
+- The notification dropdown is opened
+- A new real-time notification arrives
+
+The count is calculated from notification data rather than relying only on a local counter.
+
+### 7. Web Push Notifications
+
+Added Web Push support using:
+
+- VAPID
+- Service Worker
+- Push API
+- `web-push`
+
+Push subscriptions are stored in PostgreSQL.
+
+Each subscription contains:
+
+- User ID
+- Endpoint
+- `p256dh`
+- `auth`
+
+### 8. Service Worker
+
+The frontend Service Worker handles incoming push events.
+
+Behavior:
+
+- Application visible → in-app Socket.IO notification
+- Application closed/background → OS notification
+
+This prevents duplicate notifications while the application is actively being viewed.
+
+### 9. Push Subscription Management
+
+Implemented automatic subscription registration after authentication.
+
+Expired subscriptions returning HTTP `404` or `410` are removed from the database.
+
+## Final Notification Architecture
+
+```text
+                    Maintenance Request
+                           │
+                           ▼
+                        BullMQ
+                           │
+                           ▼
+                  Notification Worker
+                     │      │      │
+                     │      │      │
+                     ▼      ▼      ▼
+                PostgreSQL  Socket.IO  Web Push
+                     │         │          │
+                     │         ▼          ▼
+                     │    In-App UI    Service Worker
+                     │                    │
+                     │                    ▼
+                     │               OS Notification
+                     │
+                     ▼
+              Notification History
+ ```

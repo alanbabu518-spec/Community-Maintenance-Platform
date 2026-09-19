@@ -14,11 +14,9 @@ import {
 } from "lucide-react";
 import { getCurrentUser, logoutUser } from "../../services/auth.api";
 import { removeToken } from "../../services/auth";
-import {
-  getAnnouncementCount,
-  getAnnouncementEventName,
-} from "../../features/announcements/utils/announcementStorage";
 import { useTheme } from "../../context/ThemeContext";
+import NotificationDropdown from "./NotificationDropdown";
+import { getNotifications } from "../../services/notification.api";
 
 type User = {
   name?: string;
@@ -32,7 +30,8 @@ function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [announcementCount, setAnnouncementCount] = useState(0);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   const desktopProfileRef = useRef<HTMLDivElement>(null);
   const mobileProfileRef = useRef<HTMLDivElement>(null);
@@ -66,22 +65,27 @@ function Navbar() {
   }, [location.pathname]);
 
   useEffect(() => {
-    const updateAnnouncementCount = () => {
-      setAnnouncementCount(getAnnouncementCount());
-    };
+    if (!user) {
+      setUnreadNotificationCount(0);
+      return;
+    }
 
-    updateAnnouncementCount();
+    async function loadUnreadCount() {
+      try {
+        const result = await getNotifications(1, 100);
 
-    const eventName = getAnnouncementEventName();
+        const unreadCount = result.notifications.filter(
+          (notification) => !notification.isRead,
+        ).length;
 
-    window.addEventListener(eventName, updateAnnouncementCount);
-    window.addEventListener("storage", updateAnnouncementCount);
+        setUnreadNotificationCount(unreadCount);
+      } catch {
+        setUnreadNotificationCount(0);
+      }
+    }
 
-    return () => {
-      window.removeEventListener(eventName, updateAnnouncementCount);
-      window.removeEventListener("storage", updateAnnouncementCount);
-    };
-  }, []);
+    loadUnreadCount();
+  }, [user]);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -155,12 +159,6 @@ function Navbar() {
       setMobileMenuOpen(false);
       navigate("/login", { replace: true });
     }
-  };
-
-  const handleNotificationsClick = () => {
-    closeMobileMenu();
-    closeProfile();
-    navigate("/announcements");
   };
 
   const navItems = [
@@ -334,21 +332,34 @@ function Navbar() {
                 {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
               </button>
 
-              <button
-                type="button"
-                onClick={handleNotificationsClick}
-                className="relative mr-2 flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-                aria-label="View announcements"
-                title="Announcements"
-              >
-                <Bell size={19} />
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setNotificationsOpen((open) => !open)
+                  }
+                  className="relative mr-2 flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                  aria-label="View notifications"
+                  title="Notifications"
+                >
+                  <Bell size={19} />
 
-                {announcementCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
-                    {announcementCount > 99 ? "99+" : announcementCount}
-                  </span>
+                  {unreadNotificationCount > 0 && (
+                    <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+                      {unreadNotificationCount > 99
+                        ? "99+"
+                        : unreadNotificationCount}
+                    </span>
+                  )}
+                </button>
+
+                {notificationsOpen && (
+                  <NotificationDropdown
+                    onClose={() => setNotificationsOpen(false)}
+                    onUnreadCountChange={setUnreadNotificationCount}
+                  />
                 )}
-              </button>
+              </div>
 
               <button
                 type="button"
@@ -428,19 +439,28 @@ function Navbar() {
 
               <button
                 type="button"
-                onClick={handleNotificationsClick}
+                onClick={() => setNotificationsOpen((open) => !open)}
                 className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-                aria-label="View announcements"
-                title="Announcements"
+                aria-label="View notifications"
+                title="Notifications"
               >
                 <Bell size={20} />
 
-                {announcementCount > 0 && (
+                {unreadNotificationCount > 0 && (
                   <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
-                    {announcementCount > 99 ? "99+" : announcementCount}
+                    {unreadNotificationCount > 99
+                      ? "99+"
+                      : unreadNotificationCount}
                   </span>
                 )}
               </button>
+
+              {notificationsOpen && (
+                <NotificationDropdown
+                  onClose={() => setNotificationsOpen(false)}
+                  onUnreadCountChange={setUnreadNotificationCount}
+                />
+              )}
 
               <button
                 type="button"

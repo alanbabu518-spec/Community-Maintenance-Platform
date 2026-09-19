@@ -10,4 +10,10 @@ socket.on("connect", () => {
 
 socket.on("notification:new", (notification) => {
   console.log("New notification:", notification);
+
+  window.dispatchEvent(
+    new CustomEvent("notification:new", {
+      detail: notification,
+    }),
+  );
 });
