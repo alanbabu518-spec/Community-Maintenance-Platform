@@ -1,9 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { UserResponse } from "../types/api";
-import {
-  getCurrentUser,
-  loginUser,
-} from "../services/auth.api";
+import { getCurrentUser, loginUser } from "../services/auth.api";
+import { subscribeToPush } from "../services/push";
 
 interface AuthContextType {
   user: UserResponse | null;
@@ -32,6 +30,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     loadUser();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    subscribeToPush().catch((error) => {
+      console.error("Push subscription failed:", error);
+    });
+  }, [user]);
 
   async function login(email: string, password: string) {
     const result = await loginUser({

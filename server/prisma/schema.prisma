@@ -40,6 +40,7 @@ model User {
   maintenanceRequests MaintenanceRequest[] @relation("ResidentRequests")
   assignedRequests    MaintenanceRequest[] @relation("TechnicianRequests")
   notifications       Notification[]
+  pushSubscriptions PushSubscription[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -137,4 +138,17 @@ model MaintenanceAttachment {
   maintenanceRequest MaintenanceRequest @relation(fields: [maintenanceRequestId], references: [id], onDelete: Cascade)
 
   @@index([maintenanceRequestId])
+}
+
+model PushSubscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
