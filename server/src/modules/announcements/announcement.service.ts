@@ -3,8 +3,7 @@ import {
   getCommunityAnnouncements,
 } from "./announcement.repository.js";
 import { emitToCommunity } from "../../config/socket.js";
-import { getCommunityUserIds } from "./announcement.repository.js";
-import { sendPushNotification } from "../notifications/push.sender.js";
+import { notificationQueue } from "../../config/queue.js";
 
 export async function createCommunityAnnouncement(data: {
   communityId: number;
@@ -18,14 +17,11 @@ export async function createCommunityAnnouncement(data: {
 
   emitToCommunity(data.communityId, "announcement:new", announcement);
 
-  const userIds = await getCommunityUserIds(data.communityId);
-
-  for (const userId of userIds) {
-    await sendPushNotification(userId, {
-      title: announcement.title,
-      message: announcement.message,
-    });
-  }
+  await notificationQueue.add("announcement-created", {
+    communityId: data.communityId,
+    title: announcement.title,
+    message: announcement.message,
+  });
 
   return announcement;
 }

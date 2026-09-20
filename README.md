@@ -1879,3 +1879,47 @@ Prisma
     ↓
 PostgreSQL
 ```
+
+# Day 43 — Notification Queues & Reliable Web Push
+
+## Overview
+
+Day 43 improved the CommunityCare notification architecture by moving announcement Web Push processing into the existing BullMQ background job system.
+
+The main goal was to prevent the announcement API request from directly performing potentially expensive push operations.
+
+Day 43 also introduced separate notification job types and isolated individual push failures so one user's failed notification does not fail the entire community announcement job.
+
+---
+
+## 1. Day 43 Objectives
+
+The main goals were:
+
+1. Separate maintenance and announcement notification jobs
+2. Move announcement Web Push processing into BullMQ
+3. Process community notifications through the background worker
+4. Reuse existing Redis infrastructure
+5. Preserve BullMQ retry and backoff configuration
+6. Isolate individual push failures
+7. Verify the complete asynchronous notification flow
+
+---
+
+### 2. Previous Architecture
+
+Before Day 43, announcement creation directly performed Web Push processing.
+
+```text
+Admin
+  ↓
+Announcement API
+  ↓
+Create announcement
+  ↓
+Find community users
+  ↓
+Send Web Push
+  ↓
+HTTP response
+```
