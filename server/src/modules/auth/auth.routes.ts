@@ -91,6 +91,8 @@ router.post("/register", authRateLimiter, authController.register);
 
 router.post("/verify-otp", otpRateLimiter, authController.verifyOtp);
 
+router.post("/resend-otp", otpRateLimiter, authController.resendOtp);
+
 router.post("/login", authRateLimiter, authController.login);
 
 router.get("/me", authMiddleware, authController.me);

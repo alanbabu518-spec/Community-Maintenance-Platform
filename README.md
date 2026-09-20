@@ -1990,3 +1990,248 @@ Tested:
 
 Users can now control their Web Push notifications while in-app notifications and notification history remain available.
 
+## Day 45 — Notification Reliability & Cleanup
+
+### Goal
+
+Improve notification reliability and error handling in CommunityCare.
+
+* Type-safe Web Push errors
+* Invalid subscription cleanup
+* BullMQ retries
+* Push failure isolation
+* Worker logging
+
+### What Was Built
+
+### 1. Push Error Handling
+
+Replaced `any` with `unknown` for safe error handling.
+
+```ts
+catch (error: unknown) {
+```
+
+### 2. Invalid Subscription Cleanup
+
+Automatically removes subscriptions when Web Push returns:
+
+```text
+404 / 410
+```
+
+### 3. BullMQ Retry System
+
+```ts
+attempts: 3,
+backoff: {
+  type: "exponential",
+  delay: 1000,
+}
+```
+
+### 4. Push Failure Isolation
+
+```text
+Notification
+     ↓
+BullMQ
+     ↓
+Worker
+     ↓
+Web Push
+  ┌──┴──┐
+  ↓     ↓
+Success Failure
+        ↓
+     Log Error
+```
+
+### 5. Verification
+
+* TypeScript passed
+* Tests passed
+* Production build passed
+* Push failure handling verified
+* Invalid subscription cleanup verified
+
+### Result
+
+CommunityCare now has a more reliable notification system with retries, cleanup, failure isolation, and worker logging.
+
+## Day 46 — API Security Hardening
+
+### Goal
+
+Improve the security and production readiness of the CommunityCare backend.
+
+* Security headers
+* CORS hardening
+* Request body limits
+* Secure JWT cookies
+* Rate-limit review
+* Environment variable security
+
+### What Was Built
+
+### 1. Security Headers
+
+Added Helmet for HTTP security headers.
+
+```ts
+app.use(helmet());
+```
+
+### 2. CORS Hardening
+
+Moved the frontend URL to an environment variable.
+
+```env
+CLIENT_URL=http://localhost:5173
+```
+
+### 3. Request Body Limits
+
+Added a `1mb` limit for JSON and URL-encoded requests.
+
+```ts
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
+```
+
+### 4. JWT Cookie Security
+
+Configured the authentication cookie with:
+
+```text
+httpOnly
+secure
+sameSite
+7-day expiration
+```
+
+The JWT expiration was also changed to:
+
+```ts
+expiresIn: "7d"
+```
+
+### 5. Rate Limiting
+
+Reviewed existing authentication and OTP rate limits.
+
+```text
+Authentication → 10 requests / 15 minutes
+OTP            → 5 requests / 10 minutes
+```
+
+### 6. Environment Security
+
+Added `.env.example` files for client and server while keeping real secrets in `.env`.
+
+```text
+.env          → Not committed
+.env.example  → Committed
+```
+
+### Verification
+
+* TypeScript passed
+* Tests passed
+* Production build passed
+
+### Result
+
+CommunityCare backend is now more secure and prepared for production deployment.
+
+## Day 47 — Resend Email System
+
+### Goal
+
+Add a real email delivery system using Resend.
+
+* Resend API integration
+* OTP email delivery
+* Email verification flow
+* OTP resend
+* Redis OTP storage
+* Email rate limiting
+
+### What Was Built
+
+### 1. Resend Integration
+
+Added Resend configuration using an environment variable.
+
+```env
+RESEND_API_KEY=
+```
+
+### 2. OTP Email Service
+
+Created a reusable email service:
+
+```text
+src/modules/auth/email.service.ts
+```
+
+It sends verification emails containing:
+
+```text
+6-digit OTP
+5-minute expiration
+CommunityCare branding
+```
+
+### 3. Registration Email Flow
+
+```text
+Register
+   ↓
+Create User
+   ↓
+Generate OTP
+   ↓
+Store OTP in Redis
+   ↓
+Send Email with Resend
+```
+
+### 4. Resend OTP
+
+Added:
+
+```http
+POST /api/auth/resend-otp
+```
+
+with OTP rate limiting.
+
+### 5. Resend Testing
+
+Successfully verified:
+
+```text
+Registration
+   ↓
+OTP generated
+   ↓
+Redis
+   ↓
+Resend
+   ↓
+Email received
+```
+
+### Verification
+
+* TypeScript passed
+* Tests passed
+* Production build passed
+* OTP email received successfully
+* Resend integration verified
+
+### Result
+
+CommunityCare now has a working email delivery system using Resend for OTP verification and resend functionality.
+

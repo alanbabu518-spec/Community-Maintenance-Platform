@@ -1,6 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import { authService } from "./auth.service.js";
-import { registerSchema, loginSchema, verifyOtpSchema } from "./auth.schema.js";
+import {
+  registerSchema,
+  loginSchema,
+  verifyOtpSchema,
+  resendOtpSchema,
+} from "./auth.schema.js";
 import { Prisma } from "@prisma/client";
 
 export const authController = {
@@ -32,6 +37,18 @@ export const authController = {
     }
   },
 
+  async resendOtp(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = resendOtpSchema.parse(req.body);
+
+      const result = await authService.resendOtp(data.email);
+
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async verifyOtp(req: Request, res: Response, next: NextFunction) {
     try {
       const data = verifyOtpSchema.parse(req.body);
@@ -57,7 +74,7 @@ export const authController = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 60 * 60 * 1000,
+        maxAge: Number(process.env.COOKIE_MAX_AGE),
       });
 
       return res.status(200).json({
@@ -74,33 +91,32 @@ export const authController = {
   },
 
   async me(req: Request, res: Response, next: NextFunction) {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        message: "Not authenticated",
-      });
-    }
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          message: "Not authenticated",
+        });
+      }
 
-    const user = await authService.getCurrentUser(req.user.userId);
+      const user = await authService.getCurrentUser(req.user.userId);
+
+      return res.status(200).json({
+        user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async logout(req: Request, res: Response) {
+    res.clearCookie("access_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
 
     return res.status(200).json({
-      user,
+      message: "Logout successful",
     });
-  } catch (error) {
-    next(error);
-  }
-},
-
-async logout(req: Request, res: Response) {
-  res.clearCookie("access_token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  });
-
-  return res.status(200).json({
-    message: "Logout successful",
-  });
-},
-
+  },
 };

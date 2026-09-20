@@ -4,6 +4,7 @@ import type { LoginInput, RegisterInput } from "./auth.types.js";
 import { userRepository } from "../users/user.repository.js";
 import { toUserResponse } from "../users/user.mapper.js";
 import { generateOtp, storeOtp, getOtp, deleteOtp } from "../../utils/otp.js";
+import { sendOtpEmail } from "./email.service.js";
 
 export const authService = {
   async register(data: RegisterInput) {
@@ -20,9 +21,31 @@ export const authService = {
 
     await storeOtp(user.id, otp);
 
-    console.log("OTP:", otp);
+    await sendOtpEmail(user.email, otp, user.name);
 
     return toUserResponse(user);
+  },
+
+  async resendOtp(email: string) {
+    const user = await userRepository.findByEmail(email);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.emailVerified) {
+      throw new Error("Email already verified");
+    }
+
+    const otp = generateOtp();
+
+    await storeOtp(user.id, otp);
+
+    await sendOtpEmail(user.email, otp, user.name);
+
+    return {
+      message: "OTP sent successfully",
+    };
   },
 
   async verifyOtp(email: string, otp: string) {
@@ -72,7 +95,7 @@ export const authService = {
       },
       process.env.JWT_SECRET!,
       {
-        expiresIn: "1h",
+        expiresIn: "7d",
       },
     );
 
@@ -83,13 +106,12 @@ export const authService = {
   },
 
   async getCurrentUser(userId: number) {
-  const user = await userRepository.findById(userId);
+    const user = await userRepository.findById(userId);
 
-  if (!user) {
-    throw new Error("User not found");
-  }
+    if (!user) {
+      throw new Error("User not found");
+    }
 
-  return toUserResponse(user);
-},
-
+    return toUserResponse(user);
+  },
 };
