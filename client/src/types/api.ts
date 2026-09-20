@@ -63,6 +63,7 @@ export interface UserResponse {
   name: string;
   email: string;
   role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
+  communityId: number | null;
 }
 
 export interface LoginResponse {

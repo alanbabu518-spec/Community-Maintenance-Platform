@@ -37,10 +37,13 @@ model User {
   role          UserRole
   emailVerified Boolean  @default(false)
 
+  unitId Int?
+  unit   Unit? @relation(fields: [unitId], references: [id])
+
   maintenanceRequests MaintenanceRequest[] @relation("ResidentRequests")
   assignedRequests    MaintenanceRequest[] @relation("TechnicianRequests")
   notifications       Notification[]
-  pushSubscriptions PushSubscription[]
+  pushSubscriptions   PushSubscription[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -92,6 +95,7 @@ model Unit {
   buildingId Int
 
   building Building @relation(fields: [buildingId], references: [id])
+  residents User[]
 
   maintenanceRequests MaintenanceRequest[]
 
@@ -159,6 +163,9 @@ model Announcement {
   communityId Int
   title       String
   message     String
+  category    String?
+  priority    String?
+  author      String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

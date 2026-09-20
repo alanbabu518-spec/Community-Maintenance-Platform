@@ -4,6 +4,9 @@ export async function createAnnouncement(data: {
   communityId: number;
   title: string;
   message: string;
+  category: string;
+  priority: string;
+  author: string;
 }) {
   return prisma.announcement.create({
     data,
@@ -36,4 +39,21 @@ export async function getCommunityAnnouncements(
     limit,
     totalPages: Math.ceil(total / limit),
   };
+}
+
+export async function getCommunityUserIds(communityId: number) {
+  const users = await prisma.user.findMany({
+    where: {
+      unit: {
+        building: {
+          communityId,
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return users.map((user) => user.id);
 }

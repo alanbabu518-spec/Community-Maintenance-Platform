@@ -1,93 +1,91 @@
-import { useMemo, useState } from "react";
-import {
-  Bell,
-  Megaphone,
-  Plus,
-  Search,
-} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Bell, Megaphone, Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnnouncementCard, {
-  type Announcement,
+  type Announcement as CardAnnouncement,
 } from "../features/announcements/components/AnnouncementCard";
 import AnnouncementFilter from "../features/announcements/components/AnnouncementFilters";
 import AnnouncementSkeleton from "../features/announcements/components/AnnouncementSkeleton";
 import { useAuth } from "../context/AuthContext";
-
-const announcements: Announcement[] = [
-  {
-    id: "1",
-    title: "Water Supply Maintenance",
-    content:
-      "Water supply will be temporarily unavailable tomorrow morning due to scheduled maintenance work.",
-    category: "Maintenance",
-    priority: "High",
-    author: "Community Management",
-    date: "Sep 16, 2026",
-  },
-  {
-    id: "2",
-    title: "Community Meeting This Weekend",
-    content:
-      "A community meeting will be held this Saturday to discuss upcoming maintenance and community activities.",
-    category: "Event",
-    priority: "Medium",
-    author: "Association Committee",
-    date: "Sep 15, 2026",
-  },
-  {
-    id: "3",
-    title: "Monthly Maintenance Payment Reminder",
-    content:
-      "Residents are requested to complete their monthly maintenance payment before the due date.",
-    category: "General",
-    priority: "Medium",
-    author: "Community Management",
-    date: "Sep 14, 2026",
-  },
-  {
-    id: "4",
-    title: "Parking Area Cleaning",
-    content:
-      "The parking area will undergo cleaning and maintenance work. Please keep the designated areas clear.",
-    category: "Maintenance",
-    priority: "Low",
-    author: "Community Management",
-    date: "Sep 12, 2026",
-  },
-  {
-    id: "5",
-    title: "Emergency Contact Information Updated",
-    content:
-      "Emergency contact information for the community has been updated. Residents can find the latest details in the community portal.",
-    category: "Emergency",
-    priority: "High",
-    author: "Association Committee",
-    date: "Sep 10, 2026",
-  },
-  {
-    id: "6",
-    title: "Community Festival Registration",
-    content:
-      "Registration is now open for the upcoming community festival. Residents can register their participation through the community office.",
-    category: "Event",
-    priority: "Low",
-    author: "Community Committee",
-    date: "Sep 8, 2026",
-  },
-];
+import {
+  getAnnouncements,
+  type Announcement as ApiAnnouncement,
+} from "../services/announcement.api";
 
 function AnnouncementsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const [announcements, setAnnouncements] = useState<ApiAnnouncement[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [priority, setPriority] = useState("All");
-
-  const isLoading = false;
+  const [isLoading, setIsLoading] = useState(true);
 
   const canCreateAnnouncement =
     user?.role === "ADMIN" || user?.role === "MANAGER";
+
+  useEffect(() => {
+    if (!user?.communityId) {
+      setIsLoading(false);
+      return;
+    }
+
+    async function loadAnnouncements() {
+      try {
+        setIsLoading(true);
+
+        if (!user?.communityId) {
+          return;
+        }
+
+        const result = await getAnnouncements(user.communityId);
+
+        setAnnouncements(result.announcements);
+      } catch {
+        setAnnouncements([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadAnnouncements();
+  }, [user]);
+
+  useEffect(() => {
+    const handleNewAnnouncement = (event: Event) => {
+      const customEvent = event as CustomEvent<ApiAnnouncement>;
+      const newAnnouncement = customEvent.detail;
+
+      if (!newAnnouncement) {
+        return;
+      }
+
+      setAnnouncements((currentAnnouncements) => {
+        const alreadyExists = currentAnnouncements.some(
+          (announcement) => announcement.id === newAnnouncement.id,
+        );
+
+        if (alreadyExists) {
+          return currentAnnouncements;
+        }
+
+        return [newAnnouncement, ...currentAnnouncements];
+      });
+    };
+
+    window.addEventListener(
+      "announcement:new",
+      handleNewAnnouncement,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "announcement:new",
+        handleNewAnnouncement,
+      );
+    };
+  }, []);
 
   const filteredAnnouncements = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -96,23 +94,17 @@ function AnnouncementsPage() {
       const matchesSearch =
         !query ||
         announcement.title.toLowerCase().includes(query) ||
-        announcement.content.toLowerCase().includes(query);
+        announcement.message.toLowerCase().includes(query);
 
       const matchesCategory =
-        category === "All" ||
-        announcement.category === category;
+        category === "All" || announcement.category === category;
 
       const matchesPriority =
-        priority === "All" ||
-        announcement.priority === priority;
+        priority === "All" || announcement.priority === priority;
 
-      return (
-        matchesSearch &&
-        matchesCategory &&
-        matchesPriority
-      );
+      return matchesSearch && matchesCategory && matchesPriority;
     });
-  }, [search, category, priority]);
+  }, [announcements, search, category, priority]);
 
   const clearFilters = () => {
     setSearch("");
@@ -191,15 +183,33 @@ function AnnouncementsPage() {
           </div>
         ) : filteredAnnouncements.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2">
-            {filteredAnnouncements.map((announcement) => (
-              <AnnouncementCard
-                key={announcement.id}
-                announcement={announcement}
-                onClick={() =>
-                  navigate(`/announcements/${announcement.id}`)
-                }
-              />
-            ))}
+            {filteredAnnouncements.map((announcement) => {
+              const cardAnnouncement: CardAnnouncement = {
+                id: String(announcement.id),
+                title: announcement.title,
+                content: announcement.message,
+                category: announcement.category,
+                priority: announcement.priority,
+                author: announcement.author,
+                date: new Date(
+                  announcement.createdAt,
+                ).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                }),
+              };
+
+              return (
+                <AnnouncementCard
+                  key={announcement.id}
+                  announcement={cardAnnouncement}
+                  onClick={() =>
+                    navigate(`/announcements/${announcement.id}`)
+                  }
+                />
+              );
+            })}
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-stone-300 bg-white px-6 py-16 text-center dark:border-stone-700 dark:bg-stone-900">

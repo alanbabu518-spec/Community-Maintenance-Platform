@@ -10,16 +10,19 @@ export async function createAnnouncement(
   next: NextFunction,
 ) {
   try {
-    const { communityId, title, message } = req.body;
+    const { communityId, title, message, category, priority } = req.body;
 
     if (
       !communityId ||
       !Number.isInteger(Number(communityId)) ||
       !title?.trim() ||
-      !message?.trim()
+      !message?.trim() ||
+      !category?.trim() ||
+      !priority?.trim()
     ) {
       res.status(400).json({
-        message: "Valid community ID, title, and message are required",
+        message:
+          "Valid community ID, title, message, category, and priority are required",
       });
       return;
     }
@@ -28,8 +31,11 @@ export async function createAnnouncement(
       communityId: Number(communityId),
       title,
       message,
+      category,
+      priority,
+      author: `${req.user!.role}`,
     });
-
+    
     res.status(201).json(announcement);
   } catch (error) {
     next(error);

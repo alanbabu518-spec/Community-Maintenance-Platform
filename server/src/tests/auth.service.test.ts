@@ -39,6 +39,8 @@ describe("authService.login", () => {
       email: "jacob20@example.com",
       passwordHash: "hashed-password",
       role: "RESIDENT",
+      unitId: null,
+      communityId: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as any);
@@ -53,13 +55,14 @@ describe("authService.login", () => {
     });
 
     expect(result).toEqual({
+      token: "test-jwt-token",
       user: {
         id: 32,
         name: "Jacob",
         email: "jacob20@example.com",
         role: "RESIDENT",
+        communityId: null,
       },
-      token: "test-jwt-token",
     });
 
     expect(userRepository.findByEmail).toHaveBeenCalledWith(
@@ -81,6 +84,8 @@ describe("authService.login", () => {
       email: "jacob20@example.com",
       passwordHash: "hashed-password",
       role: "RESIDENT",
+      unitId: null,
+      communityId: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as any);
@@ -118,6 +123,8 @@ describe("authService.login", () => {
       email: "jacob20@example.com",
       passwordHash: "hashed-password",
       role: "RESIDENT",
+      unitId: null,
+      communityId: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as any);
@@ -147,6 +154,8 @@ describe("authService.register", () => {
       email: "test@example.com",
       passwordHash: "hashed-password",
       role: "RESIDENT",
+      unitId: null,
+      communityId: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as any);
@@ -173,6 +182,7 @@ describe("authService.register", () => {
       name: "Test User",
       email: "test@example.com",
       role: "RESIDENT",
+      communityId: null,
     });
 
     expect(result).not.toHaveProperty("passwordHash");

@@ -42,6 +42,15 @@ export const userRepository = {
           role: true,
           createdAt: true,
           updatedAt: true,
+          unit: {
+            select: {
+              building: {
+                select: {
+                  communityId: true,
+                },
+              },
+            },
+          },
         },
         orderBy: {
           createdAt: filters.sortOrder,
@@ -73,7 +82,16 @@ export const userRepository = {
   },
 
   findById(id: number) {
-    return prisma.user.findUnique({ where: { id } });
+    return prisma.user.findUnique({
+      where: { id },
+      include: {
+        unit: {
+          include: {
+            building: true,
+          },
+        },
+      },
+    });
   },
 
   updateVerificationStatus(id: number, emailVerified: boolean) {

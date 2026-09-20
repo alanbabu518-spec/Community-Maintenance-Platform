@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Announcement" ALTER COLUMN "author" DROP NOT NULL,
+ALTER COLUMN "category" DROP NOT NULL,
+ALTER COLUMN "priority" DROP NOT NULL;

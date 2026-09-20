@@ -17,6 +17,7 @@ describe("POST /api/auth/register", () => {
       name: "Test Resident",
       email: "test@example.com",
       role: "RESIDENT",
+      communityId: null,
     });
 
     const response = await request(app)
@@ -36,6 +37,7 @@ describe("POST /api/auth/register", () => {
         name: "Test Resident",
         email: "test@example.com",
         role: "RESIDENT",
+         communityId: null,
       },
     });
 

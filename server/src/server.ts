@@ -5,6 +5,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import { initializeSocket } from "./config/socket.js";
+import { prisma } from "./lib/prisma.js";
 
 const PORT = 5000;
 
@@ -19,7 +20,7 @@ const io = new Server(httpServer, {
 
 initializeSocket(io);
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   const token = socket.handshake.headers.cookie
     ?.split(";")
     .find((cookie) => cookie.trim().startsWith("access_token="))
@@ -36,8 +37,32 @@ io.on("connection", (socket) => {
       process.env.JWT_SECRET!,
     ) as Express.AuthenticatedUser;
 
+    const user = await prisma.user.findUnique({
+      where: {
+        id: decoded.userId,
+      },
+      select: {
+        unit: {
+          select: {
+            building: {
+              select: {
+                communityId: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
     socket.join(`user:${decoded.userId}`);
     console.log(`Joined room: user:${decoded.userId}`);
+
+    const communityId = user?.unit?.building?.communityId;
+
+    if (communityId) {
+      socket.join(`community:${communityId}`);
+      console.log(`Joined room: community:${communityId}`);
+    }
 
     console.log(`Socket connected: ${socket.id}`);
   } catch {

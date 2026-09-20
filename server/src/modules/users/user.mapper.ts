@@ -5,6 +5,11 @@ type UserForResponse = {
   name: string;
   email: string;
   role: "RESIDENT" | "ADMIN" | "MANAGER" | "TECHNICIAN";
+  unit?: {
+    building?: {
+      communityId: number;
+    } | null;
+  } | null;
 };
 
 export function toUserResponse(user: UserForResponse): UserResponse {
@@ -13,5 +18,6 @@ export function toUserResponse(user: UserForResponse): UserResponse {
     name: user.name,
     email: user.email,
     role: user.role,
+    communityId: user.unit?.building?.communityId ?? null,
   };
 }

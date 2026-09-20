@@ -4,7 +4,8 @@ export interface UserResponse {
   id: number;
   name: string;
   email: string;
-  role: UserRole;
+  role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
+  communityId: number | null;
 }
 
 export interface UserFilters {

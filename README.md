@@ -1820,3 +1820,62 @@ Expired subscriptions returning HTTP `404` or `410` are removed from the databas
                      ▼
               Notification History
  ```
+
+## Day 42 — Announcements, Real-Time Updates & Web Push
+
+### Overview
+
+Day 42 added a complete community announcement system to CommunityCare.
+
+The system supports:
+
+- Announcement creation with role-based access control
+- Announcement persistence in PostgreSQL
+- Community-based announcement retrieval
+- Real-time announcement delivery using Socket.IO
+- Browser Web Push subscriptions
+- OS notifications when the application is closed
+- Automatic cleanup of expired push subscriptions
+- Frontend real-time announcement updates
+- Announcement filtering and search
+
+---
+
+### 1. Day 42 Objectives
+
+The main goals were:
+
+1. Build the announcement backend
+2. Add announcement API endpoints
+3. Apply RBAC to announcement creation
+4. Connect announcements to the frontend
+5. Add real-time announcement delivery
+6. Add Web Push support
+7. Display OS notifications when the application is closed
+8. Verify the complete announcement workflow
+
+---
+
+### 2. Announcement Architecture
+
+The announcement system follows the existing layered backend architecture:
+
+```text
+HTTP Request
+    ↓
+Route
+    ↓
+Authentication Middleware
+    ↓
+Authorization Middleware
+    ↓
+Controller
+    ↓
+Service
+    ↓
+Repository
+    ↓
+Prisma
+    ↓
+PostgreSQL
+```

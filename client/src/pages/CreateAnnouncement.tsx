@@ -3,26 +3,29 @@ import { ArrowLeft, Megaphone } from "lucide-react";
 import AnnouncementForm, {
   type AnnouncementFormData,
 } from "../features/announcements/components/AnnouncementForm";
-import {
-  addAnnouncement,
-  type StoredAnnouncement,
-} from "../features/announcements/utils/announcementStorage";
+import { useAuth } from "../context/AuthContext";
+import { createAnnouncement } from "../services/announcement.api";
 
 function CreateAnnouncement() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const handleSubmit = async (data: AnnouncementFormData) => {
+    if (!user?.communityId) {
+      return;
+    }
 
-  const handleSubmit = (data: AnnouncementFormData) => {
-    const announcement: StoredAnnouncement = {
-      id: crypto.randomUUID(),
+    await createAnnouncement({
+      communityId: user.communityId,
       title: data.title,
-      content: data.content,
-      category: data.category as StoredAnnouncement["category"],
-      priority: data.priority as StoredAnnouncement["priority"],
-      author: "Community Manager",
-      date: new Date().toISOString().split("T")[0],
-    };
-
-    addAnnouncement(announcement);
+      message: data.content,
+      category: data.category as
+        | "General"
+        | "Maintenance"
+        | "Event"
+        | "Emergency",
+      priority: data.priority as "Low" | "Medium" | "High",
+    });
 
     navigate("/announcements");
   };

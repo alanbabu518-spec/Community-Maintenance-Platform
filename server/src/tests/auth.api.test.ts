@@ -17,6 +17,7 @@ describe("POST /api/auth/login", () => {
         name: "Jacob",
         email: "jacob20@example.com",
         role: "RESIDENT",
+        communityId: null,
       },
       token: "test-jwt-token",
     });
@@ -35,6 +36,7 @@ describe("POST /api/auth/login", () => {
         name: "Jacob",
         email: "jacob20@example.com",
         role: "RESIDENT",
+        communityId: null,
       },
     });
 

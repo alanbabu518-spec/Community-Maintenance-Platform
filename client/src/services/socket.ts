@@ -17,3 +17,13 @@ socket.on("notification:new", (notification) => {
     }),
   );
 });
+
+socket.on("announcement:new", (announcement) => {
+  console.log("New announcement:", announcement);
+
+  window.dispatchEvent(
+    new CustomEvent("announcement:new", {
+      detail: announcement,
+    }),
+  );
+});
