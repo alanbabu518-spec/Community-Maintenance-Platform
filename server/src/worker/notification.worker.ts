@@ -24,12 +24,27 @@ export const notificationWorker = new Worker(
         message: job.data.message,
       });
 
-      await sendPushNotification(job.data.residentId, {
-        title: job.data.title,
-        message: job.data.message,
-      });
+      const preferences =
+        await prisma.notificationPreference.findUnique({
+          where: {
+            userId: job.data.residentId,
+          },
+        });
 
-      emitToUser(job.data.residentId, "notification:new", notification);
+      if (
+        preferences?.pushEnabled !== false &&
+        preferences?.maintenance !== false
+      ) {
+        await sendPushNotification(job.data.residentId, {
+          title: job.data.title,
+          message: job.data.message,
+        });
+      }
+      emitToUser(
+        job.data.residentId,
+        "notification:new",
+        notification,
+      );
 
       return;
     }
@@ -50,14 +65,30 @@ export const notificationWorker = new Worker(
 
       for (const user of users) {
         try {
-          await sendPushNotification(user.id, {
-            title: job.data.title,
-            message: job.data.message,
-          });
+          const preferences =
+            await prisma.notificationPreference.findUnique({
+              where: {
+                userId: user.id,
+              },
+            });
+
+          if (
+            preferences?.pushEnabled !== false &&
+            preferences?.announcements !== false
+          ) {
+            await sendPushNotification(user.id, {
+              title: job.data.title,
+              message: job.data.message,
+            });
+          }
         } catch (error) {
-          console.error(`Push notification failed for user ${user.id}:`, error);
+          console.error(
+            `Push notification failed for user ${user.id}:`,
+            error,
+          );
         }
       }
+
       return;
     }
 
@@ -73,5 +104,8 @@ notificationWorker.on("completed", (job) => {
 });
 
 notificationWorker.on("failed", (job, error) => {
-  console.error(`Notification job ${job?.id} failed:`, error);
+  console.error(
+    `Notification job ${job?.id} failed:`,
+    error,
+  );
 });

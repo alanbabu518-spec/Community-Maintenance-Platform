@@ -44,9 +44,22 @@ model User {
   assignedRequests    MaintenanceRequest[] @relation("TechnicianRequests")
   notifications       Notification[]
   pushSubscriptions   PushSubscription[]
+  notificationPreference NotificationPreference?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model NotificationPreference {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  pushEnabled  Boolean  @default(true)
+  announcements Boolean @default(true)
+  maintenance  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Notification {

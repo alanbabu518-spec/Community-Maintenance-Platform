@@ -1923,3 +1923,70 @@ Send Web Push
   ↓
 HTTP response
 ```
+
+# Day 44 — Notification Preferences & User Control
+
+## Goal
+
+Build a notification preference system that allows users to control Web Push notifications.
+
+* Push notification control
+* Maintenance notifications
+* Announcement notifications
+* PostgreSQL preference storage
+* BullMQ worker integration
+* Real-time in-app notifications
+
+## What Was Built
+
+### 1. Notification Preferences
+
+Added `NotificationPreference` model with:
+
+```text
+pushEnabled
+announcements
+maintenance
+```
+
+Default values are `true`.
+
+### 2. Preference API
+
+```http
+GET /api/notification-preferences
+PATCH /api/notification-preferences
+```
+
+Users can update their own notification preferences.
+
+### 3. Notification Worker
+
+Updated the BullMQ worker to check preferences before sending Web Push.
+
+```text
+Notification Event
+        ↓
+     BullMQ
+        ↓
+Notification Worker
+        ↓
+Check Preferences
+        ↓
+   Web Push
+```
+
+### 4. Verification
+
+Tested:
+
+* Push ON/OFF
+* Maintenance ON/OFF
+* Announcement ON/OFF
+* Notification persistence
+* Socket.IO notifications
+
+## Result
+
+Users can now control their Web Push notifications while in-app notifications and notification history remain available.
+

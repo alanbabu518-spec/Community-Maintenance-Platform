@@ -7,9 +7,10 @@ import maintenanceRoutes from "./modules/maintenance/maintenance.routes.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger.js";
-import dashboardRoutes from "./modules/dashboard/dashboard.routes.js"
+import dashboardRoutes from "./modules/dashboard/dashboard.routes.js";
 import notificationRoutes from "./modules/notifications/notification.routes.js";
 import announcementRoutes from "./modules/announcements/announcement.routes.js";
+import notificationPreferenceRoutes from "./modules/notification-preferences/notification-preference.routes.js";
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/announcements", announcementRoutes);
+app.use("/api/notification-preferences", notificationPreferenceRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({
