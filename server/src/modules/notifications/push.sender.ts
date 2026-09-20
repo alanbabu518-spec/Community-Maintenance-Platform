@@ -26,11 +26,17 @@ export async function sendPushNotification(
         },
         notificationPayload,
       );
-    } catch (error: any) {
-      if (error.statusCode === 404 || error.statusCode === 410) {
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "statusCode" in error &&
+        (error.statusCode === 404 || error.statusCode === 410)
+      ) {
         await prisma.pushSubscription.delete({
           where: { id: subscription.id },
         });
+
         continue;
       }
 

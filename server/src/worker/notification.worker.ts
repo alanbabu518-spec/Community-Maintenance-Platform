@@ -24,27 +24,29 @@ export const notificationWorker = new Worker(
         message: job.data.message,
       });
 
-      const preferences =
-        await prisma.notificationPreference.findUnique({
-          where: {
-            userId: job.data.residentId,
-          },
-        });
+      const preferences = await prisma.notificationPreference.findUnique({
+        where: {
+          userId: job.data.residentId,
+        },
+      });
 
       if (
         preferences?.pushEnabled !== false &&
         preferences?.maintenance !== false
       ) {
-        await sendPushNotification(job.data.residentId, {
-          title: job.data.title,
-          message: job.data.message,
-        });
+        try {
+          await sendPushNotification(job.data.residentId, {
+            title: job.data.title,
+            message: job.data.message,
+          });
+        } catch (error) {
+          console.error(
+            `Push notification failed for user ${job.data.residentId}:`,
+            error,
+          );
+        }
       }
-      emitToUser(
-        job.data.residentId,
-        "notification:new",
-        notification,
-      );
+      emitToUser(job.data.residentId, "notification:new", notification);
 
       return;
     }
@@ -65,12 +67,11 @@ export const notificationWorker = new Worker(
 
       for (const user of users) {
         try {
-          const preferences =
-            await prisma.notificationPreference.findUnique({
-              where: {
-                userId: user.id,
-              },
-            });
+          const preferences = await prisma.notificationPreference.findUnique({
+            where: {
+              userId: user.id,
+            },
+          });
 
           if (
             preferences?.pushEnabled !== false &&
@@ -82,10 +83,7 @@ export const notificationWorker = new Worker(
             });
           }
         } catch (error) {
-          console.error(
-            `Push notification failed for user ${user.id}:`,
-            error,
-          );
+          console.error(`Push notification failed for user ${user.id}:`, error);
         }
       }
 
@@ -100,12 +98,14 @@ export const notificationWorker = new Worker(
 );
 
 notificationWorker.on("completed", (job) => {
-  console.log(`Notification job ${job.id} completed`);
+  console.log(
+    `[Notification Worker] Job completed | id=${job.id} | name=${job.name}`,
+  );
 });
 
 notificationWorker.on("failed", (job, error) => {
   console.error(
-    `Notification job ${job?.id} failed:`,
+    `[Notification Worker] Job failed | id=${job?.id} | name=${job?.name} | attempts=${job?.attemptsMade}`,
     error,
   );
 });
