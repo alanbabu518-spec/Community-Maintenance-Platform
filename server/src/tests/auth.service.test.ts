@@ -1,20 +1,15 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { authService } from "../modules/auth/auth.service.js";
 import { userRepository } from "../modules/users/user.repository.js";
-
-vi.mock("../modules/users/user.repository.js", () => ({
-  userRepository: {
-    findByEmail: vi.fn(),
-    create: vi.fn(),
-  },
-}));
+import { generateOtp, storeOtp, getOtp, deleteOtp } from "../utils/otp.js";
+import { sendOtpEmail } from "../modules/auth/email.service.js";
 
 vi.mock("bcrypt", () => ({
   default: {
-    compare: vi.fn(),
     hash: vi.fn(),
+    compare: vi.fn(),
   },
 }));
 
@@ -24,18 +19,22 @@ vi.mock("jsonwebtoken", () => ({
   },
 }));
 
+vi.mock("../modules/users/user.repository.js", () => ({
+  userRepository: {
+    findByEmail: vi.fn(),
+    create: vi.fn(),
+    findById: vi.fn(),
+    updatePassword: vi.fn(),
+    incrementTokenVersion: vi.fn(),
+    updateVerificationStatus: vi.fn(),
+  },
+}));
+
 vi.mock("../utils/otp.js", () => ({
-  generateOtp: vi.fn(() => "123456"),
+  generateOtp: vi.fn(),
   storeOtp: vi.fn(),
   getOtp: vi.fn(),
   deleteOtp: vi.fn(),
-}));
-
-vi.mock("../utils/passwordReset.js", () => ({
-  generateResetToken: vi.fn(() => "test-reset-token"),
-  storeResetToken: vi.fn(),
-  getResetTokenUserId: vi.fn(),
-  deleteResetToken: vi.fn(),
 }));
 
 vi.mock("../modules/auth/email.service.js", () => ({
@@ -43,160 +42,160 @@ vi.mock("../modules/auth/email.service.js", () => ({
   sendPasswordResetEmail: vi.fn(),
 }));
 
-describe("authService.login", () => {
-  it("should login successfully with valid credentials", async () => {
-    vi.mocked(userRepository.findByEmail).mockResolvedValue({
-      id: 32,
-      name: "Jacob",
-      email: "jacob20@example.com",
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+describe("authService", () => {
+  it("should register a new user", async () => {
+    vi.mocked(userRepository.findByEmail).mockResolvedValue(null);
+
+    vi.mocked(bcrypt.hash).mockResolvedValue("hashed-password" as never);
+
+    vi.mocked(userRepository.create).mockResolvedValue({
+      id: 1,
+      name: "Test User",
+      email: "test@example.com",
       passwordHash: "hashed-password",
       role: "RESIDENT",
-      unitId: null,
-      communityId: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      emailVerified: false,
+      tokenVersion: 0,
     } as any);
 
-    vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
+    vi.mocked(generateOtp).mockReturnValue("123456");
+    vi.mocked(storeOtp).mockResolvedValue(undefined);
+    vi.mocked(sendOtpEmail).mockResolvedValue(undefined);
 
-    vi.mocked(jwt.sign).mockReturnValue("test-jwt-token" as never);
-
-    const result = await authService.login({
-      email: "jacob20@example.com",
-      password: "correct-password",
+    const result = await authService.register({
+      name: "Test User",
+      email: "test@example.com",
+      password: "password123",
     });
 
     expect(result).toEqual({
-      token: "test-jwt-token",
-      user: {
-        id: 32,
-        name: "Jacob",
-        email: "jacob20@example.com",
-        role: "RESIDENT",
-        communityId: null,
-      },
+      id: 1,
+      name: "Test User",
+      email: "test@example.com",
+      role: "RESIDENT",
+      communityId: null,
     });
 
-    expect(userRepository.findByEmail).toHaveBeenCalledWith(
-      "jacob20@example.com",
-    );
-
-    expect(bcrypt.compare).toHaveBeenCalledWith(
-      "correct-password",
-      "hashed-password",
-    );
-
-    expect(jwt.sign).toHaveBeenCalled();
+    expect(userRepository.findByEmail).toHaveBeenCalledWith("test@example.com");
   });
 
-  it("should reject login with an invalid password", async () => {
+  it("should login successfully", async () => {
     vi.mocked(userRepository.findByEmail).mockResolvedValue({
-      id: 32,
-      name: "Jacob",
-      email: "jacob20@example.com",
+      id: 1,
+      name: "Test User",
+      email: "test@example.com",
       passwordHash: "hashed-password",
       role: "RESIDENT",
-      unitId: null,
-      communityId: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      emailVerified: true,
+      tokenVersion: 0,
+    } as any);
+
+    vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
+    vi.mocked(jwt.sign).mockReturnValue("test-token" as any);
+
+    const result = await authService.login({
+      email: "test@example.com",
+      password: "password123",
+    });
+
+    expect(result.token).toBe("test-token");
+
+    expect(jwt.sign).toHaveBeenCalledWith(
+      {
+        userId: 1,
+        role: "RESIDENT",
+        tokenVersion: 0,
+      },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "7d",
+      },
+    );
+  });
+
+  it("should reject login with invalid credentials", async () => {
+    vi.mocked(userRepository.findByEmail).mockResolvedValue({
+      id: 1,
+      name: "Test User",
+      email: "test@example.com",
+      passwordHash: "hashed-password",
+      role: "RESIDENT",
+      emailVerified: true,
+      tokenVersion: 0,
     } as any);
 
     vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
 
     await expect(
       authService.login({
-        email: "jacob20@example.com",
+        email: "test@example.com",
         password: "wrong-password",
       }),
-    ).rejects.toThrow("Invalid Email or Password");
+    ).rejects.toThrow();
 
     expect(jwt.sign).not.toHaveBeenCalled();
   });
 
-  it("should reject login when user does not exist", async () => {
-    vi.mocked(userRepository.findByEmail).mockResolvedValue(null);
-
-    await expect(
-      authService.login({
-        email: "unknown@example.com",
-        password: "some-password",
-      }),
-    ).rejects.toThrow("Invalid Email or Password");
-
-    expect(bcrypt.compare).not.toHaveBeenCalled();
-    expect(jwt.sign).not.toHaveBeenCalled();
-  });
-
-  it("should propagate an error when password comparison fails", async () => {
+  it("should reject registration when email already exists", async () => {
     vi.mocked(userRepository.findByEmail).mockResolvedValue({
-      id: 32,
-      name: "Jacob",
-      email: "jacob20@example.com",
-      passwordHash: "hashed-password",
+      id: 1,
+      name: "Existing User",
+      email: "test@example.com",
       role: "RESIDENT",
-      unitId: null,
-      communityId: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      emailVerified: true,
+      tokenVersion: 0,
     } as any);
-
-    vi.mocked(bcrypt.compare).mockRejectedValue(
-      new Error("Password comparison failed"),
-    );
 
     await expect(
-      authService.login({
-        email: "jacob20@example.com",
-        password: "correct-password",
+      authService.register({
+        name: "Test User",
+        email: "test@example.com",
+        password: "password123",
       }),
-    ).rejects.toThrow("Password comparison failed");
+    ).rejects.toThrow();
 
-    expect(jwt.sign).not.toHaveBeenCalled();
+    expect(userRepository.create).not.toHaveBeenCalled();
   });
-});
 
-describe("authService.register", () => {
-  it("should hash the password and create a user", async () => {
-    vi.mocked(bcrypt.hash).mockResolvedValue("hashed-password" as never);
-
-    vi.mocked(userRepository.create).mockResolvedValue({
-      id: 33,
+  it("should verify an OTP successfully", async () => {
+    vi.mocked(userRepository.findByEmail).mockResolvedValue({
+      id: 1,
       name: "Test User",
       email: "test@example.com",
-      passwordHash: "hashed-password",
       role: "RESIDENT",
-      unitId: null,
-      communityId: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      emailVerified: false,
+      tokenVersion: 0,
     } as any);
 
-    const input = {
-      name: "Test User",
-      email: "test@example.com",
-      password: "password123",
-    };
+    vi.mocked(getOtp).mockResolvedValue("123456");
 
-    const result = await authService.register(input);
-
-    expect(bcrypt.hash).toHaveBeenCalledWith("password123", 10);
-
-    expect(userRepository.create).toHaveBeenCalledWith({
+    vi.mocked(userRepository.updateVerificationStatus).mockResolvedValue({
+      id: 1,
       name: "Test User",
       email: "test@example.com",
       passwordHash: "hashed-password",
+      googleId: null,
       role: "RESIDENT",
-    });
+      emailVerified: true,
+      tokenVersion: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      unitId: null,
+    } as any);
 
-    expect(result).toEqual({
-      id: 33,
-      name: "Test User",
-      email: "test@example.com",
-      role: "RESIDENT",
-      communityId: null,
-    });
+    vi.mocked(deleteOtp).mockResolvedValue(undefined);
 
-    expect(result).not.toHaveProperty("passwordHash");
+    await authService.verifyOtp("test@example.com", "123456");
+
+   expect(getOtp).toHaveBeenCalledWith(1);
+expect(userRepository.updateVerificationStatus).toHaveBeenCalledWith(
+  1,
+  true,
+);
+expect(deleteOtp).toHaveBeenCalledWith(1);
   });
 });

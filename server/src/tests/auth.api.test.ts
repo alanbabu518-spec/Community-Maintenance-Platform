@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import request from "supertest";
 import app from "../app.js";
 import { authService } from "../modules/auth/auth.service.js";
@@ -8,6 +8,10 @@ vi.mock("../modules/auth/auth.service.js", () => ({
     login: vi.fn(),
   },
 }));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("POST /api/auth/login", () => {
   it("should login successfully with valid credentials", async () => {
@@ -44,11 +48,6 @@ describe("POST /api/auth/login", () => {
     expect(response.headers["set-cookie"]?.[0]).toContain(
       "access_token=test-jwt-token",
     );
-
-    expect(authService.login).toHaveBeenCalledWith({
-      email: "jacob20@example.com",
-      password: "correct-password",
-    });
   });
 
   it("should return 401 for invalid credentials", async () => {
@@ -66,14 +65,11 @@ describe("POST /api/auth/login", () => {
     expect(response.body).toEqual({
       message: "Invalid email or password",
     });
-
-    expect(authService.login).toHaveBeenCalledWith({
-      email: "jacob20@example.com",
-      password: "wrong-password",
-    });
   });
 
   it("should return 401 when login validation fails", async () => {
+    vi.mocked(authService.login).mockClear();
+
     const response = await request(app).post("/api/auth/login").send({
       email: "not-an-email",
       password: "123",

@@ -2469,3 +2469,104 @@ The following authentication scenarios were tested:
 - [x] Existing Google account + Google registration
 - [x] Invalid/expired OAuth state
 - [x] Unauthenticated `/me` request
+
+## Day 50 — Authentication Security Audit & Production Readiness
+
+### Completed
+
+Day 50 focused on reviewing the authentication system, strengthening session security, validating authorization boundaries, and restoring the complete automated test suite after the security changes.
+
+### Authentication Security
+
+- Added `NODE_ENV` configuration for environment-aware cookie security.
+- Added configurable `COOKIE_MAX_AGE`.
+- JWT authentication now uses:
+  - `httpOnly: true`
+  - `secure: true` in production
+  - `sameSite: "lax"`
+  - Configurable 7-day expiration
+- Added `tokenVersion` to JWT payloads.
+- Added `tokenVersion` to the `User` model.
+- Authentication middleware now verifies:
+  - JWT signature
+  - User existence
+  - JWT `tokenVersion` against the database
+- Invalid or expired sessions return `401 Unauthorized`.
+- Password reset now invalidates existing sessions by incrementing `tokenVersion`.
+
+### Authentication Rate Limiting
+
+Verified rate limiting for authentication-related endpoints:
+
+| Limiter | Limit |
+|---|---|
+| Authentication | 10 requests / 15 minutes |
+| OTP | 5 requests / 10 minutes |
+| Password Reset | 5 requests / 15 minutes |
+
+### Authorization & IDOR Security Review
+
+Reviewed authenticated resource access and role-based authorization.
+
+Verified:
+
+- Residents cannot assign technicians.
+- Only authorized roles can assign technicians.
+- Residents cannot update maintenance requests.
+- Maintenance request ownership is enforced.
+- Notification access is restricted to the authenticated user.
+- Push subscriptions use the authenticated user's ID.
+- User management endpoints are protected by role-based authorization.
+- Foreign notification IDs cannot be used to modify another user's notification.
+- No client-controlled `userId` is trusted for protected notification operations.
+
+### File Upload Security
+
+Reviewed maintenance request image uploads.
+
+Implemented and verified:
+
+- Maximum file count: `5`
+- Maximum file size: `5 MB`
+- Only image MIME types are accepted.
+- Uploaded file content is additionally validated using `file-type`.
+- Supported image formats:
+  - JPEG
+  - PNG
+  - WebP
+- Invalid file types are rejected.
+- Multer upload errors are handled by the global error middleware.
+- Cloudinary uploads use image resource type.
+
+### Password Reset Security
+
+Verified the password reset flow:
+
+- Reset tokens are generated using cryptographically secure random bytes.
+- Reset tokens are stored in Redis.
+- Reset token expiration: `15 minutes`.
+- Reset tokens are deleted after successful password reset.
+- Forgot-password responses avoid revealing whether an email exists.
+- Password reset increments the user's `tokenVersion`.
+- Existing sessions become invalid after password reset.
+- Login with the new password creates a valid new session.
+
+### OTP Security
+
+- OTP generation uses Node.js `crypto.randomInt()`.
+- OTP expiration: `5 minutes`.
+- OTP verification updates the user's verification status.
+- OTP is deleted after successful verification.
+
+### Security Headers
+
+Verified Helmet security headers are enabled.
+
+The application also uses:
+
+- CORS configuration
+- HTTP-only authentication cookies
+- Request body size limits
+- JWT validation
+- Role-based authorization
+- Rate limiting

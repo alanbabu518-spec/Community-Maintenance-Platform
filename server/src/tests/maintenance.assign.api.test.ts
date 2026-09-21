@@ -1,8 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import request from "supertest";
 import jwt from "jsonwebtoken";
 import app from "../app.js";
 import { maintenanceService } from "../modules/maintenance/maintenance.service.js";
+import { userRepository } from "../modules/users/user.repository.js";
 import { AppError } from "../utils/AppError.js";
 
 vi.mock("../modules/maintenance/maintenance.service.js", () => ({
@@ -11,17 +12,39 @@ vi.mock("../modules/maintenance/maintenance.service.js", () => ({
   },
 }));
 
+vi.mock("../modules/users/user.repository.js", () => ({
+  userRepository: {
+    findById: vi.fn(),
+  },
+}));
+
 function createAuthToken(userId: number, role: string) {
   return jwt.sign(
-    { userId, role },
+    {
+      userId,
+      role,
+      tokenVersion: 0,
+    },
     process.env.JWT_SECRET!,
-    { expiresIn: "1h" },
+    {
+      expiresIn: "1h",
+    },
   );
 }
 
 function authCookie(token: string) {
   return [`access_token=${token}`];
 }
+
+beforeEach(() => {
+  vi.clearAllMocks();
+
+  vi.mocked(userRepository.findById).mockResolvedValue({
+    tokenVersion: 0,
+  } as any);
+
+  vi.mocked(maintenanceService.assignTechnician).mockReset();
+});
 
 describe("PATCH /api/maintenance/:id/assign", () => {
   it("should assign a technician successfully", async () => {
@@ -59,10 +82,9 @@ describe("PATCH /api/maintenance/:id/assign", () => {
     expect(response.body.request).toHaveProperty("technicianId", 29);
     expect(response.body.request).toHaveProperty("status", "ASSIGNED");
 
-    expect(maintenanceService.assignTechnician).toHaveBeenCalledWith(
-      20,
-      29,
-    );
+    expect(
+      maintenanceService.assignTechnician,
+    ).toHaveBeenCalledWith(20, 29);
   });
 
   it("should allow a manager to assign a technician", async () => {
@@ -82,6 +104,10 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       });
 
     expect(response.status).toBe(200);
+
+    expect(
+      maintenanceService.assignTechnician,
+    ).toHaveBeenCalledWith(20, 29);
   });
 
   it("should return 403 when a resident tries to assign a technician", async () => {
@@ -100,7 +126,9 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       message: "Access Denied",
     });
 
-    expect(maintenanceService.assignTechnician).not.toHaveBeenCalled();
+    expect(
+      maintenanceService.assignTechnician,
+    ).not.toHaveBeenCalled();
   });
 
   it("should return 401 when no authentication token is provided", async () => {
@@ -116,7 +144,9 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       message: "Authentication required",
     });
 
-    expect(maintenanceService.assignTechnician).not.toHaveBeenCalled();
+    expect(
+      maintenanceService.assignTechnician,
+    ).not.toHaveBeenCalled();
   });
 
   it("should return 400 when the request ID is invalid", async () => {
@@ -135,7 +165,9 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       message: "Invalid request ID",
     });
 
-    expect(maintenanceService.assignTechnician).not.toHaveBeenCalled();
+    expect(
+      maintenanceService.assignTechnician,
+    ).not.toHaveBeenCalled();
   });
 
   it("should return 404 when the technician does not exist", async () => {
@@ -242,6 +274,8 @@ describe("PATCH /api/maintenance/:id/assign", () => {
 
     expect(response.status).toBe(400);
 
-    expect(maintenanceService.assignTechnician).not.toHaveBeenCalled();
+    expect(
+      maintenanceService.assignTechnician,
+    ).not.toHaveBeenCalled();
   });
 });

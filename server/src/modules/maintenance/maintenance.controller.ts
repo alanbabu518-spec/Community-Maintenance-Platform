@@ -156,6 +156,12 @@ export const maintenanceController = {
         req.user.role,
       );
 
+      if (!request) {
+        return res.status(404).json({
+          message: "Maintenance request not found",
+        });
+      }
+
       return res.status(200).json({
         message: "Maintenance request updated successfully",
         request,

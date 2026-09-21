@@ -135,4 +135,17 @@ export const userRepository = {
       },
     });
   },
+
+  async incrementTokenVersion(userId: number) {
+    return prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        tokenVersion: {
+          increment: 1,
+        },
+      },
+    });
+  },
 };

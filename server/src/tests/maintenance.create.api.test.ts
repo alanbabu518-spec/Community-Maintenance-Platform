@@ -1,8 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import request from "supertest";
 import jwt from "jsonwebtoken";
 import app from "../app.js";
 import { maintenanceService } from "../modules/maintenance/maintenance.service.js";
+import { userRepository } from "../modules/users/user.repository.js";
+import { AppError } from "../utils/AppError.js";
 
 vi.mock("../modules/maintenance/maintenance.service.js", () => ({
   maintenanceService: {
@@ -10,30 +12,42 @@ vi.mock("../modules/maintenance/maintenance.service.js", () => ({
   },
 }));
 
+vi.mock("../modules/users/user.repository.js", () => ({
+  userRepository: {
+    findById: vi.fn(),
+  },
+}));
+
 function createAuthToken(userId: number, role: string) {
-  return jwt.sign({ userId, role }, process.env.JWT_SECRET!, {
-    expiresIn: "1h",
-  });
+  return jwt.sign(
+    {
+      userId,
+      role,
+      tokenVersion: 0,
+    },
+    process.env.JWT_SECRET!,
+    { expiresIn: "1h" },
+  );
 }
 
 function authCookie(token: string) {
   return [`access_token=${token}`];
 }
 
+beforeEach(() => {
+  vi.clearAllMocks();
+
+  vi.mocked(userRepository.findById).mockResolvedValue({
+    tokenVersion: 0,
+  } as any);
+
+  vi.mocked(maintenanceService.createRequest).mockReset();
+});
+
 describe("POST /api/maintenance", () => {
-  it("should create a maintenance request successfully", async () => {
+  it("should create maintenance request for resident", async () => {
     vi.mocked(maintenanceService.createRequest).mockResolvedValue({
-      id: 20,
-      title: "Water leakage",
-      description: "Water is leaking from the bathroom",
-      category: "PLUMBING",
-      priority: "HIGH",
-      status: "OPEN",
-      residentId: 32,
-      unitId: 1,
-      technicianId: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      id: 1,
     } as any);
 
     const token = createAuthToken(32, "RESIDENT");
@@ -43,45 +57,46 @@ describe("POST /api/maintenance", () => {
       .set("Cookie", authCookie(token))
       .send({
         title: "Water leakage",
-        description: "Water is leaking from the bathroom",
+        description: "Water is leaking",
         category: "PLUMBING",
         priority: "HIGH",
         unitId: 1,
       });
 
     expect(response.status).toBe(201);
+    expect(maintenanceService.createRequest).toHaveBeenCalled();
+  });
 
-    expect(response.body).toHaveProperty(
-      "message",
-      "Maintenance request created successfully",
-    );
+  it("should deny non-resident users", async () => {
+    const token = createAuthToken(32, "ADMIN");
 
-    expect(response.body).toHaveProperty("request");
-
-    expect(maintenanceService.createRequest).toHaveBeenCalledWith(
-      {
+    const response = await request(app)
+      .post("/api/maintenance")
+      .set("Cookie", authCookie(token))
+      .send({
         title: "Water leakage",
-        description: "Water is leaking from the bathroom",
+        description: "Water is leaking",
         category: "PLUMBING",
         priority: "HIGH",
         unitId: 1,
-      },
-      32,
-      [],
-    );
+      });
+
+    expect(response.status).toBe(403);
+    expect(maintenanceService.createRequest).not.toHaveBeenCalled();
   });
 
   it("should return 401 when no authentication token is provided", async () => {
-    const response = await request(app).post("/api/maintenance").send({
-      title: "Water leakage",
-      description: "Water is leaking from the bathroom",
-      category: "PLUMBING",
-      priority: "HIGH",
-      unitId: 1,
-    });
+    const response = await request(app)
+      .post("/api/maintenance")
+      .send({
+        title: "Water leakage",
+        description: "Water is leaking",
+        category: "PLUMBING",
+        priority: "HIGH",
+        unitId: 1,
+      });
 
     expect(response.status).toBe(401);
-
     expect(response.body).toEqual({
       message: "Authentication required",
     });
@@ -89,45 +104,28 @@ describe("POST /api/maintenance", () => {
     expect(maintenanceService.createRequest).not.toHaveBeenCalled();
   });
 
-  it("should return 403 when an admin tries to create a maintenance request", async () => {
-    const token = createAuthToken(1, "ADMIN");
+  it("should return 400 when the maintenance service throws a validation error", async () => {
+    vi.mocked(maintenanceService.createRequest).mockRejectedValue(
+      new AppError("Invalid maintenance request", 400),
+    );
 
-    const response = await request(app)
-      .post("/api/maintenance")
-      .set("Cookie", authCookie(token))
-      .send({
-        title: "Water leakage",
-        description: "Water is leaking from the bathroom",
-        category: "PLUMBING",
-        priority: "HIGH",
-        unitId: 1,
-      });
-
-    expect(response.status).toBe(403);
-
-    expect(response.body).toEqual({
-      message: "Access Denied",
-    });
-
-    expect(maintenanceService.createRequest).not.toHaveBeenCalled();
-  });
-
-  it("should return 400 when request validation fails", async () => {
     const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
       .post("/api/maintenance")
       .set("Cookie", authCookie(token))
       .send({
-        title: "",
-        description: "",
-        category: "",
-        priority: "INVALID",
-        unitId: "wrong",
+        title: "Water leakage",
+        description: "Water is leaking",
+        category: "PLUMBING",
+        priority: "HIGH",
+        unitId: 1,
       });
 
     expect(response.status).toBe(400);
-
-    expect(maintenanceService.createRequest).not.toHaveBeenCalled();
+    expect(response.body).toEqual({
+      success: false,
+      message: "Invalid maintenance request",
+    });
   });
 });

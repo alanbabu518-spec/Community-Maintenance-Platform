@@ -3,44 +3,52 @@ import jwt from "jsonwebtoken";
 import type { LoginInput, RegisterInput } from "./auth.types.js";
 import { userRepository } from "../users/user.repository.js";
 import { toUserResponse } from "../users/user.mapper.js";
-import { generateOtp, storeOtp, getOtp, deleteOtp } from "../../utils/otp.js";
+import {
+  generateOtp,
+  storeOtp,
+  getOtp,
+  deleteOtp,
+} from "../../utils/otp.js";
 import {
   generateResetToken,
   storeResetToken,
   getResetTokenUserId,
   deleteResetToken,
 } from "../../utils/passwordReset.js";
-import { sendOtpEmail, sendPasswordResetEmail } from "./email.service.js";
+import {
+  sendOtpEmail,
+  sendPasswordResetEmail,
+} from "./email.service.js";
 import { AppError } from "../../utils/AppError.js";
 
 export const authService = {
   async register(data: RegisterInput) {
-  const existingUser = await userRepository.findByEmail(data.email);
+    const existingUser = await userRepository.findByEmail(data.email);
 
-  if (existingUser) {
-    throw new AppError(
-      "An account with this email already exists. Please login.",
-      409,
-    );
-  }
+    if (existingUser) {
+      throw new AppError(
+        "An account with this email already exists. Please login.",
+        409,
+      );
+    }
 
-  const passwordHash = await bcrypt.hash(data.password, 10);
+    const passwordHash = await bcrypt.hash(data.password, 10);
 
-  const user = await userRepository.create({
-    name: data.name,
-    email: data.email,
-    passwordHash,
-    role: "RESIDENT",
-  });
+    const user = await userRepository.create({
+      name: data.name,
+      email: data.email,
+      passwordHash,
+      role: "RESIDENT",
+    });
 
-  const otp = generateOtp();
+    const otp = generateOtp();
 
-  await storeOtp(user.id, otp);
+    await storeOtp(user.id, otp);
 
-  await sendOtpEmail(user.email, otp, user.name);
+    await sendOtpEmail(user.email, otp, user.name);
 
-  return toUserResponse(user);
-},
+    return toUserResponse(user);
+  },
 
   async resendOtp(email: string) {
     const user = await userRepository.findByEmail(email);
@@ -108,6 +116,7 @@ export const authService = {
       {
         userId: user.id,
         role: user.role,
+        tokenVersion: user.tokenVersion,
       },
       process.env.JWT_SECRET!,
       {
@@ -157,6 +166,8 @@ export const authService = {
     const passwordHash = await bcrypt.hash(password, 10);
 
     await userRepository.updatePassword(userId, passwordHash);
+
+    await userRepository.incrementTokenVersion(userId);
 
     await deleteResetToken(token);
 

@@ -3,6 +3,7 @@ import { authMiddleware } from "../../middleware/auth.middleware.js";
 import { maintenanceController } from "./maintenance.controller.js";
 import { authorize } from "../../middleware/role.middleware.js";
 import { upload } from "../../middleware/upload.js";
+import { validateImages } from "../../middleware/validateImages.js";
 
 const router = Router();
 
@@ -63,6 +64,7 @@ router.post(
   authMiddleware,
   authorize("RESIDENT"),
   upload.array("photos", 5),
+  validateImages,
   maintenanceController.createRequest,
 );
 /**

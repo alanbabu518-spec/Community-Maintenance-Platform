@@ -1,7 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { userRepository } from "../modules/users/user.repository.js";
 
-export function authMiddleware(
+export async function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -19,6 +20,14 @@ export function authMiddleware(
       token,
       process.env.JWT_SECRET!,
     ) as Express.AuthenticatedUser;
+
+    const user = await userRepository.findById(decoded.userId);
+
+    if (!user || user.tokenVersion !== decoded.tokenVersion) {
+      return res.status(401).json({
+        message: "Invalid or expired token",
+      });
+    }
 
     req.user = decoded;
 

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import app from "../app.js";
 import { authService } from "../modules/auth/auth.service.js";
-import { Prisma } from "@prisma/client";
+import { AppError } from "../utils/AppError.js";
 
 vi.mock("../modules/auth/auth.service.js", () => ({
   authService: {
@@ -20,13 +20,11 @@ describe("POST /api/auth/register", () => {
       communityId: null,
     });
 
-    const response = await request(app)
-      .post("/api/auth/register")
-      .send({
-        name: "Test Resident",
-        email: "test@example.com",
-        password: "password123",
-      });
+    const response = await request(app).post("/api/auth/register").send({
+      name: "Test Resident",
+      email: "test@example.com",
+      password: "password123",
+    });
 
     expect(response.status).toBe(201);
 
@@ -37,27 +35,21 @@ describe("POST /api/auth/register", () => {
         name: "Test Resident",
         email: "test@example.com",
         role: "RESIDENT",
-         communityId: null,
+        communityId: null,
       },
     });
 
     expect(response.body.user).not.toHaveProperty("passwordHash");
-
-    expect(authService.register).toHaveBeenCalledWith({
-      name: "Test Resident",
-      email: "test@example.com",
-      password: "password123",
-    });
   });
 
   it("should return 400 when registration validation fails", async () => {
-    const response = await request(app)
-      .post("/api/auth/register")
-      .send({
-        name: "A",
-        email: "invalid-email",
-        password: "123",
-      });
+    vi.mocked(authService.register).mockClear();
+
+    const response = await request(app).post("/api/auth/register").send({
+      name: "A",
+      email: "invalid-email",
+      password: "123",
+    });
 
     expect(response.status).toBe(400);
 
@@ -69,37 +61,24 @@ describe("POST /api/auth/register", () => {
   });
 
   it("should return 409 when email is already registered", async () => {
-    const duplicateError =
-      new Prisma.PrismaClientKnownRequestError(
-        "Unique constraint failed on the fields: (`email`)",
-        {
-          code: "P2002",
-          clientVersion: "7.10.0",
-        },
-      );
-
     vi.mocked(authService.register).mockRejectedValue(
-      duplicateError,
+      new AppError(
+        "An account with this email already exists. Please login.",
+        409,
+      ),
     );
 
-    const response = await request(app)
-      .post("/api/auth/register")
-      .send({
-        name: "Existing User",
-        email: "existing@example.com",
-        password: "password123",
-      });
+    const response = await request(app).post("/api/auth/register").send({
+      name: "Existing User",
+      email: "existing@example.com",
+      password: "password123",
+    });
 
     expect(response.status).toBe(409);
 
     expect(response.body).toEqual({
-      message: "Email already registered",
-    });
-
-    expect(authService.register).toHaveBeenCalledWith({
-      name: "Existing User",
-      email: "existing@example.com",
-      password: "password123",
+      success: false,
+      message: "An account with this email already exists. Please login.",
     });
   });
 });

@@ -37,6 +37,7 @@ model User {
   googleId      String?  @unique
   role          UserRole
   emailVerified Boolean  @default(false)
+  tokenVersion Int @default(0)
 
   unitId Int?
   unit   Unit? @relation(fields: [unitId], references: [id])

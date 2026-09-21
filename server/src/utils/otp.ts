@@ -1,11 +1,12 @@
 import { redisClient } from "../config/redis.js";
 
+import { randomInt } from "crypto";
+
 const OTP_EXPIRY_SECONDS = 5 * 60;
 
 export function generateOtp(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return randomInt(100000, 1000000).toString();
 }
-
 export async function storeOtp(userId: number, otp: string) {
   const key = `otp:user:${userId}`;
 
