@@ -100,4 +100,15 @@ export const userRepository = {
       data: { emailVerified },
     });
   },
+
+  async updatePassword(userId: number, passwordHash: string) {
+    return prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        passwordHash,
+      },
+    });
+  },
 };

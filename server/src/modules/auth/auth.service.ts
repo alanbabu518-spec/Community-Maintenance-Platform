@@ -4,7 +4,13 @@ import type { LoginInput, RegisterInput } from "./auth.types.js";
 import { userRepository } from "../users/user.repository.js";
 import { toUserResponse } from "../users/user.mapper.js";
 import { generateOtp, storeOtp, getOtp, deleteOtp } from "../../utils/otp.js";
-import { sendOtpEmail } from "./email.service.js";
+import {
+  generateResetToken,
+  storeResetToken,
+  getResetTokenUserId,
+  deleteResetToken,
+} from "../../utils/passwordReset.js";
+import { sendOtpEmail, sendPasswordResetEmail } from "./email.service.js";
 
 export const authService = {
   async register(data: RegisterInput) {
@@ -113,5 +119,39 @@ export const authService = {
     }
 
     return toUserResponse(user);
+  },
+
+  async forgotPassword(email: string) {
+    const user = await userRepository.findByEmail(email);
+
+    if (!user) {
+      return { message: "Password reset instructions sent" };
+    }
+
+    const token = generateResetToken();
+
+    await storeResetToken(user.id, token);
+
+    await sendPasswordResetEmail(user.email, user.name, token);
+
+    return { message: "Password reset instructions sent" };
+  },
+
+  async resetPassword(token: string, password: string) {
+    const userId = await getResetTokenUserId(token);
+
+    if (!userId) {
+      throw new Error("Invalid or expired reset token");
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    await userRepository.updatePassword(userId, passwordHash);
+
+    await deleteResetToken(token);
+
+    return {
+      message: "Password reset successfully",
+    };
   },
 };

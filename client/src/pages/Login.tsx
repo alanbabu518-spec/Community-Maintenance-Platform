@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Mail, Lock } from "lucide-react";
+import { ArrowLeft, Mail, Lock, UsersRound } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF } from "react-icons/fa";
+
 import PageTransition from "../components/ui/PageTransition";
 import Spinner from "../components/ui/Spinner";
 import { useAuth } from "../context/AuthContext";
-import { UsersRound } from "lucide-react";
 
 function AnimatedLines() {
   return (
@@ -124,6 +124,7 @@ function Login() {
                   <p className="text-sm font-semibold text-white">
                     CommunityCare
                   </p>
+
                   <p className="mt-1 text-xs text-slate-500">
                     Community Maintenance Platform
                   </p>
@@ -230,9 +231,11 @@ function Login() {
                   </div>
                 </div>
 
+                {/* Forgot Password */}
                 <div className="flex justify-end">
                   <button
                     type="button"
+                    onClick={() => navigate("/forgot-password")}
                     className="text-xs text-slate-500 transition hover:text-white hover:underline"
                   >
                     Forgot password?

@@ -2235,3 +2235,120 @@ Email received
 
 CommunityCare now has a working email delivery system using Resend for OTP verification and resend functionality.
 
+## Day 48 — Email Verification & Password Reset
+
+### Goal
+
+Complete the email authentication and password recovery system in CommunityCare.
+
+- Forgot password
+- Password reset emails
+- Secure reset tokens
+- Redis token storage
+- Password reset frontend
+- Account enumeration protection
+- Password reset rate limiting
+- Authentication tests
+
+### What Was Built
+
+### 1. Password Reset Tokens
+
+Created secure password reset tokens using Node.js `crypto`.
+
+```text
+User
+ ↓
+Forgot Password
+ ↓
+Generate Reset Token
+ ↓
+Store Token in Redis
+ ↓
+Send Reset Email
+```
+Users receive a confirmation message after submitting the request.
+
+### 4. Reset Password Page
+
+Added a dedicated reset password page.
+
+```
+Reset Link
+ ↓
+Read Token
+ ↓
+Enter New Password
+ ↓
+Confirm Password
+ ↓
+Reset Password
+ ↓
+Success
+```
+The token is sent to the backend for validation before the password is changed.
+
+### 5. Account Enumeration Protection
+
+The forgot-password endpoint returns the same response whether the email exists or not.
+
+```json
+{
+  "message": "Password reset instructions sent"
+}
+```
+
+This prevents attackers from discovering which email addresses have CommunityCare accounts.
+
+```
+Existing Email
+      ↓
+Response + Email Sent
+
+Unknown Email
+      ↓
+Same Response + No Email
+```
+
+### 6. Password Reset Rate Limiting
+
+Created a dedicated password reset rate limiter.
+
+```
+Window: 15 minutes
+Limit: 5 requests
+```
+
+```
+5 requests → Allowed
+6th request → 429 Too Many Requests
+```
+
+### 7. Unit Test Mocking
+
+Updated authentication unit tests to mock:
+
+```
+Redis password reset utilities
+Email service
+```
+
+This keeps unit tests independent of external services.
+
+### 8. Testing
+
+Verified:
+
+- [x] Password reset email flow
+- [x] Forgot password frontend
+- [x] Reset password frontend
+- [x] Account enumeration protection
+- [x] Password reset rate limiting
+- [x] TypeScript compilation
+- [x] Unit tests
+- [x] Production build
+
+### Result
+
+CommunityCare now has a complete and secure email authentication
+

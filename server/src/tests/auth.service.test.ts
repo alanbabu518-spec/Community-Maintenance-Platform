@@ -31,6 +31,18 @@ vi.mock("../utils/otp.js", () => ({
   deleteOtp: vi.fn(),
 }));
 
+vi.mock("../utils/passwordReset.js", () => ({
+  generateResetToken: vi.fn(() => "test-reset-token"),
+  storeResetToken: vi.fn(),
+  getResetTokenUserId: vi.fn(),
+  deleteResetToken: vi.fn(),
+}));
+
+vi.mock("../modules/auth/email.service.js", () => ({
+  sendOtpEmail: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+}));
+
 describe("authService.login", () => {
   it("should login successfully with valid credentials", async () => {
     vi.mocked(userRepository.findByEmail).mockResolvedValue({

@@ -5,6 +5,8 @@ import {
   loginSchema,
   verifyOtpSchema,
   resendOtpSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from "./auth.schema.js";
 import { Prisma } from "@prisma/client";
 
@@ -87,6 +89,30 @@ export const authController = {
       return res.status(401).json({
         message: "Invalid email or password",
       });
+    }
+  },
+
+  async forgotPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = forgotPasswordSchema.parse(req.body);
+
+      const result = await authService.forgotPassword(data.email);
+
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = resetPasswordSchema.parse(req.body);
+
+      const result = await authService.resetPassword(data.token, data.password);
+
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
     }
   },
 

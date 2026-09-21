@@ -4,6 +4,7 @@ import { authMiddleware } from "../../middleware/auth.middleware.js";
 import {
   authRateLimiter,
   otpRateLimiter,
+  passwordResetRateLimiter,
 } from "../../middleware/rateLimit.middleware.js";
 
 const router = Router();
@@ -94,6 +95,18 @@ router.post("/verify-otp", otpRateLimiter, authController.verifyOtp);
 router.post("/resend-otp", otpRateLimiter, authController.resendOtp);
 
 router.post("/login", authRateLimiter, authController.login);
+
+router.post(
+  "/forgot-password",
+  passwordResetRateLimiter,
+  authController.forgotPassword,
+);
+
+router.post(
+  "/reset-password",
+  passwordResetRateLimiter,
+  authController.resetPassword,
+);
 
 router.get("/me", authMiddleware, authController.me);
 

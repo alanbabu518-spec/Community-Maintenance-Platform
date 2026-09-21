@@ -1,10 +1,6 @@
 import { resend } from "../../config/resend.js";
 
-export async function sendOtpEmail(
-  email: string,
-  otp: string,
-  name: string,
-) {
+export async function sendOtpEmail(email: string, otp: string, name: string) {
   const { data, error } = await resend.emails.send({
     from: "CommunityCare <onboarding@resend.dev>",
     to: email,
@@ -34,4 +30,69 @@ export async function sendOtpEmail(
   }
 
   console.log("Email sent successfully:", data?.id);
+}
+
+export async function sendPasswordResetEmail(
+  email: string,
+  name: string,
+  token: string,
+) {
+  const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+
+  const { data, error } = await resend.emails.send({
+    from: "CommunityCare <onboarding@resend.dev>",
+    to: email,
+    subject: "Reset your CommunityCare password",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 30px;">
+        <h2>Reset your password</h2>
+
+        <p>Hi ${name},</p>
+
+        <p>
+          We received a request to reset your CommunityCare password.
+        </p>
+
+        <p>
+          Click the button below to create a new password:
+        </p>
+
+        <div style="margin: 30px 0;">
+          <a
+            href="${resetLink}"
+            style="
+              display: inline-block;
+              padding: 12px 24px;
+              background: #000;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 6px;
+            "
+          >
+            Reset Password
+          </a>
+        </div>
+
+        <p>
+          This link will expire in <strong>15 minutes</strong>.
+        </p>
+
+        <p>
+          If you did not request a password reset, you can safely ignore this email.
+        </p>
+
+        <p>
+          Thanks,<br />
+          CommunityCare Team
+        </p>
+      </div>
+    `,
+  });
+
+  if (error) {
+    console.error("Resend password reset error:", error);
+    throw new Error(error.message);
+  }
+
+  console.log("Password reset email sent:", data?.id);
 }

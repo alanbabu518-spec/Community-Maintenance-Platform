@@ -70,3 +70,8 @@ export interface LoginResponse {
   message: string;
   user: UserResponse;
 }
+
+export interface ResetPasswordInput {
+  token: string;
+  password: string;
+}
