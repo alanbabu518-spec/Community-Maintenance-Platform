@@ -26,7 +26,6 @@ const router = Router();
  *               - name
  *               - email
  *               - password
- *               - role
  *             properties:
  *               name:
  *                 type: string
@@ -39,14 +38,6 @@ const router = Router();
  *                 type: string
  *                 format: password
  *                 example: password123
- *               role:
- *                 type: string
- *                 enum:
- *                   - RESIDENT
- *                   - ADMIN
- *                   - MANAGER
- *                   - TECHNICIAN
- *                 example: RESIDENT
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -90,11 +81,11 @@ router.post("/register", authRateLimiter, authController.register);
  *         description: Invalid email or password
  */
 
+router.post("/login", authRateLimiter, authController.login);
+
 router.post("/verify-otp", otpRateLimiter, authController.verifyOtp);
 
 router.post("/resend-otp", otpRateLimiter, authController.resendOtp);
-
-router.post("/login", authRateLimiter, authController.login);
 
 router.post(
   "/forgot-password",

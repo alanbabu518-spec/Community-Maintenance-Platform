@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { UserResponse } from "../types/api";
-import { getCurrentUser, loginUser } from "../services/auth.api";
+import { getCurrentUser, loginUser, logoutUser } from "../services/auth.api";
 import { subscribeToPush } from "../services/push";
 
 interface AuthContextType {
@@ -8,6 +8,7 @@ interface AuthContextType {
   setUser: (user: UserResponse | null) => void;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -50,6 +51,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(result.user);
   }
 
+  async function logout() {
+    try {
+      await logoutUser();
+    } finally {
+      setUser(null);
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -57,6 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser,
         loading,
         login,
+        logout,
       }}
     >
       {children}

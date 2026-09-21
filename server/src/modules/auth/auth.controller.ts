@@ -8,30 +8,25 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
 } from "./auth.schema.js";
-import { Prisma } from "@prisma/client";
+import { AppError } from "../../utils/AppError.js";
 
 export const authController = {
-  async register(req: Request, res: Response) {
+  async register(req: Request, res: Response, next: NextFunction) {
     try {
       const data = registerSchema.parse(req.body);
 
       const user = await authService.register(data);
 
-      res.status(201).json({
+      return res.status(201).json({
         message: "User registered successfully",
         user,
       });
     } catch (error) {
-      console.error(error);
-
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        return res.status(409).json({
-          message: "Email already registered",
-        });
+      if (error instanceof AppError) {
+        return next(error);
       }
+
+      console.error(error);
 
       return res.status(400).json({
         message: "Invalid registration data",

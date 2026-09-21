@@ -11,26 +11,36 @@ import {
   deleteResetToken,
 } from "../../utils/passwordReset.js";
 import { sendOtpEmail, sendPasswordResetEmail } from "./email.service.js";
+import { AppError } from "../../utils/AppError.js";
 
 export const authService = {
   async register(data: RegisterInput) {
-    const passwordHash = await bcrypt.hash(data.password, 10);
+  const existingUser = await userRepository.findByEmail(data.email);
 
-    const user = await userRepository.create({
-      name: data.name,
-      email: data.email,
-      passwordHash,
-      role: "RESIDENT",
-    });
+  if (existingUser) {
+    throw new AppError(
+      "An account with this email already exists. Please login.",
+      409,
+    );
+  }
 
-    const otp = generateOtp();
+  const passwordHash = await bcrypt.hash(data.password, 10);
 
-    await storeOtp(user.id, otp);
+  const user = await userRepository.create({
+    name: data.name,
+    email: data.email,
+    passwordHash,
+    role: "RESIDENT",
+  });
 
-    await sendOtpEmail(user.email, otp, user.name);
+  const otp = generateOtp();
 
-    return toUserResponse(user);
-  },
+  await storeOtp(user.id, otp);
+
+  await sendOtpEmail(user.email, otp, user.name);
+
+  return toUserResponse(user);
+},
 
   async resendOtp(email: string) {
     const user = await userRepository.findByEmail(email);
@@ -115,7 +125,7 @@ export const authService = {
     const user = await userRepository.findById(userId);
 
     if (!user) {
-      throw new Error("User not found");
+      throw new AppError("User not found", 401);
     }
 
     return toUserResponse(user);

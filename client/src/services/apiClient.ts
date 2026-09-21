@@ -44,13 +44,11 @@ async function apiClient<T>(
     response = await fetch(url, {
       ...fetchOptions,
       credentials: "include",
+      cache: "no-store",
       headers,
     });
   } catch {
-    throw new ApiError(
-      "Unable to connect to the server. Please try again.",
-      0,
-    );
+    throw new ApiError("Unable to connect to the server. Please try again.", 0);
   }
 
   if (!response.ok) {
@@ -64,8 +62,7 @@ async function apiClient<T>(
       } else if (errorData.error) {
         errorMessage = errorData.error;
       }
-    } catch {
-    }
+    } catch {}
 
     throw new ApiError(errorMessage, response.status);
   }

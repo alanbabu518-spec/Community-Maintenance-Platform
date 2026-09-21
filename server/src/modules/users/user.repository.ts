@@ -68,17 +68,41 @@ export const userRepository = {
       total,
     };
   },
+
   create(data: {
     name: string;
     email: string;
     passwordHash: string;
-    role: "RESIDENT" | "ADMIN" | "MANAGER" | "TECHNICIAN";
+    role: UserRole;
+    googleId?: string;
+    emailVerified?: boolean;
   }) {
-    return prisma.user.create({ data });
+    return prisma.user.create({
+      data,
+    });
   },
 
   findByEmail(email: string) {
-    return prisma.user.findUnique({ where: { email } });
+    return prisma.user.findUnique({
+      where: { email },
+    });
+  },
+
+  findByGoogleId(googleId: string) {
+    return prisma.user.findUnique({
+      where: { googleId },
+    });
+  },
+
+  updateGoogleId(userId: number, googleId: string) {
+    return prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        googleId,
+      },
+    });
   },
 
   findById(id: number) {

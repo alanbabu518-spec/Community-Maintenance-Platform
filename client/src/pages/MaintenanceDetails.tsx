@@ -248,7 +248,6 @@ function MaintenanceDetails() {
           </div>
         </div>
 
-        {/* Status timeline — hidden once a request is closed out of the normal flow */}
         {currentStepIndex !== -1 && (
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
             <div className="flex items-center">

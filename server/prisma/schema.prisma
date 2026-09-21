@@ -34,6 +34,7 @@ model User {
   name          String
   email         String   @unique
   passwordHash  String
+  googleId      String?  @unique
   role          UserRole
   emailVerified Boolean  @default(false)
 

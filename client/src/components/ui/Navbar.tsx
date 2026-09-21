@@ -7,29 +7,24 @@ import {
   UserRound,
   Users,
   Settings,
-  LogOut,
   Bell,
   Sun,
   Moon,
 } from "lucide-react";
-import { getCurrentUser, logoutUser } from "../../services/auth.api";
-import { removeToken } from "../../services/auth";
+
+import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import NotificationDropdown from "./NotificationDropdown";
 import { getNotifications } from "../../services/notification.api";
-
-type User = {
-  name?: string;
-  email?: string;
-};
+import LogoutButton from "../../features/auth/components/LogoutButton";
 
 function Navbar() {
   const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
@@ -52,27 +47,18 @@ function Navbar() {
   }, []);
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const response = await getCurrentUser();
-        setUser(response.user);
-      } catch {
-        setUser(null);
-      }
-    };
-
-    loadUser();
-  }, [location.pathname]);
-
-  useEffect(() => {
     if (!user) {
       setUnreadNotificationCount(0);
       return;
     }
 
-    async function loadUnreadCount() {
+    let cancelled = false;
+
+    const loadUnreadCount = async () => {
       try {
         const result = await getNotifications(1, 100);
+
+        if (cancelled) return;
 
         const unreadCount = result.notifications.filter(
           (notification) => !notification.isRead,
@@ -80,11 +66,17 @@ function Navbar() {
 
         setUnreadNotificationCount(unreadCount);
       } catch {
-        setUnreadNotificationCount(0);
+        if (!cancelled) {
+          setUnreadNotificationCount(0);
+        }
       }
-    }
+    };
 
     loadUnreadCount();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   useEffect(() => {
@@ -146,19 +138,6 @@ function Navbar() {
     }
 
     return user.name.trim().charAt(0).toUpperCase();
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-    } catch {
-    } finally {
-      removeToken();
-      setUser(null);
-      setProfileOpen(false);
-      setMobileMenuOpen(false);
-      navigate("/login", { replace: true });
-    }
   };
 
   const navItems = [
@@ -242,14 +221,7 @@ function Navbar() {
         </div>
 
         <div className="border-t border-slate-100 p-2 dark:border-slate-800">
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/30"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
+          <LogoutButton />
         </div>
       </div>
     );
@@ -268,6 +240,7 @@ function Navbar() {
             : "w-full border-b border-transparent px-4 py-4 sm:px-6 lg:px-8"
         }`}
       >
+
         <div className="flex min-w-0 items-center gap-2">
           <button
             type="button"
@@ -329,7 +302,11 @@ function Navbar() {
                   theme === "light" ? "dark" : "light"
                 } mode`}
               >
-                {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+                {theme === "light" ? (
+                  <Moon size={18} />
+                ) : (
+                  <Sun size={18} />
+                )}
               </button>
 
               <div className="relative">
@@ -397,7 +374,11 @@ function Navbar() {
                   theme === "light" ? "dark" : "light"
                 } mode`}
               >
-                {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+                {theme === "light" ? (
+                  <Moon size={18} />
+                ) : (
+                  <Sun size={18} />
+                )}
               </button>
 
               <Link
@@ -434,12 +415,18 @@ function Navbar() {
                   theme === "light" ? "dark" : "light"
                 } mode`}
               >
-                {theme === "light" ? <Moon size={19} /> : <Sun size={19} />}
+                {theme === "light" ? (
+                  <Moon size={19} />
+                ) : (
+                  <Sun size={19} />
+                )}
               </button>
 
               <button
                 type="button"
-                onClick={() => setNotificationsOpen((open) => !open)}
+                onClick={() =>
+                  setNotificationsOpen((open) => !open)
+                }
                 className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                 aria-label="View notifications"
                 title="Notifications"

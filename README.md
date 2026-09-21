@@ -2352,3 +2352,120 @@ Verified:
 
 CommunityCare now has a complete and secure email authentication
 
+## Day 49 — Google OAuth & Authentication Cleanup
+
+### Overview
+
+Day 49 focused on completing Google OAuth authentication and cleaning up the authentication architecture.
+
+The Google authentication flow was redesigned to use a single OAuth callback with a secure Redis-backed OAuth state containing the authentication intent (`login` or `register`).
+
+### Completed
+
+- Implemented Google OAuth login
+- Implemented Google OAuth registration
+- Added Google OAuth state generation and validation
+- Stored OAuth state in Redis with expiration
+- Added `login` and `register` OAuth intents
+- Created a single Google OAuth callback
+- Added Google ID token verification
+- Added Google email verification checks
+- Added protection against duplicate Google accounts
+- Added protection against registering with an existing email
+- Added Google OAuth error redirects
+- Improved authentication controller separation
+- Separated Google routes into `google.routes.ts`
+- Added Google-specific controller and service logic
+- Fixed frontend Google OAuth error handling
+- Verified normal authentication and logout flows
+- Tested duplicate-account scenarios
+
+### Google OAuth Flow
+
+```text
+Login
+  ↓
+/api/auth/google
+  ↓
+Google OAuth
+  ↓
+/api/auth/google/callback
+  ↓
+Validate OAuth State
+  ↓
+Intent = login
+  ↓
+Find / Link Account
+  ↓
+Create JWT
+  ↓
+Set httpOnly Cookie
+  ↓
+Redirect to Dashboard
+```
+
+```
+Register
+  ↓
+/api/auth/google/register
+  ↓
+Google OAuth
+  ↓
+/api/auth/google/callback
+  ↓
+Validate OAuth State
+  ↓
+Intent = register
+  ↓
+Check Existing Google ID
+  ↓
+Check Existing Email
+  ↓
+Create Account
+  ↓
+Create JWT
+  ↓
+Set httpOnly Cookie
+  ↓
+Redirect to Dashboard
+```
+
+### Authentication Security
+
+- [x] JWT stored in an `httpOnly` cookie
+- [x] Google OAuth state stored in Redis
+- [x] OAuth state expires automatically
+- [x] OAuth state is deleted after verification
+- [x] Google ID token audience is verified
+- [x] Google email verification is required
+- [x] Duplicate email registration is prevented
+- [x] Duplicate Google account registration is prevented
+- [x] OAuth login cannot automatically create an account
+
+### Authentication Architecture
+
+```
+auth/
+├── auth.controller.ts
+├── auth.service.ts
+├── auth.schema.ts
+├── auth.routes.ts
+├── google.controller.ts
+├── google.service.ts
+├── google.routes.ts
+└── ...
+```
+
+### Testing
+
+The following authentication scenarios were tested:
+
+- [x] Normal registration
+- [x] Normal login
+- [x] Normal logout
+- [x] Google login
+- [x] Google registration
+- [x] Existing email + Google registration
+- [x] Existing Google account + Google registration
+- [x] Invalid/expired OAuth state
+- [x] Unauthenticated `/me` request
