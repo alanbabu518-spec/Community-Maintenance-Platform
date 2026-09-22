@@ -2570,3 +2570,4 @@ The application also uses:
 - JWT validation
 - Role-based authorization
 - Rate limiting
+

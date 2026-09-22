@@ -225,7 +225,6 @@ function GoogleSetup() {
             </div>
 
             <form onSubmit={handleContinue} className="space-y-4">
-              {/* Community */}
               <div>
                 <label
                   htmlFor="google-community"
@@ -272,7 +271,6 @@ function GoogleSetup() {
                 </div>
               </div>
 
-              {/* Building */}
               <div>
                 <label
                   htmlFor="google-building"
@@ -319,7 +317,6 @@ function GoogleSetup() {
                 </div>
               </div>
 
-              {/* Unit */}
               <div>
                 <label
                   htmlFor="google-unit"

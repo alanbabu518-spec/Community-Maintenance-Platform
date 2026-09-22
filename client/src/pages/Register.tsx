@@ -492,7 +492,6 @@ function Register() {
                   </div>
                 </div>
 
-                {/* Community */}
                 <div>
                   <label
                     htmlFor="register-community"
@@ -539,7 +538,6 @@ function Register() {
                   </div>
                 </div>
 
-                {/* Building */}
                 <div>
                   <label
                     htmlFor="register-building"
@@ -590,7 +588,6 @@ function Register() {
                   </div>
                 </div>
 
-                {/* Unit */}
                 <div>
                   <label
                     htmlFor="register-unit"

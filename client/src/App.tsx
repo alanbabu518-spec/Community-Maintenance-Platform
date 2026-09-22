@@ -106,6 +106,7 @@ function App() {
               />
             </Route>
 
+
             <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

@@ -443,6 +443,7 @@ function Home() {
         <FAQs />
       </main>
 
+
       <Footer />
     </div>
   );
