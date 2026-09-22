@@ -1,10 +1,26 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
 import { authService } from "../modules/auth/auth.service.js";
 import { userRepository } from "../modules/users/user.repository.js";
-import { generateOtp, storeOtp, getOtp, deleteOtp } from "../utils/otp.js";
+import {
+  generateOtp,
+  storeOtp,
+  getOtp,
+  deleteOtp,
+  getOtpAttempts,
+  incrementOtpAttempts,
+  isOtpResendAllowed,
+  startOtpResendCooldown,
+} from "../utils/otp.js";
 import { sendOtpEmail } from "../modules/auth/email.service.js";
+
+import {
+  storePendingRegistration,
+  getPendingRegistration,
+  deletePendingRegistration,
+} from "../utils/pendingRegistration.js";
 
 vi.mock("bcrypt", () => ({
   default: {
@@ -35,6 +51,17 @@ vi.mock("../utils/otp.js", () => ({
   storeOtp: vi.fn(),
   getOtp: vi.fn(),
   deleteOtp: vi.fn(),
+  getOtpAttempts: vi.fn(),
+  incrementOtpAttempts: vi.fn(),
+  isOtpResendAllowed: vi.fn(),
+  startOtpResendCooldown: vi.fn(),
+  MAX_OTP_ATTEMPTS: 5,
+}));
+
+vi.mock("../utils/pendingRegistration.js", () => ({
+  storePendingRegistration: vi.fn(),
+  getPendingRegistration: vi.fn(),
+  deletePendingRegistration: vi.fn(),
 }));
 
 vi.mock("../modules/auth/email.service.js", () => ({
@@ -52,35 +79,44 @@ describe("authService", () => {
 
     vi.mocked(bcrypt.hash).mockResolvedValue("hashed-password" as never);
 
-    vi.mocked(userRepository.create).mockResolvedValue({
-      id: 1,
-      name: "Test User",
-      email: "test@example.com",
-      passwordHash: "hashed-password",
-      role: "RESIDENT",
-      emailVerified: false,
-      tokenVersion: 0,
-    } as any);
-
     vi.mocked(generateOtp).mockReturnValue("123456");
+
+    vi.mocked(storePendingRegistration).mockResolvedValue(undefined);
+
     vi.mocked(storeOtp).mockResolvedValue(undefined);
+
     vi.mocked(sendOtpEmail).mockResolvedValue(undefined);
 
     const result = await authService.register({
       name: "Test User",
       email: "test@example.com",
       password: "password123",
+      unitId: 1,
     });
 
     expect(result).toEqual({
-      id: 1,
       name: "Test User",
       email: "test@example.com",
-      role: "RESIDENT",
-      communityId: null,
     });
 
     expect(userRepository.findByEmail).toHaveBeenCalledWith("test@example.com");
+
+    expect(storePendingRegistration).toHaveBeenCalledWith({
+      name: "Test User",
+      email: "test@example.com",
+      passwordHash: "hashed-password",
+      unitId: 1,
+    });
+
+    expect(storeOtp).toHaveBeenCalledWith("test@example.com", "123456");
+
+    expect(sendOtpEmail).toHaveBeenCalledWith(
+      "test@example.com",
+      "123456",
+      "Test User",
+    );
+
+    expect(userRepository.create).not.toHaveBeenCalled();
   });
 
   it("should login successfully", async () => {
@@ -95,6 +131,7 @@ describe("authService", () => {
     } as any);
 
     vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
+
     vi.mocked(jwt.sign).mockReturnValue("test-token" as any);
 
     const result = await authService.login({
@@ -155,6 +192,7 @@ describe("authService", () => {
         name: "Test User",
         email: "test@example.com",
         password: "password123",
+        unitId: 1,
       }),
     ).rejects.toThrow();
 
@@ -162,16 +200,31 @@ describe("authService", () => {
   });
 
   it("should verify an OTP successfully", async () => {
-    vi.mocked(userRepository.findByEmail).mockResolvedValue({
+    vi.mocked(getPendingRegistration).mockResolvedValue({
+      name: "Test User",
+      email: "test@example.com",
+      passwordHash: "hashed-password",
+      unitId: 1,
+    });
+
+    vi.mocked(getOtp).mockResolvedValue("123456");
+
+    vi.mocked(userRepository.findByEmail).mockResolvedValue(null);
+
+    vi.mocked(userRepository.create).mockResolvedValue({
       id: 1,
       name: "Test User",
       email: "test@example.com",
+      passwordHash: "hashed-password",
+      googleId: null,
       role: "RESIDENT",
       emailVerified: false,
       tokenVersion: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      unitId: 1,
+      communityId: null,
     } as any);
-
-    vi.mocked(getOtp).mockResolvedValue("123456");
 
     vi.mocked(userRepository.updateVerificationStatus).mockResolvedValue({
       id: 1,
@@ -184,18 +237,141 @@ describe("authService", () => {
       tokenVersion: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
-      unitId: null,
+      unitId: 1,
+      communityId: null,
     } as any);
 
     vi.mocked(deleteOtp).mockResolvedValue(undefined);
 
-    await authService.verifyOtp("test@example.com", "123456");
+    vi.mocked(deletePendingRegistration).mockResolvedValue(undefined);
 
-   expect(getOtp).toHaveBeenCalledWith(1);
-expect(userRepository.updateVerificationStatus).toHaveBeenCalledWith(
-  1,
-  true,
-);
-expect(deleteOtp).toHaveBeenCalledWith(1);
+    const result = await authService.verifyOtp("test@example.com", "123456");
+
+    expect(result).toEqual({
+      id: 1,
+      name: "Test User",
+      email: "test@example.com",
+      role: "RESIDENT",
+      communityId: null,
+    });
+
+    expect(getPendingRegistration).toHaveBeenCalledWith("test@example.com");
+
+    expect(getOtp).toHaveBeenCalledWith("test@example.com");
+
+    expect(userRepository.create).toHaveBeenCalledWith({
+      name: "Test User",
+      email: "test@example.com",
+      passwordHash: "hashed-password",
+      role: "RESIDENT",
+      unitId: 1,
+    });
+
+    expect(userRepository.updateVerificationStatus).toHaveBeenCalledWith(
+      1,
+      true,
+    );
+
+    expect(deleteOtp).toHaveBeenCalledWith("test@example.com");
+
+    expect(deletePendingRegistration).toHaveBeenCalledWith("test@example.com");
+  });
+
+  it("should reject OTP after maximum attempts", async () => {
+    vi.mocked(getPendingRegistration).mockResolvedValue({
+      name: "Test User",
+      email: "test@example.com",
+      passwordHash: "hashed-password",
+      unitId: 1,
+    });
+
+    vi.mocked(getOtp).mockResolvedValue("123456");
+
+    vi.mocked(getOtpAttempts).mockResolvedValue(5);
+
+    await expect(
+      authService.verifyOtp("test@example.com", "wrong"),
+    ).rejects.toThrow("Too many invalid OTP attempts");
+
+    expect(incrementOtpAttempts).not.toHaveBeenCalled();
+    expect(userRepository.create).not.toHaveBeenCalled();
+  });
+
+  it("should increment attempts when OTP is incorrect", async () => {
+    vi.mocked(getPendingRegistration).mockResolvedValue({
+      name: "Test User",
+      email: "test@example.com",
+      passwordHash: "hashed-password",
+      unitId: 1,
+    });
+
+    vi.mocked(getOtp).mockResolvedValue("123456");
+
+    vi.mocked(getOtpAttempts).mockResolvedValue(2);
+
+    vi.mocked(incrementOtpAttempts).mockResolvedValue(3);
+
+    await expect(
+      authService.verifyOtp("test@example.com", "999999"),
+    ).rejects.toThrow("Invalid OTP");
+
+    expect(incrementOtpAttempts).toHaveBeenCalledWith("test@example.com");
+
+    expect(userRepository.create).not.toHaveBeenCalled();
+  });
+
+  it("should resend OTP successfully", async () => {
+    vi.mocked(getPendingRegistration).mockResolvedValue({
+      name: "Test User",
+      email: "test@example.com",
+      passwordHash: "hashed-password",
+      unitId: 1,
+    });
+
+    vi.mocked(isOtpResendAllowed).mockResolvedValue(true);
+
+    vi.mocked(generateOtp).mockReturnValue("654321");
+
+    vi.mocked(storeOtp).mockResolvedValue(undefined);
+
+    vi.mocked(sendOtpEmail).mockResolvedValue(undefined);
+
+    vi.mocked(startOtpResendCooldown).mockResolvedValue(undefined);
+
+    const result = await authService.resendOtp("test@example.com");
+
+    expect(result).toEqual({
+      message: "OTP sent successfully",
+    });
+
+    expect(storeOtp).toHaveBeenCalledWith("test@example.com", "654321");
+
+    expect(sendOtpEmail).toHaveBeenCalledWith(
+      "test@example.com",
+      "654321",
+      "Test User",
+    );
+
+    expect(startOtpResendCooldown).toHaveBeenCalledWith("test@example.com");
+  });
+
+  it("should reject OTP resend during cooldown", async () => {
+    vi.mocked(getPendingRegistration).mockResolvedValue({
+      name: "Test User",
+      email: "test@example.com",
+      passwordHash: "hashed-password",
+      unitId: 1,
+    });
+
+    vi.mocked(isOtpResendAllowed).mockResolvedValue(false);
+
+    await expect(authService.resendOtp("test@example.com")).rejects.toThrow(
+      "Please wait before requesting another OTP",
+    );
+
+    expect(generateOtp).not.toHaveBeenCalled();
+    expect(storeOtp).not.toHaveBeenCalled();
+    expect(sendOtpEmail).not.toHaveBeenCalled();
+    expect(startOtpResendCooldown).not.toHaveBeenCalled();
   });
 });

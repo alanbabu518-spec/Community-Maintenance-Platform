@@ -3,15 +3,28 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { googleOAuthClient } from "../../config/google.js";
 import {
+  deletePendingGoogleRegistration,
+  generateGoogleRegistrationToken,
   generateGoogleState,
+  getPendingGoogleRegistration,
   storeGoogleState,
+  storePendingGoogleRegistration,
   verifyAndDeleteGoogleState,
   type GoogleOAuthIntent,
 } from "../../utils/googleOAuth.js";
+import { locationService } from "../locations/location.service.js";
 import { userRepository } from "../users/user.repository.js";
 import { toUserResponse } from "../users/user.mapper.js";
 
 const GOOGLE_SCOPES = ["openid", "email", "profile"];
+
+type GoogleUser = {
+  googleId: string;
+  email: string;
+  name: string;
+  picture: string | null;
+  emailVerified: boolean;
+};
 
 export const googleService = {
   async createAuthorizationUrl(intent: GoogleOAuthIntent) {
@@ -74,38 +87,28 @@ export const googleService = {
       throw new Error("Google email is not verified");
     }
 
-    let user;
-
     if (googleUser.intent === "login") {
-      user = await this.loginUser(googleUser);
-    } else {
-      user = await this.registerUser(googleUser);
+      const user = await this.loginUser(googleUser);
+
+      const token = this.createJwt(user);
+
+      return {
+        type: "login" as const,
+        user: toUserResponse(user),
+        token,
+      };
     }
 
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        role: user.role,
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "7d",
-      },
-    );
+    const registrationToken =
+      await this.createPendingGoogleRegistration(googleUser);
 
     return {
-      user: toUserResponse(user),
-      token,
+      type: "registration" as const,
+      registrationToken,
     };
   },
 
-  async loginUser(googleUser: {
-    googleId: string;
-    email: string;
-    name: string;
-    picture: string | null;
-    emailVerified: boolean;
-  }) {
+  async loginUser(googleUser: GoogleUser) {
     let user = await userRepository.findByGoogleId(googleUser.googleId);
 
     if (!user) {
@@ -128,13 +131,7 @@ export const googleService = {
     return user;
   },
 
-  async registerUser(googleUser: {
-    googleId: string;
-    email: string;
-    name: string;
-    picture: string | null;
-    emailVerified: boolean;
-  }) {
+  async createPendingGoogleRegistration(googleUser: GoogleUser) {
     const existingGoogleUser = await userRepository.findByGoogleId(
       googleUser.googleId,
     );
@@ -155,17 +152,92 @@ export const googleService = {
       );
     }
 
+    const registrationToken = generateGoogleRegistrationToken();
+
+    await storePendingGoogleRegistration(registrationToken, {
+      googleId: googleUser.googleId,
+      email: googleUser.email,
+      name: googleUser.name,
+      picture: googleUser.picture,
+      emailVerified: googleUser.emailVerified,
+    });
+
+    return registrationToken;
+  },
+
+  async completeGoogleRegistration(
+    registrationToken: string,
+    communityId: number,
+    buildingId: number,
+    unitId: number,
+  ) {
+    const pendingRegistration =
+      await getPendingGoogleRegistration(registrationToken);
+
+    if (!pendingRegistration) {
+      throw new Error(
+        "Google registration session is invalid or expired. Please register again.",
+      );
+    }
+
+    const location = await locationService.validateUnitLocation(
+      unitId,
+      buildingId,
+      communityId,
+    );
+
+    const existingGoogleUser = await userRepository.findByGoogleId(
+      pendingRegistration.googleId,
+    );
+
+    if (existingGoogleUser) {
+      throw new Error(
+        "An account with this Google account already exists. Please login.",
+      );
+    }
+
+    const existingEmailUser = await userRepository.findByEmail(
+      pendingRegistration.email,
+    );
+
+    if (existingEmailUser) {
+      throw new Error(
+        "An account with this email already exists. Please login.",
+      );
+    }
+
     const passwordHash = await bcrypt.hash(crypto.randomUUID(), 10);
 
     const user = await userRepository.create({
-      name: googleUser.name,
-      email: googleUser.email,
+      name: pendingRegistration.name,
+      email: pendingRegistration.email,
       passwordHash,
-      googleId: googleUser.googleId,
+      googleId: pendingRegistration.googleId,
       role: "RESIDENT",
       emailVerified: true,
+      unitId: location.id,
+      communityId,
     });
 
-    return user;
+    await deletePendingGoogleRegistration(registrationToken);
+
+    const token = this.createJwt(user);
+
+    return {
+      user: toUserResponse(user),
+      token,
+    };
+  },
+
+  createJwt(user: { id: number; role: string; tokenVersion: number }) {
+    return jwt.sign(
+      {
+        userId: user.id,
+        role: user.role,
+        tokenVersion: user.tokenVersion,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" },
+    );
   },
 };

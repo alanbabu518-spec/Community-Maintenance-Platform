@@ -1,10 +1,11 @@
 import type { UserResponse } from "./user.types.js";
 
-type UserForResponse = {
+type UserWithLocation = {
   id: number;
   name: string;
   email: string;
-  role: "RESIDENT" | "ADMIN" | "MANAGER" | "TECHNICIAN";
+  role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
+  communityId?: number | null;
   unit?: {
     building?: {
       communityId: number;
@@ -12,12 +13,15 @@ type UserForResponse = {
   } | null;
 };
 
-export function toUserResponse(user: UserForResponse): UserResponse {
+export function toUserResponse(user: UserWithLocation): UserResponse {
   return {
     id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
-    communityId: user.unit?.building?.communityId ?? null,
+    communityId:
+      user.communityId ??
+      user.unit?.building?.communityId ??
+      null,
   };
 }

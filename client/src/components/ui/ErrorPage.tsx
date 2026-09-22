@@ -18,6 +18,14 @@ function ErrorPage({
   errorCode,
 }: ErrorPageProps) {
   useEffect(() => {
+    const existingScript = document.querySelector(
+      'script[src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"]',
+    );
+
+    if (existingScript) {
+      return;
+    }
+
     const script = document.createElement("script");
 
     script.src =
@@ -25,10 +33,6 @@ function ErrorPage({
     script.async = true;
 
     document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
   }, []);
 
   return (

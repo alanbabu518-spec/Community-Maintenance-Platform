@@ -5,7 +5,7 @@ async function testOtp() {
   try {
     await redisClient.connect();
 
-    const userId = 1;
+    const userId = "1";
     const otp = generateOtp();
 
     await storeOtp(userId, otp);

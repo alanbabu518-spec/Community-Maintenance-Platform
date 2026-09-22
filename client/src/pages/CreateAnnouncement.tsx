@@ -3,20 +3,13 @@ import { ArrowLeft, Megaphone } from "lucide-react";
 import AnnouncementForm, {
   type AnnouncementFormData,
 } from "../features/announcements/components/AnnouncementForm";
-import { useAuth } from "../context/AuthContext";
 import { createAnnouncement } from "../services/announcement.api";
 
 function CreateAnnouncement() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  
-  const handleSubmit = async (data: AnnouncementFormData) => {
-    if (!user?.communityId) {
-      return;
-    }
 
+  const handleSubmit = async (data: AnnouncementFormData) => {
     await createAnnouncement({
-      communityId: user.communityId,
       title: data.title,
       message: data.content,
       category: data.category as

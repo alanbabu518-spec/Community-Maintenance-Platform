@@ -3,26 +3,12 @@ import { googleController } from "./google.controller.js";
 
 const router = Router();
 
-/**
- * Google OAuth
- */
+router.get("/google", googleController.loginStart);
 
-// Start Google login
-router.get(
-  "/google",
-  googleController.loginStart,
-);
+router.get("/google/register", googleController.registerStart);
 
-// Start Google registration
-router.get(
-  "/google/register",
-  googleController.registerStart,
-);
+router.get("/google/callback", googleController.callback);
 
-// Google OAuth callback
-router.get(
-  "/google/callback",
-  googleController.callback,
-);
+router.post("/google/register/complete", googleController.completeRegistration);
 
 export default router;

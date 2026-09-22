@@ -31,7 +31,6 @@ export async function getAnnouncements(
 }
 
 export async function createAnnouncement(data: {
-  communityId: number;
   title: string;
   message: string;
   category: "General" | "Maintenance" | "Event" | "Emergency";
@@ -42,3 +41,5 @@ export async function createAnnouncement(data: {
     body: JSON.stringify(data),
   });
 }
+
+export default getAnnouncements;

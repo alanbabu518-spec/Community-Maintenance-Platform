@@ -40,6 +40,7 @@ export const userRepository = {
           name: true,
           email: true,
           role: true,
+          communityId: true,
           createdAt: true,
           updatedAt: true,
           unit: {
@@ -58,6 +59,7 @@ export const userRepository = {
         skip,
         take: filters.limit,
       }),
+
       prisma.user.count({
         where,
       }),
@@ -76,6 +78,8 @@ export const userRepository = {
     role: UserRole;
     googleId?: string;
     emailVerified?: boolean;
+    unitId?: number;
+    communityId?: number;
   }) {
     return prisma.user.create({
       data,
@@ -84,13 +88,17 @@ export const userRepository = {
 
   findByEmail(email: string) {
     return prisma.user.findUnique({
-      where: { email },
+      where: {
+        email,
+      },
     });
   },
 
   findByGoogleId(googleId: string) {
     return prisma.user.findUnique({
-      where: { googleId },
+      where: {
+        googleId,
+      },
     });
   },
 
@@ -107,7 +115,9 @@ export const userRepository = {
 
   findById(id: number) {
     return prisma.user.findUnique({
-      where: { id },
+      where: {
+        id,
+      },
       include: {
         unit: {
           include: {
@@ -120,8 +130,12 @@ export const userRepository = {
 
   updateVerificationStatus(id: number, emailVerified: boolean) {
     return prisma.user.update({
-      where: { id },
-      data: { emailVerified },
+      where: {
+        id,
+      },
+      data: {
+        emailVerified,
+      },
     });
   },
 

@@ -13,6 +13,7 @@ import notificationRoutes from "./modules/notifications/notification.routes.js";
 import announcementRoutes from "./modules/announcements/announcement.routes.js";
 import notificationPreferenceRoutes from "./modules/notification-preferences/notification-preference.routes.js";
 import helmet from "helmet";
+import locationRoutes from "./modules/locations/location.routes.js";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use(cookieParser());
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", googleRoutes);
+app.use("/api/locations", locationRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/notifications", notificationRoutes);

@@ -90,10 +90,7 @@ export const maintenanceRepository = {
     });
   },
 
-  countByResidentId(
-    residentId: number,
-    filters: MaintenanceFilters,
-  ) {
+  countByResidentId(residentId: number, filters: MaintenanceFilters) {
     return prisma.maintenanceRequest.count({
       where: buildMaintenanceWhere(filters, {
         residentId,
@@ -101,10 +98,7 @@ export const maintenanceRepository = {
     });
   },
 
-  countByTechnicianId(
-    technicianId: number,
-    filters: MaintenanceFilters,
-  ) {
+  countByTechnicianId(technicianId: number, filters: MaintenanceFilters) {
     return prisma.maintenanceRequest.count({
       where: buildMaintenanceWhere(filters, {
         technicianId,
@@ -176,6 +170,24 @@ export const maintenanceRepository = {
           },
         },
         maintenanceAttachments: true,
+      },
+    });
+  },
+
+  findCommunityManagersAndAdmins(communityId: number) {
+    return prisma.user.findMany({
+      where: {
+        role: {
+          in: ["ADMIN", "MANAGER"],
+        },
+        unit: {
+          building: {
+            communityId,
+          },
+        },
+      },
+      select: {
+        id: true,
       },
     });
   },

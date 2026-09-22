@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Mail, Lock, UsersRound } from "lucide-react";
+import { useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Mail, Lock, Eye, EyeOff, UsersRound } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF } from "react-icons/fa";
 
 import PageTransition from "../components/ui/PageTransition";
 import Spinner from "../components/ui/Spinner";
 import { useAuth } from "../context/AuthContext";
+import { ApiError } from "../services/apiClient";
 
 function AnimatedLines() {
   return (
@@ -65,15 +66,20 @@ function AnimatedLines() {
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from || "/";
   const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const googleError = searchParams.get("error");
 
@@ -82,26 +88,34 @@ function Login() {
       ? "No CommunityCare account found. Please create an account first."
       : null;
 
-  useEffect(() => {
-    if (googleError) {
-      setSearchParams({}, { replace: true });
-    }
-  }, [googleError, setSearchParams]);
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    setError("");
+    setLoading(true);
+
     try {
-      setError("");
-      setLoading(true);
+      await login(email.trim(), password);
 
-      await login(email, password);
-
-      navigate("/");
+      navigate(from, { replace: true });
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Invalid email or password",
-      );
+      console.error("Login failed:", error);
+
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          setError("Invalid email or password");
+        } else if (error.status === 429) {
+          setError("Too many login attempts. Please try again later.");
+        } else if (error.status === 0) {
+          setError("Unable to connect to the server. Please try again.");
+        } else {
+          setError(error.message);
+        }
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Invalid email or password");
+      }
     } finally {
       setLoading(false);
     }
@@ -173,7 +187,9 @@ function Login() {
                 <button
                   type="button"
                   onClick={() => {
-                    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`;
+                    window.location.href = `${
+                      import.meta.env.VITE_API_BASE_URL
+                    }/auth/google`;
                   }}
                   className="flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-slate-900 transition hover:bg-slate-100"
                 >
@@ -192,7 +208,9 @@ function Login() {
 
               <div className="my-5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-slate-800" />
+
                 <span className="text-[10px] text-slate-600">OR</span>
+
                 <div className="h-px flex-1 bg-slate-800" />
               </div>
 
@@ -239,13 +257,24 @@ function Login() {
 
                     <input
                       id="login-password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       required
-                      className="h-10.5 w-full rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-slate-600"
+                      className="h-10.5 w-full rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-10 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-slate-600"
                     />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((previous) => !previous)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 transition hover:text-slate-300"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                 </div>
 
@@ -285,7 +314,7 @@ function Login() {
                 Don't have an account?{" "}
                 <button
                   type="button"
-                  onClick={() => navigate("/register")}
+                  onClick={() => navigate("/register", { state: { from } })}
                   className="font-semibold text-slate-300 transition hover:text-white"
                 >
                   Create one

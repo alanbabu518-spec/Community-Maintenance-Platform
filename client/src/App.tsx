@@ -9,6 +9,8 @@ import Loading from "./components/ui/Loading";
 import UserManagement from "./pages/UserManagement";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import RedirectIfAuthenticated from "./components/RedirectIfAuthenticated";
+import GoogleSetup from "./pages/GoogleSetup";
 
 const Register = lazy(() => import("./pages/Register"));
 const VerifyOtp = lazy(() => import("./pages/VerifyOtp"));
@@ -44,9 +46,24 @@ function App() {
       <BrowserRouter>
         <Suspense fallback={<Loading type="dashboard" />}>
           <Routes>
-            <Route path="/register" element={<Register />} />
+            <Route
+              path="/register"
+              element={
+                <RedirectIfAuthenticated>
+                  <Register />
+                </RedirectIfAuthenticated>
+              }
+            />
             <Route path="/verify-otp" element={<VerifyOtp />} />
-            <Route path="/login" element={<Login />} />
+            <Route
+              path="/login"
+              element={
+                <RedirectIfAuthenticated>
+                  <Login />
+                </RedirectIfAuthenticated>
+              }
+            />
+            <Route path="/google-setup" element={<GoogleSetup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 

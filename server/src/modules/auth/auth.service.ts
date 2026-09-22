@@ -8,6 +8,11 @@ import {
   storeOtp,
   getOtp,
   deleteOtp,
+  getOtpAttempts,
+  incrementOtpAttempts,
+  MAX_OTP_ATTEMPTS,
+  isOtpResendAllowed,
+  startOtpResendCooldown,
 } from "../../utils/otp.js";
 import {
   generateResetToken,
@@ -15,10 +20,12 @@ import {
   getResetTokenUserId,
   deleteResetToken,
 } from "../../utils/passwordReset.js";
+import { sendOtpEmail, sendPasswordResetEmail } from "./email.service.js";
 import {
-  sendOtpEmail,
-  sendPasswordResetEmail,
-} from "./email.service.js";
+  storePendingRegistration,
+  getPendingRegistration,
+  deletePendingRegistration,
+} from "../../utils/pendingRegistration.js";
 import { AppError } from "../../utils/AppError.js";
 
 export const authService = {
@@ -34,38 +41,45 @@ export const authService = {
 
     const passwordHash = await bcrypt.hash(data.password, 10);
 
-    const user = await userRepository.create({
+    await storePendingRegistration({
       name: data.name,
       email: data.email,
       passwordHash,
-      role: "RESIDENT",
+      unitId: data.unitId,
     });
 
     const otp = generateOtp();
 
-    await storeOtp(user.id, otp);
+    await storeOtp(data.email, otp);
 
-    await sendOtpEmail(user.email, otp, user.name);
+    await sendOtpEmail(data.email, otp, data.name);
 
-    return toUserResponse(user);
+    return {
+      name: data.name,
+      email: data.email,
+    };
   },
 
   async resendOtp(email: string) {
-    const user = await userRepository.findByEmail(email);
+    const pendingRegistration = await getPendingRegistration(email);
 
-    if (!user) {
-      throw new Error("User not found");
+    if (!pendingRegistration) {
+      throw new AppError("Registration expired or not found", 400);
     }
 
-    if (user.emailVerified) {
-      throw new Error("Email already verified");
+    const allowed = await isOtpResendAllowed(email);
+
+    if (!allowed) {
+      throw new AppError("Please wait before requesting another OTP", 429);
     }
 
     const otp = generateOtp();
 
-    await storeOtp(user.id, otp);
+    await storeOtp(email, otp);
 
-    await sendOtpEmail(user.email, otp, user.name);
+    await sendOtpEmail(email, otp, pendingRegistration.name);
+
+    await startOtpResendCooldown(email);
 
     return {
       message: "OTP sent successfully",
@@ -73,25 +87,51 @@ export const authService = {
   },
 
   async verifyOtp(email: string, otp: string) {
-    const user = await userRepository.findByEmail(email);
+    const pendingRegistration = await getPendingRegistration(email);
 
-    if (!user) {
-      throw new Error("User not found");
+    if (!pendingRegistration) {
+      throw new AppError("Invalid or expired OTP", 400);
     }
 
-    const storedOtp = await getOtp(user.id);
+    const storedOtp = await getOtp(email);
 
     if (!storedOtp) {
-      throw new Error("OTP expired or not found");
+      throw new AppError("Invalid or expired OTP", 400);
+    }
+
+    const attempts = await getOtpAttempts(email);
+
+    if (attempts >= MAX_OTP_ATTEMPTS) {
+      throw new AppError("Too many invalid OTP attempts", 429);
     }
 
     if (storedOtp !== otp) {
-      throw new Error("Invalid OTP");
+      await incrementOtpAttempts(email);
+
+      throw new AppError("Invalid OTP", 400);
     }
+
+    const existingUser = await userRepository.findByEmail(email);
+
+    if (existingUser) {
+      throw new AppError(
+        "An account with this email already exists. Please login.",
+        409,
+      );
+    }
+
+    const user = await userRepository.create({
+      name: pendingRegistration.name,
+      email: pendingRegistration.email,
+      passwordHash: pendingRegistration.passwordHash,
+      role: "RESIDENT",
+      unitId: pendingRegistration.unitId,
+    });
 
     await userRepository.updateVerificationStatus(user.id, true);
 
-    await deleteOtp(user.id);
+    await deleteOtp(email);
+    await deletePendingRegistration(email);
 
     return toUserResponse(user);
   },
@@ -100,7 +140,7 @@ export const authService = {
     const user = await userRepository.findByEmail(data.email);
 
     if (!user) {
-      throw new Error("Invalid Email or Password");
+      throw new AppError("Invalid email or password", 401);
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -109,7 +149,7 @@ export const authService = {
     );
 
     if (!isPasswordValid) {
-      throw new Error("Invalid Email or Password");
+      throw new AppError("Invalid email or password", 401);
     }
 
     const token = jwt.sign(
@@ -144,7 +184,9 @@ export const authService = {
     const user = await userRepository.findByEmail(email);
 
     if (!user) {
-      return { message: "Password reset instructions sent" };
+      return {
+        message: "Password reset instructions sent",
+      };
     }
 
     const token = generateResetToken();
@@ -153,14 +195,16 @@ export const authService = {
 
     await sendPasswordResetEmail(user.email, user.name, token);
 
-    return { message: "Password reset instructions sent" };
+    return {
+      message: "Password reset instructions sent",
+    };
   },
 
   async resetPassword(token: string, password: string) {
     const userId = await getResetTokenUserId(token);
 
     if (!userId) {
-      throw new Error("Invalid or expired reset token");
+      throw new AppError("Invalid or expired reset token", 400);
     }
 
     const passwordHash = await bcrypt.hash(password, 10);

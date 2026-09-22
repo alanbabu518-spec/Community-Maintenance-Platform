@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Mail, ShieldCheck, UsersRound } from "lucide-react";
-import { verifyOtp } from "../services/auth.api";
+import { verifyOtp, resendOtp } from "../services/auth.api";
 import Button from "../components/ui/Button";
 import Spinner from "../components/ui/Spinner";
 import PageTransition from "../components/ui/PageTransition";
@@ -69,13 +69,37 @@ function VerifyOtp() {
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(60);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
   }, []);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setResendCooldown((previous) => {
+        if (previous <= 1) {
+          window.clearInterval(timer);
+          return 0;
+        }
+
+        return previous - 1;
+      });
+    }, 1000);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [resendCooldown]);
 
   const handleChange = (index: number, value: string) => {
     const digit = value.replace(/\D/g, "").slice(-1);
@@ -85,6 +109,7 @@ function VerifyOtp() {
 
     setOtp(newOtp);
     setError("");
+    setSuccess("");
 
     if (digit && index < 5) {
       inputRefs.current[index + 1]?.focus();
@@ -128,8 +153,10 @@ function VerifyOtp() {
 
     setOtp(newOtp);
     setError("");
+    setSuccess("");
 
     const nextIndex = Math.min(pastedValue.length, 5);
+
     inputRefs.current[nextIndex]?.focus();
   };
 
@@ -140,16 +167,19 @@ function VerifyOtp() {
 
     if (otpValue.length !== 6) {
       setError("Please enter the complete 6-digit OTP");
+      setSuccess("");
       return;
     }
 
     if (!email) {
       setError("Email is missing. Please register again.");
+      setSuccess("");
       return;
     }
 
     try {
       setError("");
+      setSuccess("");
       setLoading(true);
 
       await verifyOtp({
@@ -164,6 +194,37 @@ function VerifyOtp() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email) {
+      setError("Email is missing. Please register again.");
+      return;
+    }
+
+    if (resendCooldown > 0 || resendLoading) {
+      return;
+    }
+
+    try {
+      setError("");
+      setSuccess("");
+      setResendLoading(true);
+
+      await resendOtp(email);
+
+      setSuccess("A new OTP has been sent to your email.");
+
+      setOtp(["", "", "", "", "", ""]);
+
+      setResendCooldown(60);
+
+      inputRefs.current[0]?.focus();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to resend OTP");
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -273,6 +334,12 @@ function VerifyOtp() {
                   </div>
                 )}
 
+                {success && (
+                  <div className="mt-4 rounded-lg border border-emerald-900/50 bg-emerald-950/30 px-3 py-2.5 text-xs text-emerald-400">
+                    {success}
+                  </div>
+                )}
+
                 <Button
                   type="submit"
                   className="mt-6 h-10.5 w-full"
@@ -288,6 +355,33 @@ function VerifyOtp() {
                   )}
                 </Button>
               </form>
+
+              <div className="mt-5 text-center">
+                {resendCooldown > 0 ? (
+                  <p className="text-xs text-slate-600">
+                    Resend OTP in{" "}
+                    <span className="font-semibold text-slate-400">
+                      {resendCooldown}s
+                    </span>
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resendLoading}
+                    className="text-xs font-semibold text-slate-300 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {resendLoading ? (
+                      <span className="inline-flex items-center gap-2">
+                        <Spinner size="sm" />
+                        Sending...
+                      </span>
+                    ) : (
+                      "Resend OTP"
+                    )}
+                  </button>
+                )}
+              </div>
 
               <p className="mt-5 text-center text-xs text-slate-600">
                 Entered the wrong email?{" "}

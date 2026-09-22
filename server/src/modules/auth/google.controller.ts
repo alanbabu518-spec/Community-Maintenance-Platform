@@ -34,14 +34,22 @@ export const googleController = {
 
       const result = await googleService.handleOAuthCallback(code, state);
 
-      res.cookie("access_token", result.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: Number(process.env.COOKIE_MAX_AGE),
-      });
+      if (result.type === "login") {
+        res.cookie("access_token", result.token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: Number(process.env.COOKIE_MAX_AGE),
+        });
 
-      return res.redirect(`${process.env.CLIENT_URL}/`);
+        return res.redirect(`${process.env.CLIENT_URL}/`);
+      }
+
+      return res.redirect(
+        `${process.env.CLIENT_URL}/google-setup?token=${encodeURIComponent(
+          result.registrationToken,
+        )}`,
+      );
     } catch (error) {
       if (!(error instanceof Error)) {
         return next(error);
@@ -66,6 +74,55 @@ export const googleController = {
       }
 
       return next(error);
+    }
+  },
+  async completeRegistration(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { registrationToken, communityId, buildingId, unitId } = req.body;
+
+      if (typeof registrationToken !== "string" || !registrationToken.trim()) {
+        return res.status(400).json({
+          message: "Registration token is required",
+        });
+      }
+
+      const parsedCommunityId = Number(communityId);
+      const parsedBuildingId = Number(buildingId);
+      const parsedUnitId = Number(unitId);
+
+      if (
+        !Number.isInteger(parsedCommunityId) ||
+        parsedCommunityId <= 0 ||
+        !Number.isInteger(parsedBuildingId) ||
+        parsedBuildingId <= 0 ||
+        !Number.isInteger(parsedUnitId) ||
+        parsedUnitId <= 0
+      ) {
+        return res.status(400).json({
+          message: "Valid community, building, and unit are required",
+        });
+      }
+
+      const result = await googleService.completeGoogleRegistration(
+        registrationToken,
+        parsedCommunityId,
+        parsedBuildingId,
+        parsedUnitId,
+      );
+
+      res.cookie("access_token", result.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: Number(process.env.COOKIE_MAX_AGE),
+      });
+
+      return res.status(200).json({
+        message: "Google registration completed successfully",
+        user: result.user,
+      });
+    } catch (error) {
+      next(error);
     }
   },
 };

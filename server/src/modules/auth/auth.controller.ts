@@ -26,14 +26,11 @@ export const authController = {
         return next(error);
       }
 
-      console.error(error);
+      console.error("Registration error:", error);
 
-      return res.status(400).json({
-        message: "Invalid registration data",
-      });
+      return next(error);
     }
   },
-
   async resendOtp(req: Request, res: Response, next: NextFunction) {
     try {
       const data = resendOtpSchema.parse(req.body);

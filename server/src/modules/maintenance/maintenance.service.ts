@@ -16,6 +16,24 @@ import { getCache, setCache, deleteCacheByPattern } from "../../utils/cache.js";
 import { maintenanceListCacheKey } from "../../utils/cacheKeys.js";
 import { notificationQueue } from "../../config/queue.js";
 
+type MaintenanceNotification = {
+  userId: number;
+  type:
+    | "MAINTENANCE_CREATED"
+    | "TECHNICIAN_ASSIGNED"
+    | "MAINTENANCE_STATUS_UPDATED";
+  title: string;
+  message: string;
+};
+
+async function queueMaintenanceNotifications(
+  notifications: MaintenanceNotification[],
+) {
+  for (const notification of notifications) {
+    await notificationQueue.add("maintenance-notification", notification);
+  }
+}
+
 export const maintenanceService = {
   async createRequest(
     data: CreateMaintenanceRequestInput,
@@ -55,12 +73,29 @@ export const maintenanceService = {
       throw new Error("Maintenance request not found");
     }
 
-    await notificationQueue.add("maintenance-created", {
-      maintenanceRequestId: requestWithAttachments.id,
-      residentId,
-      title: requestWithAttachments.title,
-      message: "New maintenance request created",
-    });
+    const communityId = requestWithAttachments.unit.building.communityId;
+
+    const managersAndAdmins =
+      await maintenanceRepository.findCommunityManagersAndAdmins(communityId);
+
+    const notifications: MaintenanceNotification[] = [
+      {
+        userId: residentId,
+        type: "MAINTENANCE_CREATED",
+        title: requestWithAttachments.title,
+        message: "Your maintenance request has been created.",
+      },
+      ...managersAndAdmins
+        .filter((user) => user.id !== residentId)
+        .map((user) => ({
+          userId: user.id,
+          type: "MAINTENANCE_CREATED" as const,
+          title: requestWithAttachments.title,
+          message: "A new maintenance request has been created.",
+        })),
+    ];
+
+    await queueMaintenanceNotifications(notifications);
 
     return toMaintenanceRequestResponse(requestWithAttachments);
   },
@@ -84,8 +119,6 @@ export const maintenanceService = {
       filters,
     );
 
-    const cacheStart = performance.now();
-
     const cachedResult = await getCache<{
       requests: ReturnType<typeof toMaintenanceRequestResponse>[];
       total: number;
@@ -94,6 +127,7 @@ export const maintenanceService = {
     if (cachedResult) {
       return cachedResult;
     }
+
     const skip = (page - 1) * limit;
 
     let result: {
@@ -206,9 +240,46 @@ export const maintenanceService = {
         );
       }
     }
+
     const updatedRequest = await maintenanceRepository.update(id, data);
 
     await deleteCacheByPattern("maintenance:list:*");
+
+    if (data.status && data.status !== request.status) {
+      const residentId = request.residentId;
+
+      let message = "";
+
+      switch (data.status) {
+        case "ACKNOWLEDGED":
+          message = "Your maintenance request has been acknowledged.";
+          break;
+
+        case "IN_PROGRESS":
+          message = "Work has started on your maintenance request.";
+          break;
+
+        case "RESOLVED":
+          message = "Your maintenance request has been completed.";
+          break;
+
+        case "CLOSED":
+          message = "Your maintenance request has been closed.";
+          break;
+
+        default:
+          message = `Your maintenance request status changed to ${data.status}.`;
+      }
+
+      await queueMaintenanceNotifications([
+        {
+          userId: residentId,
+          type: "MAINTENANCE_STATUS_UPDATED",
+          title: updatedRequest.title,
+          message,
+        },
+      ]);
+    }
 
     return toMaintenanceRequestResponse(updatedRequest);
   },
@@ -243,6 +314,21 @@ export const maintenanceService = {
     });
 
     await deleteCacheByPattern("maintenance:list:*");
+
+    await queueMaintenanceNotifications([
+      {
+        userId: technicianId,
+        type: "TECHNICIAN_ASSIGNED",
+        title: updatedRequest.title,
+        message: "A maintenance request has been assigned to you.",
+      },
+      {
+        userId: request.residentId,
+        type: "TECHNICIAN_ASSIGNED",
+        title: updatedRequest.title,
+        message: "A technician has been assigned to your maintenance request.",
+      },
+    ]);
 
     return toMaintenanceRequestResponse(updatedRequest);
   },

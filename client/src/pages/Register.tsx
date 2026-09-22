@@ -1,9 +1,28 @@
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Mail, Lock, UserRound, UsersRound } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  ArrowLeft,
+  Building2,
+  ChevronDown,
+  Eye,
+  EyeOff,
+  Home,
+  Lock,
+  Mail,
+  UserRound,
+  UsersRound,
+} from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF } from "react-icons/fa";
 import { registerUser } from "../services/auth.api";
+import {
+  getBuildings,
+  getCommunities,
+  getUnits,
+  type Building,
+  type Community,
+  type Unit,
+} from "../services/location.api";
 import Spinner from "../components/ui/Spinner";
 import PageTransition from "../components/ui/PageTransition";
 
@@ -64,10 +83,29 @@ function AnimatedLines() {
 
 function Register() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from || "/";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [units, setUnits] = useState<Unit[]>([]);
+
+  const [selectedCommunityId, setSelectedCommunityId] = useState("");
+  const [selectedBuildingId, setSelectedBuildingId] = useState("");
+  const [selectedUnitId, setSelectedUnitId] = useState("");
+
+  const [loadingLocations, setLoadingLocations] = useState(true);
+  const [loadingBuildings, setLoadingBuildings] = useState(false);
+  const [loadingUnits, setLoadingUnits] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -81,8 +119,114 @@ function Register() {
       ? "An account with this email already exists. Please login."
       : null;
 
+  useEffect(() => {
+    async function loadCommunities() {
+      try {
+        setLoadingLocations(true);
+
+        const result = await getCommunities();
+
+        setCommunities(result.communities);
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Unable to load communities.",
+        );
+      } finally {
+        setLoadingLocations(false);
+      }
+    }
+
+    loadCommunities();
+  }, []);
+
+  async function handleCommunityChange(
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) {
+    const communityId = event.target.value;
+
+    setSelectedCommunityId(communityId);
+    setSelectedBuildingId("");
+    setSelectedUnitId("");
+    setBuildings([]);
+    setUnits([]);
+    setError("");
+
+    if (!communityId) {
+      return;
+    }
+
+    try {
+      setLoadingBuildings(true);
+
+      const result = await getBuildings(Number(communityId));
+
+      setBuildings(result.buildings);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Unable to load buildings.",
+      );
+    } finally {
+      setLoadingBuildings(false);
+    }
+  }
+
+  async function handleBuildingChange(
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) {
+    const buildingId = event.target.value;
+
+    setSelectedBuildingId(buildingId);
+    setSelectedUnitId("");
+    setUnits([]);
+    setError("");
+
+    if (!buildingId) {
+      return;
+    }
+
+    try {
+      setLoadingUnits(true);
+
+      const result = await getUnits(Number(buildingId));
+
+      setUnits(result.units);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Unable to load units.",
+      );
+    } finally {
+      setLoadingUnits(false);
+    }
+  }
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError("Password does not match");
+      return;
+    }
+
+    if (!selectedCommunityId) {
+      setError("Please select your community.");
+      return;
+    }
+
+    if (!selectedBuildingId) {
+      setError("Please select your building.");
+      return;
+    }
+
+    if (!selectedUnitId) {
+      setError("Please select your unit.");
+      return;
+    }
 
     try {
       setError("");
@@ -92,9 +236,12 @@ function Register() {
         name,
         email,
         password,
+        unitId: Number(selectedUnitId),
       });
 
-      navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
+      navigate(`/verify-otp?email=${encodeURIComponent(email)}`, {
+        state: { from },
+      });
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Registration failed",
@@ -170,7 +317,9 @@ function Register() {
                 <button
                   type="button"
                   onClick={() => {
-                    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google/register`;
+                    window.location.href = `${
+                      import.meta.env.VITE_API_BASE_URL
+                    }/auth/google/register`;
                   }}
                   className="flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-slate-900 transition hover:bg-slate-100"
                 >
@@ -262,13 +411,229 @@ function Register() {
 
                     <input
                       id="register-password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="Password (min 8 characters)"
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       required
                       minLength={8}
-                      className="h-10 w-full rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-slate-600"
+                      className="h-10 w-full rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-10 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-slate-600"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((previous) => !previous)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 transition hover:text-slate-300"
+                    >
+                      {showPassword ? (
+                        <EyeOff size={16} />
+                      ) : (
+                        <Eye size={16} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="register-confirm-password"
+                    className="mb-1.5 block text-xs font-medium text-slate-400"
+                  >
+                    Confirm Password
+                  </label>
+
+                  <div className="relative">
+                    <Lock
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                    />
+
+                    <input
+                      id="register-confirm-password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(event) => {
+                        setConfirmPassword(event.target.value);
+
+                        if (error === "Password does not match") {
+                          setError("");
+                        }
+                      }}
+                      required
+                      className={`h-10 w-full rounded-lg border bg-[#090909] pl-9 pr-10 text-sm text-white outline-none transition placeholder:text-slate-700 ${
+                        error === "Password does not match"
+                          ? "border-red-900/70 focus:border-red-700"
+                          : "border-slate-800 focus:border-slate-600"
+                      }`}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword((previous) => !previous)
+                      }
+                      aria-label={
+                        showConfirmPassword
+                          ? "Hide confirm password"
+                          : "Show confirm password"
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 transition hover:text-slate-300"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff size={16} />
+                      ) : (
+                        <Eye size={16} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Community */}
+                <div>
+                  <label
+                    htmlFor="register-community"
+                    className="mb-1.5 block text-xs font-medium text-slate-400"
+                  >
+                    Community
+                  </label>
+
+                  <div className="relative">
+                    <Building2
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                    />
+
+                    <select
+                      id="register-community"
+                      value={selectedCommunityId}
+                      onChange={handleCommunityChange}
+                      disabled={loadingLocations || loading}
+                      required
+                      className="h-10 w-full appearance-none rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-10 text-sm text-white outline-none transition focus:border-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <option value="" className="bg-[#090909]">
+                        {loadingLocations
+                          ? "Loading communities..."
+                          : "Select your community"}
+                      </option>
+
+                      {communities.map((community) => (
+                        <option
+                          key={community.id}
+                          value={community.id}
+                          className="bg-[#090909]"
+                        >
+                          {community.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <ChevronDown
+                      size={16}
+                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-600"
+                    />
+                  </div>
+                </div>
+
+                {/* Building */}
+                <div>
+                  <label
+                    htmlFor="register-building"
+                    className="mb-1.5 block text-xs font-medium text-slate-400"
+                  >
+                    Building
+                  </label>
+
+                  <div className="relative">
+                    <Building2
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                    />
+
+                    <select
+                      id="register-building"
+                      value={selectedBuildingId}
+                      onChange={handleBuildingChange}
+                      disabled={
+                        !selectedCommunityId ||
+                        loadingBuildings ||
+                        loading
+                      }
+                      required
+                      className="h-10 w-full appearance-none rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-10 text-sm text-white outline-none transition focus:border-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <option value="" className="bg-[#090909]">
+                        {loadingBuildings
+                          ? "Loading buildings..."
+                          : "Select your building"}
+                      </option>
+
+                      {buildings.map((building) => (
+                        <option
+                          key={building.id}
+                          value={building.id}
+                          className="bg-[#090909]"
+                        >
+                          {building.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <ChevronDown
+                      size={16}
+                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-600"
+                    />
+                  </div>
+                </div>
+
+                {/* Unit */}
+                <div>
+                  <label
+                    htmlFor="register-unit"
+                    className="mb-1.5 block text-xs font-medium text-slate-400"
+                  >
+                    Unit
+                  </label>
+
+                  <div className="relative">
+                    <Home
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"
+                    />
+
+                    <select
+                      id="register-unit"
+                      value={selectedUnitId}
+                      onChange={(event) => {
+                        setSelectedUnitId(event.target.value);
+                        setError("");
+                      }}
+                      disabled={!selectedBuildingId || loadingUnits || loading}
+                      required
+                      className="h-10 w-full appearance-none rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-10 text-sm text-white outline-none transition focus:border-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <option value="" className="bg-[#090909]">
+                        {loadingUnits ? "Loading units..." : "Select your unit"}
+                      </option>
+
+                      {units.map((unit) => (
+                        <option
+                          key={unit.id}
+                          value={unit.id}
+                          className="bg-[#090909]"
+                        >
+                          {unit.unitNumber}
+                        </option>
+                      ))}
+                    </select>
+
+                    <ChevronDown
+                      size={16}
+                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-600"
                     />
                   </div>
                 </div>
@@ -281,7 +646,12 @@ function Register() {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={
+                    loading ||
+                    loadingLocations ||
+                    loadingBuildings ||
+                    loadingUnits
+                  }
                   className="flex h-10.5 w-full items-center justify-center rounded-lg bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (

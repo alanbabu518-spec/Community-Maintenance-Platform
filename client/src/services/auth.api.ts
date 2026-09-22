@@ -1,4 +1,4 @@
-import apiClient from "./apiClient";
+import apiClient from "../services/apiClient";
 import type {
   LoginInput,
   LoginResponse,
@@ -28,7 +28,18 @@ export async function verifyOtp(
   });
 }
 
-export async function loginUser(data: LoginInput): Promise<LoginResponse> {
+export async function resendOtp(
+  email: string,
+): Promise<{ message: string }> {
+  return apiClient<{ message: string }>("/auth/resend-otp", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function loginUser(
+  data: LoginInput,
+): Promise<LoginResponse> {
   return apiClient<LoginResponse>("/auth/login", {
     method: "POST",
     body: JSON.stringify(data),

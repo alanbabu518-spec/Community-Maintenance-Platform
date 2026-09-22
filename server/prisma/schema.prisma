@@ -37,15 +37,18 @@ model User {
   googleId      String?  @unique
   role          UserRole
   emailVerified Boolean  @default(false)
-  tokenVersion Int @default(0)
+  tokenVersion  Int      @default(0)
 
   unitId Int?
   unit   Unit? @relation(fields: [unitId], references: [id])
 
-  maintenanceRequests MaintenanceRequest[] @relation("ResidentRequests")
-  assignedRequests    MaintenanceRequest[] @relation("TechnicianRequests")
-  notifications       Notification[]
-  pushSubscriptions   PushSubscription[]
+  communityId Int?
+  community   Community? @relation(fields: [communityId], references: [id])
+
+  maintenanceRequests    MaintenanceRequest[]    @relation("ResidentRequests")
+  assignedRequests       MaintenanceRequest[]    @relation("TechnicianRequests")
+  notifications          Notification[]
+  pushSubscriptions      PushSubscription[]
   notificationPreference NotificationPreference?
 
   createdAt DateTime @default(now())
@@ -53,26 +56,26 @@ model User {
 }
 
 model NotificationPreference {
-  id           Int      @id @default(autoincrement())
-  userId       Int      @unique
-  pushEnabled  Boolean  @default(true)
-  announcements Boolean @default(true)
-  maintenance  Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  pushEnabled   Boolean  @default(true)
+  announcements Boolean  @default(true)
+  maintenance   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   userId    Int
   type      String
   title     String
   message   String
-  isRead    Boolean  @default(false)
+  isRead    Boolean   @default(false)
   readAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -85,8 +88,9 @@ model Community {
   name    String
   address String
 
-  buildings Building[]
+  buildings     Building[]
   announcements Announcement[]
+  users         User[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -109,7 +113,7 @@ model Unit {
   unitNumber String
   buildingId Int
 
-  building Building @relation(fields: [buildingId], references: [id])
+  building  Building @relation(fields: [buildingId], references: [id])
   residents User[]
 
   maintenanceRequests MaintenanceRequest[]

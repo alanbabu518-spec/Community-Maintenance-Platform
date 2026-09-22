@@ -32,11 +32,12 @@ export interface MaintenanceListResponse {
   };
 }
 
-export type RegisterInput = {
+export interface RegisterInput {
   name: string;
   email: string;
   password: string;
-};
+  unitId: number;
+}
 
 export interface RegisterResponse {
   message: string;
