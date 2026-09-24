@@ -44,6 +44,7 @@ beforeEach(() => {
   vi.mocked(userRepository.findById).mockReset();
   vi.mocked(userRepository.findById).mockResolvedValue({
     tokenVersion: 0,
+    isActive: true,
   } as any);
 });
 
@@ -209,11 +210,9 @@ describe("PATCH /api/maintenance/:id", () => {
   });
 
   it("should return 401 when no authentication token is provided", async () => {
-    const response = await request(app)
-      .patch("/api/maintenance/1")
-      .send({
-        status: "ACKNOWLEDGED",
-      });
+    const response = await request(app).patch("/api/maintenance/1").send({
+      status: "ACKNOWLEDGED",
+    });
 
     expect(response.status).toBe(401);
 

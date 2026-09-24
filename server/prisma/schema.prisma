@@ -38,6 +38,7 @@ model User {
   role          UserRole
   emailVerified Boolean  @default(false)
   tokenVersion  Int      @default(0)
+  isActive      Boolean  @default(true)
 
   unitId Int?
   unit   Unit? @relation(fields: [unitId], references: [id])
@@ -50,6 +51,7 @@ model User {
   notifications          Notification[]
   pushSubscriptions      PushSubscription[]
   notificationPreference NotificationPreference?
+  activityLogs           ActivityLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -191,4 +193,20 @@ model Announcement {
   community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
 
   @@index([communityId, createdAt])
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  actorId   Int
+  action    String
+  entity    String
+  entityId  Int?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  actor User @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+  @@index([createdAt])
+  @@index([entity, entityId])
 }

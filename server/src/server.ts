@@ -13,7 +13,7 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   },
 });
@@ -42,6 +42,7 @@ io.on("connection", async (socket) => {
         id: decoded.userId,
       },
       select: {
+        tokenVersion: true,
         unit: {
           select: {
             building: {
@@ -53,6 +54,11 @@ io.on("connection", async (socket) => {
         },
       },
     });
+
+    if (!user || user.tokenVersion !== decoded.tokenVersion) {
+      socket.disconnect();
+      return;
+    }
 
     socket.join(`user:${decoded.userId}`);
     console.log(`Joined room: user:${decoded.userId}`);

@@ -14,8 +14,8 @@ import {
   Home,
 } from "lucide-react";
 import PageTransition from "../components/ui/PageTransition";
-import useUnits from "../features/maintenance/hooks/useUnits";
 import useCreateMaintenanceRequest from "../features/maintenance/hooks/useCreateMaintenanceRequest";
+import { useAuth } from "../context/AuthContext";
 
 const CATEGORY_OPTIONS = [
   { value: "PLUMBING", label: "Plumbing", icon: Droplet },
@@ -69,14 +69,13 @@ function ReportIssue() {
   const [category, setCategory] = useState("");
   const [otherCategory, setOtherCategory] = useState("");
   const [priority, setPriority] = useState("");
-  const [unitId, setUnitId] = useState("");
+  const { user, loading: authLoading } = useAuth();
+  const unitId = user?.unitId ?? null;
   const [photos, setPhotos] = useState<File[]>([]);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState("");
-
   const createRequest = useCreateMaintenanceRequest();
-  const { data, isLoading: unitsLoading } = useUnits();
 
   const validateForm = () => {
     const nextErrors: Record<string, string> = {};
@@ -102,7 +101,7 @@ function ReportIssue() {
     }
 
     if (!unitId) {
-      nextErrors.unitId = "Please select your unit.";
+      nextErrors.unitId = "Your unit information is not available.";
     }
 
     setErrors(nextErrors);
@@ -119,15 +118,18 @@ function ReportIssue() {
       return;
     }
 
+    if (!unitId) {
+      return;
+    }
+
     const requestData = {
       title,
       description,
       category: category === "OTHER" ? otherCategory : category,
       priority: priority as "LOW" | "MEDIUM" | "HIGH" | "URGENT",
-      unitId: Number(unitId),
+      unitId,
       photos,
     };
-
     try {
       await createRequest.mutateAsync(requestData);
 
@@ -154,8 +156,18 @@ function ReportIssue() {
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files ?? []);
 
+    const maxFileSize = 5 * 1024 * 1024; 
+
+    const validFiles = selectedFiles.filter((file) => {
+      if (file.size > maxFileSize) {
+        return false;
+      }
+
+      return file.type.startsWith("image/");
+    });
+
     setPhotos((currentPhotos) => {
-      const combinedPhotos = [...currentPhotos, ...selectedFiles];
+      const combinedPhotos = [...currentPhotos, ...validFiles];
 
       const uniquePhotos = combinedPhotos.filter(
         (photo, index, array) =>
@@ -399,24 +411,11 @@ function ReportIssue() {
               Where is the issue located?
             </p>
 
-            <select
-              id="unitId"
-              name="unitId"
-              value={unitId}
-              onChange={(event) => setUnitId(event.target.value)}
-              disabled={unitsLoading}
-              className="mt-4 block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-white dark:focus:ring-white/10"
-            >
-              <option value="" disabled>
-                {unitsLoading ? "Loading units..." : "Select your unit"}
-              </option>
-
-              {data?.units.map((unit) => (
-                <option key={unit.id} value={unit.id}>
-                  {unit.unitNumber}
-                </option>
-              ))}
-            </select>
+            <div className="mt-4 block w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+              {authLoading
+                ? "Loading your unit..."
+                : (user?.unitNumber ?? "Unit information unavailable")}
+            </div>
 
             {errors.unitId && (
               <p className="mt-2 text-xs text-red-600 dark:text-red-400">

@@ -38,6 +38,7 @@ beforeEach(() => {
 
   vi.mocked(userRepository.findById).mockResolvedValue({
     tokenVersion: 0,
+    isActive: true,
   } as any);
 
   vi.mocked(maintenanceService.getRequests).mockReset();
@@ -74,9 +75,7 @@ describe("GET /api/maintenance", () => {
 
     expect(response.status).toBe(401);
 
-    expect(
-      maintenanceService.getRequests,
-    ).not.toHaveBeenCalled();
+    expect(maintenanceService.getRequests).not.toHaveBeenCalled();
   });
 
   it("should pass pagination and filters to the service", async () => {
@@ -88,9 +87,7 @@ describe("GET /api/maintenance", () => {
     const token = createAuthToken(32, "RESIDENT");
 
     const response = await request(app)
-      .get(
-        "/api/maintenance?page=2&limit=10&status=OPEN&priority=HIGH",
-      )
+      .get("/api/maintenance?page=2&limit=10&status=OPEN&priority=HIGH")
       .set("Cookie", authCookie(token));
 
     expect(response.status).toBe(200);
@@ -107,8 +104,6 @@ describe("GET /api/maintenance", () => {
 
     expect(response.status).toBe(400);
 
-    expect(
-      maintenanceService.getRequests,
-    ).not.toHaveBeenCalled();
+    expect(maintenanceService.getRequests).not.toHaveBeenCalled();
   });
 });

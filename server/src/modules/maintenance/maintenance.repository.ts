@@ -75,18 +75,56 @@ export const maintenanceRepository = {
     });
   },
 
-  findAll(skip: number, limit: number, filters: MaintenanceFilters) {
+  findAll(
+    skip: number,
+    limit: number,
+    filters: MaintenanceFilters,
+    communityId?: number,
+  ) {
     return prisma.maintenanceRequest.findMany({
-      where: buildMaintenanceWhere(filters),
+      where: buildMaintenanceWhere(
+        filters,
+        communityId
+          ? {
+              unit: {
+                building: {
+                  communityId,
+                },
+              },
+            }
+          : {},
+      ),
       skip,
       take: limit,
       orderBy: buildMaintenanceOrderBy(filters),
+      include: {
+        unit: {
+          include: {
+            building: {
+              include: {
+                community: true,
+              },
+            },
+          },
+        },
+      },
     });
   },
 
-  countAll(filters: MaintenanceFilters) {
+  countAll(filters: MaintenanceFilters, communityId?: number) {
     return prisma.maintenanceRequest.count({
-      where: buildMaintenanceWhere(filters),
+      where: buildMaintenanceWhere(
+        filters,
+        communityId
+          ? {
+              unit: {
+                building: {
+                  communityId,
+                },
+              },
+            }
+          : {},
+      ),
     });
   },
 
@@ -119,6 +157,17 @@ export const maintenanceRepository = {
       skip,
       take: limit,
       orderBy: buildMaintenanceOrderBy(filters),
+      include: {
+        unit: {
+          include: {
+            building: {
+              include: {
+                community: true,
+              },
+            },
+          },
+        },
+      },
     });
   },
 
@@ -135,6 +184,17 @@ export const maintenanceRepository = {
       skip,
       take: limit,
       orderBy: buildMaintenanceOrderBy(filters),
+      include: {
+        unit: {
+          include: {
+            building: {
+              include: {
+                community: true,
+              },
+            },
+          },
+        },
+      },
     });
   },
 
@@ -152,6 +212,7 @@ export const maintenanceRepository = {
             role: true,
           },
         },
+
         unit: {
           include: {
             building: {
@@ -161,6 +222,7 @@ export const maintenanceRepository = {
             },
           },
         },
+
         technician: {
           select: {
             id: true,
@@ -169,6 +231,7 @@ export const maintenanceRepository = {
             role: true,
           },
         },
+
         maintenanceAttachments: true,
       },
     });
@@ -201,12 +264,15 @@ export const maintenanceRepository = {
         ...(data.status !== undefined && {
           status: data.status,
         }),
+
         ...(data.priority !== undefined && {
           priority: data.priority,
         }),
+
         ...(data.category !== undefined && {
           category: data.category,
         }),
+
         ...(data.technicianId !== undefined && {
           technicianId: data.technicianId,
         }),

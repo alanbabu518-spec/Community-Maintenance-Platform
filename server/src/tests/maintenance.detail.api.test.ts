@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import app from "../app.js";
 import { maintenanceService } from "../modules/maintenance/maintenance.service.js";
 import { userRepository } from "../modules/users/user.repository.js";
+import { AppError } from "../utils/AppError.js";
 
 vi.mock("../modules/maintenance/maintenance.service.js", () => ({
   maintenanceService: {
@@ -40,6 +41,7 @@ beforeEach(() => {
 
   vi.mocked(userRepository.findById).mockResolvedValue({
     tokenVersion: 0,
+    isActive: true,
   } as any);
 
   vi.mocked(maintenanceService.getRequestById).mockReset();
@@ -71,7 +73,10 @@ describe("GET /api/maintenance/:id", () => {
 
   it("should return 403 when a resident accesses another resident's request", async () => {
     vi.mocked(maintenanceService.getRequestById).mockRejectedValue(
-      new Error("You are not authorized to access this maintenance request"),
+      new AppError(
+        "You are not authorized to access this maintenance request",
+        403,
+      ),
     );
 
     const token = createAuthToken(32, "RESIDENT");
@@ -80,7 +85,7 @@ describe("GET /api/maintenance/:id", () => {
       .get("/api/maintenance/2")
       .set("Cookie", authCookie(token));
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(403);
   });
 
   it("should allow a technician to access an assigned request", async () => {
@@ -107,7 +112,10 @@ describe("GET /api/maintenance/:id", () => {
 
   it("should return 403 when a technician accesses an unassigned request", async () => {
     vi.mocked(maintenanceService.getRequestById).mockRejectedValue(
-      new Error("You are not authorized to access this maintenance request"),
+      new AppError(
+        "You are not authorized to access this maintenance request",
+        403,
+      ),
     );
 
     const token = createAuthToken(32, "TECHNICIAN");
@@ -116,7 +124,7 @@ describe("GET /api/maintenance/:id", () => {
       .get("/api/maintenance/2")
       .set("Cookie", authCookie(token));
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(403);
   });
 
   it("should allow a manager to access any maintenance request", async () => {
@@ -142,7 +150,7 @@ describe("GET /api/maintenance/:id", () => {
 
   it("should return 404 when the maintenance request does not exist", async () => {
     vi.mocked(maintenanceService.getRequestById).mockRejectedValue(
-      new Error("Maintenance request not found"),
+      new AppError("Maintenance request not found", 404),
     );
 
     const token = createAuthToken(32, "RESIDENT");
@@ -151,7 +159,7 @@ describe("GET /api/maintenance/:id", () => {
       .get("/api/maintenance/999")
       .set("Cookie", authCookie(token));
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(404);
   });
 
   it("should return 400 when the request ID is invalid", async () => {

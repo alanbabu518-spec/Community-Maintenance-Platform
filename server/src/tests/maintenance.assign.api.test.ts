@@ -41,6 +41,7 @@ beforeEach(() => {
 
   vi.mocked(userRepository.findById).mockResolvedValue({
     tokenVersion: 0,
+    isActive: true,
   } as any);
 
   vi.mocked(maintenanceService.assignTechnician).mockReset();
@@ -82,9 +83,7 @@ describe("PATCH /api/maintenance/:id/assign", () => {
     expect(response.body.request).toHaveProperty("technicianId", 29);
     expect(response.body.request).toHaveProperty("status", "ASSIGNED");
 
-    expect(
-      maintenanceService.assignTechnician,
-    ).toHaveBeenCalledWith(20, 29);
+    expect(maintenanceService.assignTechnician).toHaveBeenCalledWith(20, 29);
   });
 
   it("should allow a manager to assign a technician", async () => {
@@ -105,9 +104,7 @@ describe("PATCH /api/maintenance/:id/assign", () => {
 
     expect(response.status).toBe(200);
 
-    expect(
-      maintenanceService.assignTechnician,
-    ).toHaveBeenCalledWith(20, 29);
+    expect(maintenanceService.assignTechnician).toHaveBeenCalledWith(20, 29);
   });
 
   it("should return 403 when a resident tries to assign a technician", async () => {
@@ -126,9 +123,7 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       message: "Access Denied",
     });
 
-    expect(
-      maintenanceService.assignTechnician,
-    ).not.toHaveBeenCalled();
+    expect(maintenanceService.assignTechnician).not.toHaveBeenCalled();
   });
 
   it("should return 401 when no authentication token is provided", async () => {
@@ -144,9 +139,7 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       message: "Authentication required",
     });
 
-    expect(
-      maintenanceService.assignTechnician,
-    ).not.toHaveBeenCalled();
+    expect(maintenanceService.assignTechnician).not.toHaveBeenCalled();
   });
 
   it("should return 400 when the request ID is invalid", async () => {
@@ -165,9 +158,7 @@ describe("PATCH /api/maintenance/:id/assign", () => {
       message: "Invalid request ID",
     });
 
-    expect(
-      maintenanceService.assignTechnician,
-    ).not.toHaveBeenCalled();
+    expect(maintenanceService.assignTechnician).not.toHaveBeenCalled();
   });
 
   it("should return 404 when the technician does not exist", async () => {
@@ -257,8 +248,7 @@ describe("PATCH /api/maintenance/:id/assign", () => {
 
     expect(response.body).toEqual({
       success: false,
-      message:
-        "Technician can only be assigned to an acknowledged request",
+      message: "Technician can only be assigned to an acknowledged request",
     });
   });
 
@@ -274,8 +264,6 @@ describe("PATCH /api/maintenance/:id/assign", () => {
 
     expect(response.status).toBe(400);
 
-    expect(
-      maintenanceService.assignTechnician,
-    ).not.toHaveBeenCalled();
+    expect(maintenanceService.assignTechnician).not.toHaveBeenCalled();
   });
 });

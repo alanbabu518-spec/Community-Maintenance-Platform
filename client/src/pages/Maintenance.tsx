@@ -16,6 +16,7 @@ import PageTransition from "../components/ui/PageTransition";
 import useDebounce from "../hooks/useDebounce";
 import ErrorPage from "../components/ui/ErrorPage";
 import { ApiError } from "../services/apiClient";
+import { useAuth } from "../context/AuthContext";
 
 type MaintenanceStatus =
   | "OPEN"
@@ -49,6 +50,9 @@ function Maintenance() {
 
   const sortByParam = searchParams.get("sortBy");
   const sortOrderParam = searchParams.get("sortOrder");
+
+  const { user } = useAuth();
+  const canReportIssue = user?.role === "RESIDENT";
 
   const sortBy: SortBy =
     sortByParam === "priority" ? "priority" : "createdAt";
@@ -92,14 +96,20 @@ function Maintenance() {
     });
   }, [page]);
 
-  const { data, isLoading, isFetching, isError, error, refetch } =
-    useMaintenanceRequests({
-      status,
-      page,
-      search: debouncedSearch,
-      sortBy,
-      sortOrder,
-    });
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useMaintenanceRequests({
+    status,
+    page,
+    search: debouncedSearch,
+    sortBy,
+    sortOrder,
+  });
 
   useEffect(() => {
     const validStatuses = [
@@ -146,7 +156,12 @@ function Maintenance() {
 
       return nextParams;
     });
-  }, [statusParam, sortByParam, sortOrderParam, setSearchParams]);
+  }, [
+    statusParam,
+    sortByParam,
+    sortOrderParam,
+    setSearchParams,
+  ]);
 
   const requests = data?.requests ?? [];
   const totalRequests = data?.pagination.total ?? 0;
@@ -168,7 +183,13 @@ function Maintenance() {
         return nextParams;
       });
     }
-  }, [page, totalPages, isLoading, isFetching, setSearchParams]);
+  }, [
+    page,
+    totalPages,
+    isLoading,
+    isFetching,
+    setSearchParams,
+  ]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1) return;
@@ -305,18 +326,20 @@ function Maintenance() {
             </h1>
 
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-              View, search, filter, and track maintenance issues reported in
-              the community.
+              View, search, filter, and track maintenance issues reported in the
+              community.
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigate("/maintenance/new")}
-            className="inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 sm:w-auto"
-          >
-            Report an Issue
-          </button>
+          {canReportIssue && (
+            <button
+              type="button"
+              onClick={() => navigate("/maintenance/new")}
+              className="inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 sm:w-auto"
+            >
+              Report an Issue
+            </button>
+          )}
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
@@ -474,7 +497,8 @@ function Maintenance() {
         <section className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold text-slate-900 dark:text-white">
-              {totalRequests} {totalRequests === 1 ? "request" : "requests"}
+              {totalRequests}{" "}
+              {totalRequests === 1 ? "request" : "requests"}
             </p>
 
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -501,17 +525,19 @@ function Maintenance() {
             </h2>
 
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
-              Try changing your search or filters. If there are no requests
-              yet, you can report a new maintenance issue.
+              Try changing your search or filters. New maintenance requests
+              will appear here when available.
             </p>
 
-            <button
-              type="button"
-              onClick={() => navigate("/maintenance/new")}
-              className="mt-5 inline-flex items-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-            >
-              Report an Issue
-            </button>
+            {canReportIssue && (
+              <button
+                type="button"
+                onClick={() => navigate("/maintenance/new")}
+                className="mt-5 inline-flex items-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+              >
+                Report an Issue
+              </button>
+            )}
           </section>
         ) : (
           <section className="space-y-4">

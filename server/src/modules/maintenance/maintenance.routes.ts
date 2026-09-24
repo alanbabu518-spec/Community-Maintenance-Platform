@@ -285,6 +285,13 @@ router.get("/:id", authMiddleware, maintenanceController.getRequestById);
  *         description: Maintenance request not found
  */
 
+router.get(
+  "/technician/dashboard",
+  authMiddleware,
+  authorize("TECHNICIAN"),
+  maintenanceController.getTechnicianDashboard,
+);
+
 router.patch(
   "/:id",
   authMiddleware,

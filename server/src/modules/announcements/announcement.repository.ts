@@ -27,6 +27,7 @@ export async function getCommunityAnnouncements(
       skip,
       take: limit,
     }),
+
     prisma.announcement.count({
       where: { communityId },
     }),
@@ -39,6 +40,14 @@ export async function getCommunityAnnouncements(
     limit,
     totalPages: Math.ceil(total / limit),
   };
+}
+
+export async function getAnnouncementById(announcementId: number) {
+  return prisma.announcement.findUnique({
+    where: {
+      id: announcementId,
+    },
+  });
 }
 
 export async function getCommunityUserIds(communityId: number) {

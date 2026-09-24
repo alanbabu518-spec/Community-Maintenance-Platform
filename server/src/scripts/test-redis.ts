@@ -1,5 +1,5 @@
-import { redisClient } from "./config/redis.js";
-import { generateOtp, storeOtp, getOtp, deleteOtp } from "./utils/otp.js";
+import { redisClient } from "../config/redis.js";
+import { generateOtp, storeOtp, getOtp, deleteOtp } from "../utils/otp.js";
 
 async function testOtp() {
   try {

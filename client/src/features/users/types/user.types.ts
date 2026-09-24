@@ -1,14 +1,12 @@
-export type UserRole =
-  | "ADMIN"
-  | "MANAGER"
-  | "RESIDENT"
-  | "TECHNICIAN";
+export type UserRole = "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
 
 export interface User {
   id: number;
   name: string;
   email: string;
   role: UserRole;
+  isActive: boolean;
+  communityId: number | null;
 }
 
 export interface UserFilters {
@@ -38,4 +36,5 @@ export interface CreateStaffInput {
   email: string;
   password: string;
   role: "MANAGER" | "TECHNICIAN";
+  communityId: number;
 }

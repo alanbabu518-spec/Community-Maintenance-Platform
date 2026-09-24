@@ -7,7 +7,7 @@ interface AuthContextType {
   user: UserResponse | null;
   setUser: (user: UserResponse | null) => void;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<UserResponse>;
   logout: () => Promise<void>;
 }
 
@@ -42,13 +42,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, [user]);
 
-  async function login(email: string, password: string) {
+  async function login(
+    email: string,
+    password: string,
+  ): Promise<UserResponse> {
     const result = await loginUser({
       email,
       password,
     });
 
     setUser(result.user);
+
+    return result.user;
   }
 
   async function logout() {

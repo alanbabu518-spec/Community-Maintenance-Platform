@@ -39,6 +39,8 @@ beforeEach(() => {
 
   vi.mocked(userRepository.findById).mockResolvedValue({
     tokenVersion: 0,
+    isActive: true,
+    unitId: 1,
   } as any);
 
   vi.mocked(maintenanceService.createRequest).mockReset();
@@ -67,6 +69,34 @@ describe("POST /api/maintenance", () => {
     expect(maintenanceService.createRequest).toHaveBeenCalled();
   });
 
+  it("should deny resident from creating a request for another unit", async () => {
+    vi.mocked(maintenanceService.createRequest).mockRejectedValue(
+      new AppError(
+        "You are not authorized to file requests for this unit",
+        403,
+      ),
+    );
+
+    const token = createAuthToken(32, "RESIDENT");
+
+    const response = await request(app)
+      .post("/api/maintenance")
+      .set("Cookie", authCookie(token))
+      .send({
+        title: "Water leakage",
+        description: "Water is leaking",
+        category: "PLUMBING",
+        priority: "HIGH",
+        unitId: 2,
+      });
+
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      success: false,
+      message: "You are not authorized to file requests for this unit",
+    });
+  });
+
   it("should deny non-resident users", async () => {
     const token = createAuthToken(32, "ADMIN");
 
@@ -86,15 +116,13 @@ describe("POST /api/maintenance", () => {
   });
 
   it("should return 401 when no authentication token is provided", async () => {
-    const response = await request(app)
-      .post("/api/maintenance")
-      .send({
-        title: "Water leakage",
-        description: "Water is leaking",
-        category: "PLUMBING",
-        priority: "HIGH",
-        unitId: 1,
-      });
+    const response = await request(app).post("/api/maintenance").send({
+      title: "Water leakage",
+      description: "Water is leaking",
+      category: "PLUMBING",
+      priority: "HIGH",
+      unitId: 1,
+    });
 
     expect(response.status).toBe(401);
     expect(response.body).toEqual({

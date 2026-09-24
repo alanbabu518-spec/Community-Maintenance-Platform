@@ -62,6 +62,13 @@ export interface MaintenanceRequestResponse {
   updatedAt: Date;
 }
 
+export interface MaintenanceRequestListResponse extends MaintenanceRequestResponse {
+  community: {
+    id: number;
+    name: string;
+  };
+}
+
 export interface MaintenanceAttachmentResponse {
   id: number;
   fileUrl: string;

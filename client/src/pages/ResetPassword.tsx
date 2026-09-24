@@ -31,6 +31,11 @@ function ResetPassword() {
       return;
     }
 
+    if (password.length > 72) {
+      setError("Password must be 72 characters or less.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -149,6 +154,8 @@ function ResetPassword() {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     required
+                    minLength={8}
+                    maxLength={72}
                     disabled={!token || loading}
                     className="h-10.5 w-full rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
                   />
@@ -174,10 +181,10 @@ function ResetPassword() {
                     type="password"
                     placeholder="Confirm new password"
                     value={confirmPassword}
-                    onChange={(event) =>
-                      setConfirmPassword(event.target.value)
-                    }
+                    onChange={(event) => setConfirmPassword(event.target.value)}
                     required
+                    minLength={8}
+                    maxLength={72}
                     disabled={!token || loading}
                     className="h-10.5 w-full rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
                   />

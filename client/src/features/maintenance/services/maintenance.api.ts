@@ -79,9 +79,7 @@ export async function getMaintenanceRequests(
 export async function getMaintenanceRequest(
   id: number,
 ): Promise<MaintenanceRequestDetailResponse> {
-  return apiClient<MaintenanceRequestDetailResponse>(
-    `/maintenance/${id}`,
-  );
+  return apiClient<MaintenanceRequestDetailResponse>(`/maintenance/${id}`);
 }
 
 export interface UpdateMaintenanceRequestInput {
@@ -160,4 +158,23 @@ export async function assignMaintenanceRequest(
     method: "PATCH",
     body: JSON.stringify(data),
   });
+}
+
+export interface TechnicianDashboard {
+  statistics: {
+    assignedRequests: number;
+    inProgressRequests: number;
+    resolvedRequests: number;
+    urgentRequests: number;
+  };
+  recentRequests: MaintenanceListResponse["requests"];
+}
+
+export async function getTechnicianDashboard(): Promise<TechnicianDashboard> {
+  const response = await apiClient<{
+    success: boolean;
+    data: TechnicianDashboard;
+  }>("/maintenance/technician/dashboard");
+
+  return response.data;
 }

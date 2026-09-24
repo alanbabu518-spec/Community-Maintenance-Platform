@@ -20,6 +20,11 @@ export interface MaintenanceRequest {
   technicianId: number | null;
   createdAt: string;
   updatedAt: string;
+
+  community: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface MaintenanceListResponse {
@@ -65,6 +70,8 @@ export interface UserResponse {
   email: string;
   role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
   communityId: number | null;
+  unitId: number | null;
+  unitNumber: string | null;
 }
 
 export interface LoginResponse {

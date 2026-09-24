@@ -5,7 +5,10 @@ export interface UserResponse {
   name: string;
   email: string;
   role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
+  isActive: boolean;
   communityId: number | null;
+  unitId: number | null;
+  unitNumber: string | null;
 }
 
 export interface UserFilters {
@@ -13,5 +16,6 @@ export interface UserFilters {
   limit: number;
   search?: string | undefined;
   role?: UserRole | undefined;
+  communityId?: number | undefined;
   sortOrder: "asc" | "desc";
 }

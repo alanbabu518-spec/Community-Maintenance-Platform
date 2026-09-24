@@ -15,7 +15,19 @@ function RedirectIfAuthenticated({
   }
 
   if (user) {
-    return <Navigate to="/" replace />;
+    if (user.role === "ADMIN") {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+
+    if (user.role === "MANAGER") {
+      return <Navigate to="/manager/dashboard" replace />;
+    }
+
+    if (user.role === "TECHNICIAN") {
+      return <Navigate to="/technician/dashboard" replace />;
+    }
+
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

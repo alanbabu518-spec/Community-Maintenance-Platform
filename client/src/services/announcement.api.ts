@@ -30,13 +30,19 @@ export async function getAnnouncements(
   );
 }
 
+export async function getAnnouncement(
+  announcementId: number,
+): Promise<Announcement> {
+  return apiClient<Announcement>(`/announcements/${announcementId}`);
+}
+
 export async function createAnnouncement(data: {
   title: string;
   message: string;
   category: "General" | "Maintenance" | "Event" | "Emergency";
   priority: "Low" | "Medium" | "High";
-}) {
-  return apiClient("/announcements", {
+}): Promise<Announcement> {
+  return apiClient<Announcement>("/announcements", {
     method: "POST",
     body: JSON.stringify(data),
   });

@@ -253,6 +253,8 @@ describe("authService", () => {
       email: "test@example.com",
       role: "RESIDENT",
       communityId: null,
+      unitId: 1,
+      unitNumber: null,
     });
 
     expect(getPendingRegistration).toHaveBeenCalledWith("test@example.com");
@@ -373,5 +375,20 @@ describe("authService", () => {
     expect(storeOtp).not.toHaveBeenCalled();
     expect(sendOtpEmail).not.toHaveBeenCalled();
     expect(startOtpResendCooldown).not.toHaveBeenCalled();
+  });
+  it("should invalidate the user's token when logging out", async () => {
+    vi.mocked(userRepository.incrementTokenVersion).mockResolvedValue({
+      id: 1,
+      tokenVersion: 1,
+    } as any);
+
+    const result = await authService.logout(1);
+
+    expect(result).toEqual({
+      message: "Logout successful",
+    });
+
+    expect(userRepository.incrementTokenVersion).toHaveBeenCalledWith(1);
+    expect(userRepository.incrementTokenVersion).toHaveBeenCalledTimes(1);
   });
 });

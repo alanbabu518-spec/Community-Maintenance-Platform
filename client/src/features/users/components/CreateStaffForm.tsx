@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCreateStaff } from "../hooks/useCreateStaff";
 import type { CreateStaffInput } from "../types/user.types";
+import { getCommunities } from "../../../services/location.api";
+import type { Community } from "../../../services/location.api";
 
 interface CreateStaffFormProps {
   onSuccess?: () => void;
@@ -9,16 +11,35 @@ interface CreateStaffFormProps {
 function CreateStaffForm({ onSuccess }: CreateStaffFormProps) {
   const createStaffMutation = useCreateStaff();
 
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [communitiesLoading, setCommunitiesLoading] = useState(true);
+
   const [form, setForm] = useState<CreateStaffInput>({
     name: "",
     email: "",
     password: "",
     role: "TECHNICIAN",
+    communityId: 0,
   });
+
+  useEffect(() => {
+    async function loadCommunities() {
+      try {
+        const result = await getCommunities();
+        setCommunities(result.communities);
+      } catch {
+        setCommunities([]);
+      } finally {
+        setCommunitiesLoading(false);
+      }
+    }
+
+    loadCommunities();
+  }, []);
 
   const handleChange = (
     field: keyof CreateStaffInput,
-    value: string,
+    value: string | number,
   ) => {
     setForm((current) => ({
       ...current,
@@ -31,6 +52,10 @@ function CreateStaffForm({ onSuccess }: CreateStaffFormProps) {
   ) => {
     event.preventDefault();
 
+    if (!form.communityId) {
+      return;
+    }
+
     try {
       await createStaffMutation.mutateAsync(form);
 
@@ -39,6 +64,7 @@ function CreateStaffForm({ onSuccess }: CreateStaffFormProps) {
         email: "",
         password: "",
         role: "TECHNICIAN",
+        communityId: 0,
       });
 
       onSuccess?.();
@@ -123,8 +149,9 @@ function CreateStaffForm({ onSuccess }: CreateStaffFormProps) {
             }
             required
             minLength={8}
+            maxLength={72}
             className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:focus:border-white"
-            placeholder="Minimum 8 characters"
+            placeholder="8–72 characters"
           />
         </div>
 
@@ -148,6 +175,41 @@ function CreateStaffForm({ onSuccess }: CreateStaffFormProps) {
             <option value="MANAGER">Manager</option>
           </select>
         </div>
+
+        <div>
+          <label
+            htmlFor="staff-community"
+            className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300"
+          >
+            Community
+          </label>
+
+          <select
+            id="staff-community"
+            value={form.communityId}
+            onChange={(event) =>
+              handleChange(
+                "communityId",
+                Number(event.target.value),
+              )
+            }
+            required
+            disabled={communitiesLoading}
+            className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-stone-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-stone-700 dark:bg-stone-900 dark:text-white dark:focus:border-white"
+          >
+            <option value={0}>
+              {communitiesLoading
+                ? "Loading communities..."
+                : "Select community"}
+            </option>
+
+            {communities.map((community) => (
+              <option key={community.id} value={community.id}>
+                {community.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {createStaffMutation.isError && (
@@ -159,7 +221,11 @@ function CreateStaffForm({ onSuccess }: CreateStaffFormProps) {
 
       <button
         type="submit"
-        disabled={createStaffMutation.isPending}
+        disabled={
+          createStaffMutation.isPending ||
+          communitiesLoading ||
+          !form.communityId
+        }
         className="mt-6 w-full rounded-xl bg-stone-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200"
       >
         {createStaffMutation.isPending

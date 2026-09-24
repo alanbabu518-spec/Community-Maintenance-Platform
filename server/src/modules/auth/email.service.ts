@@ -1,13 +1,16 @@
 import { resend } from "../../config/resend.js";
+import { escapeHtml } from "../../utils/htmlEscape.js";
 
 export async function sendOtpEmail(email: string, otp: string, name: string) {
+  const safeName = escapeHtml(name);
+
   const { data, error } = await resend.emails.send({
     from: "CommunityCare <onboarding@resend.dev>",
     to: email,
     subject: "Verify your CommunityCare account",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 30px;">
-        <h2>Welcome to CommunityCare, ${name}!</h2>
+        <h2>Welcome to CommunityCare, ${safeName}!</h2>
 
         <p>Please use the verification code below to verify your email address:</p>
 
@@ -37,6 +40,8 @@ export async function sendPasswordResetEmail(
   name: string,
   token: string,
 ) {
+  const safeName = escapeHtml(name);
+
   const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
 
   const { data, error } = await resend.emails.send({
@@ -47,7 +52,7 @@ export async function sendPasswordResetEmail(
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 30px;">
         <h2>Reset your password</h2>
 
-        <p>Hi ${name},</p>
+        <p>Hi ${safeName},</p>
 
         <p>
           We received a request to reset your CommunityCare password.

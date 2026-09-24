@@ -1,6 +1,16 @@
 import rateLimit from "express-rate-limit";
+import { RedisStore } from "rate-limit-redis";
+import { redisClient } from "../config/redis.js";
+
+const redisStore =
+  process.env.NODE_ENV === "production"
+    ? new RedisStore({
+        sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+      })
+    : undefined;
 
 export const authRateLimiter = rateLimit({
+  ...(redisStore ? { store: redisStore } : {}),
   windowMs: 15 * 60 * 1000,
   limit: 10,
   standardHeaders: "draft-8",
@@ -12,6 +22,7 @@ export const authRateLimiter = rateLimit({
 });
 
 export const otpRateLimiter = rateLimit({
+  ...(redisStore ? { store: redisStore } : {}),
   windowMs: 10 * 60 * 1000,
   limit: 5,
   standardHeaders: "draft-8",
@@ -23,6 +34,7 @@ export const otpRateLimiter = rateLimit({
 });
 
 export const passwordResetRateLimiter = rateLimit({
+  ...(redisStore ? { store: redisStore } : {}),
   windowMs: 15 * 60 * 1000,
   limit: 5,
   standardHeaders: "draft-8",

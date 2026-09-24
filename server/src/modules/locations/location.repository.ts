@@ -62,4 +62,56 @@ export const locationRepository = {
       },
     });
   },
+  async createCommunity(data: { name: string; address: string }) {
+    return prisma.community.create({
+      data,
+      select: {
+        id: true,
+        name: true,
+        address: true,
+      },
+    });
+  },
+  async createBuilding(data: { name: string; communityId: number }) {
+    return prisma.building.create({
+      data,
+      select: {
+        id: true,
+        name: true,
+        communityId: true,
+      },
+    });
+  },
+  async findCommunityById(communityId: number) {
+    return prisma.community.findUnique({
+      where: {
+        id: communityId,
+      },
+      select: {
+        id: true,
+        name: true,
+        address: true,
+      },
+    });
+  },
+  async createUnit(data: { unitNumber: string; buildingId: number }) {
+    return prisma.unit.create({
+      data,
+      select: {
+        id: true,
+        unitNumber: true,
+        buildingId: true,
+      },
+    });
+  },
+  async findBuildingById(buildingId: number) {
+    return prisma.building.findUnique({
+      where: { id: buildingId },
+      select: {
+        id: true,
+        name: true,
+        communityId: true,
+      },
+    });
+  },
 };

@@ -127,14 +127,22 @@ export const authController = {
   },
 
   async logout(req: Request, res: Response) {
-    res.clearCookie("access_token", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+  if (!req.user) {
+    return res.status(401).json({
+      message: "Not authenticated",
     });
+  }
 
-    return res.status(200).json({
-      message: "Logout successful",
-    });
-  },
+  await authService.logout(req.user.userId);
+
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+
+  return res.status(200).json({
+    message: "Logout successful",
+  });
+},
 };

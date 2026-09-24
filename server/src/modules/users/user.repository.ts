@@ -25,9 +25,16 @@ export const userRepository = {
             ],
           }
         : {}),
+
       ...(filters.role
         ? {
             role: filters.role,
+          }
+        : {}),
+
+      ...(filters.communityId
+        ? {
+            communityId: filters.communityId,
           }
         : {}),
     };
@@ -40,11 +47,14 @@ export const userRepository = {
           name: true,
           email: true,
           role: true,
+          isActive: true,
           communityId: true,
+          unitId: true,
           createdAt: true,
           updatedAt: true,
           unit: {
             select: {
+              unitNumber: true,
               building: {
                 select: {
                   communityId: true,
@@ -128,6 +138,17 @@ export const userRepository = {
     });
   },
 
+  findCommunityById(communityId: number) {
+    return prisma.community.findUnique({
+      where: {
+        id: communityId,
+      },
+      select: {
+        id: true,
+      },
+    });
+  },
+
   updateVerificationStatus(id: number, emailVerified: boolean) {
     return prisma.user.update({
       where: {
@@ -159,6 +180,43 @@ export const userRepository = {
         tokenVersion: {
           increment: 1,
         },
+      },
+    });
+  },
+  async updateActiveStatus(userId: number, isActive: boolean) {
+    return prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        isActive,
+        tokenVersion: {
+          increment: 1,
+        },
+      },
+    });
+  },
+  async findTechnicians(communityId?: number) {
+    return prisma.user.findMany({
+      where: {
+        role: "TECHNICIAN",
+        isActive: true,
+        ...(communityId !== undefined
+          ? {
+              communityId,
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        communityId: true,
+      },
+      orderBy: {
+        name: "asc",
       },
     });
   },

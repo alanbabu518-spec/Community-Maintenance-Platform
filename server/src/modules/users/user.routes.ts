@@ -76,4 +76,25 @@ router.post(
   userController.createStaff,
 );
 
+router.get(
+  "/technicians",
+  authMiddleware,
+  authorize("ADMIN", "MANAGER"),
+  userController.getTechnicians,
+);
+
+router.get(
+  "/residents",
+  authMiddleware,
+  authorize("ADMIN", "MANAGER"),
+  userController.getResidents,
+);
+
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  authorize("ADMIN"),
+  userController.updateActiveStatus,
+);
+
 export default router;

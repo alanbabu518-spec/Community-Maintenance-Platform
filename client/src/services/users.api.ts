@@ -16,7 +16,7 @@ export async function getUsers(): Promise<UsersResponse> {
 }
 
 export async function getTechnicians(): Promise<User[]> {
-  const response = await getUsers();
+  const response = await apiClient<UsersResponse>("/users/technicians");
 
-  return response.users.filter((user) => user.role === "TECHNICIAN");
+  return response.users;
 }

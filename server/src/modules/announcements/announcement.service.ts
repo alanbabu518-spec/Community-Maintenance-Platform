@@ -1,6 +1,7 @@
 import {
   createAnnouncement,
   getCommunityAnnouncements,
+  getAnnouncementById,
 } from "./announcement.repository.js";
 import { emitToCommunity } from "../../config/socket.js";
 import { notificationQueue } from "../../config/queue.js";
@@ -32,4 +33,8 @@ export async function getAnnouncements(
   limit: number,
 ) {
   return getCommunityAnnouncements(communityId, page, limit);
+}
+
+export async function getAnnouncement(announcementId: number) {
+  return getAnnouncementById(announcementId);
 }

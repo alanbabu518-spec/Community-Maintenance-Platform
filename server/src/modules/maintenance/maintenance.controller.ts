@@ -196,4 +196,26 @@ export const maintenanceController = {
       next(error);
     }
   },
+  async getTechnicianDashboard(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const data = await maintenanceService.getTechnicianDashboard(
+        req.user.userId,
+      );
+
+      return res.status(200).json({
+        success: true,
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

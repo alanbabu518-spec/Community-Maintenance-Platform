@@ -9,11 +9,13 @@ import { errorMiddleware } from "./middleware/error.middleware.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger.js";
 import dashboardRoutes from "./modules/dashboard/dashboard.routes.js";
+import adminRoutes from "./modules/admin/admin.routes.js";
 import notificationRoutes from "./modules/notifications/notification.routes.js";
 import announcementRoutes from "./modules/announcements/announcement.routes.js";
 import notificationPreferenceRoutes from "./modules/notification-preferences/notification-preference.routes.js";
 import helmet from "helmet";
 import locationRoutes from "./modules/locations/location.routes.js";
+import managerRoutes from "./modules/manager/manager.routes.js";
 
 const app = express();
 
@@ -37,6 +39,8 @@ app.use("/api/auth", googleRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/manager", managerRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notification-preferences", notificationPreferenceRoutes);
@@ -47,7 +51,9 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+if (process.env.NODE_ENV !== "production") {
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
 
 app.use(errorMiddleware);
 

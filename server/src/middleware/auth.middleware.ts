@@ -23,7 +23,7 @@ export async function authMiddleware(
 
     const user = await userRepository.findById(decoded.userId);
 
-    if (!user || user.tokenVersion !== decoded.tokenVersion) {
+    if (!user || user.tokenVersion !== decoded.tokenVersion || !user.isActive) {
       return res.status(401).json({
         message: "Invalid or expired token",
       });

@@ -5,8 +5,11 @@ type UserWithLocation = {
   name: string;
   email: string;
   role: "ADMIN" | "MANAGER" | "RESIDENT" | "TECHNICIAN";
+  isActive: boolean;
   communityId?: number | null;
+  unitId?: number | null;
   unit?: {
+    unitNumber: string;
     building?: {
       communityId: number;
     } | null;
@@ -19,9 +22,9 @@ export function toUserResponse(user: UserWithLocation): UserResponse {
     name: user.name,
     email: user.email,
     role: user.role,
-    communityId:
-      user.communityId ??
-      user.unit?.building?.communityId ??
-      null,
+    isActive: user.isActive,
+    communityId: user.communityId ?? user.unit?.building?.communityId ?? null,
+    unitId: user.unitId ?? null,
+    unitNumber: user.unit?.unitNumber ?? null,
   };
 }

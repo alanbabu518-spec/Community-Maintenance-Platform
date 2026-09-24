@@ -165,9 +165,7 @@ function Register() {
       setBuildings(result.buildings);
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to load buildings.",
+        error instanceof Error ? error.message : "Unable to load buildings.",
       );
     } finally {
       setLoadingBuildings(false);
@@ -196,9 +194,7 @@ function Register() {
       setUnits(result.units);
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to load units.",
+        error instanceof Error ? error.message : "Unable to load units.",
       );
     } finally {
       setLoadingUnits(false);
@@ -243,9 +239,7 @@ function Register() {
         state: { from },
       });
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Registration failed",
-      );
+      setError(error instanceof Error ? error.message : "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -412,14 +406,14 @@ function Register() {
                     <input
                       id="register-password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Password (min 8 characters)"
+                      placeholder="Password (8–72 characters)"
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       required
                       minLength={8}
+                      maxLength={72}
                       className="h-10 w-full rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-10 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-slate-600"
                     />
-
                     <button
                       type="button"
                       onClick={() => setShowPassword((previous) => !previous)}
@@ -428,11 +422,7 @@ function Register() {
                       }
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 transition hover:text-slate-300"
                     >
-                      {showPassword ? (
-                        <EyeOff size={16} />
-                      ) : (
-                        <Eye size={16} />
-                      )}
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
@@ -557,9 +547,7 @@ function Register() {
                       value={selectedBuildingId}
                       onChange={handleBuildingChange}
                       disabled={
-                        !selectedCommunityId ||
-                        loadingBuildings ||
-                        loading
+                        !selectedCommunityId || loadingBuildings || loading
                       }
                       required
                       className="h-10 w-full appearance-none rounded-lg border border-slate-800 bg-[#090909] pl-9 pr-10 text-sm text-white outline-none transition focus:border-slate-600 disabled:cursor-not-allowed disabled:opacity-60"

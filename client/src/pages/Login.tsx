@@ -95,9 +95,17 @@ function Login() {
     setLoading(true);
 
     try {
-      await login(email.trim(), password);
+      const loggedInUser = await login(email.trim(), password);
 
-      navigate(from, { replace: true });
+      if (loggedInUser.role === "ADMIN") {
+        navigate("/admin/dashboard", { replace: true });
+      } else if (loggedInUser.role === "MANAGER") {
+        navigate("/manager/dashboard", { replace: true });
+      } else if (loggedInUser.role === "TECHNICIAN") {
+        navigate("/technician/dashboard", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     } catch (error) {
       console.error("Login failed:", error);
 

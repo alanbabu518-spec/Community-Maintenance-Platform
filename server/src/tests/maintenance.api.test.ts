@@ -39,6 +39,7 @@ beforeEach(() => {
 
   vi.mocked(userRepository.findById).mockResolvedValue({
     tokenVersion: 0,
+    isActive: true,
   } as any);
 
   vi.mocked(maintenanceService.getRequests).mockReset();

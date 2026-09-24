@@ -10,11 +10,13 @@ import { AppError } from "../../utils/AppError.js";
 import {
   toMaintenanceRequestResponse,
   toMaintenanceRequestDetailResponse,
+  toMaintenanceRequestListResponse,
 } from "./maintenance.mapper.js";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload.js";
 import { getCache, setCache, deleteCacheByPattern } from "../../utils/cache.js";
 import { maintenanceListCacheKey } from "../../utils/cacheKeys.js";
 import { notificationQueue } from "../../config/queue.js";
+import { logAdminActivity } from "../admin/admin.activity.service.js";
 
 type MaintenanceNotification = {
   userId: number;
@@ -40,6 +42,15 @@ export const maintenanceService = {
     residentId: number,
     files: Express.Multer.File[],
   ) {
+    const user = await userRepository.findById(residentId);
+
+    if (!user?.unitId || user.unitId !== data.unitId) {
+      throw new AppError(
+        "You are not authorized to file requests for this unit",
+        403,
+      );
+    }
+
     const request = await maintenanceRepository.create({
       title: data.title,
       description: data.description,
@@ -149,10 +160,26 @@ export const maintenanceService = {
       ]);
 
       result = { requests, total };
-    } else if (role === "ADMIN" || role === "MANAGER") {
+    } else if (role === "ADMIN") {
       const [requests, total] = await Promise.all([
         maintenanceRepository.findAll(skip, limit, filters),
         maintenanceRepository.countAll(filters),
+      ]);
+
+      result = { requests, total };
+    } else if (role === "MANAGER") {
+      const manager = await userRepository.findById(userId);
+
+      const managerCommunityId =
+        manager?.communityId ?? manager?.unit?.building?.communityId ?? null;
+
+      if (!managerCommunityId) {
+        throw new AppError("You are not assigned to a community", 403);
+      }
+
+      const [requests, total] = await Promise.all([
+        maintenanceRepository.findAll(skip, limit, filters, managerCommunityId),
+        maintenanceRepository.countAll(filters, managerCommunityId),
       ]);
 
       result = { requests, total };
@@ -164,7 +191,7 @@ export const maintenanceService = {
     }
 
     const response = {
-      requests: result.requests.map(toMaintenanceRequestResponse),
+      requests: result.requests.map(toMaintenanceRequestListResponse),
       total: result.total,
     };
 
@@ -180,7 +207,25 @@ export const maintenanceService = {
       throw new AppError("Maintenance request not found", 404);
     }
 
-    if (role === "ADMIN" || role === "MANAGER") {
+    if (role === "ADMIN") {
+      return toMaintenanceRequestDetailResponse(request);
+    }
+
+    if (role === "MANAGER") {
+      const manager = await userRepository.findById(userId);
+
+      const managerCommunityId =
+        manager?.communityId ?? manager?.unit?.building?.communityId ?? null;
+
+      const requestCommunityId = request.unit.building.communityId;
+
+      if (!managerCommunityId || managerCommunityId !== requestCommunityId) {
+        throw new AppError(
+          "You are not authorized to access this maintenance request",
+          403,
+        );
+      }
+
       return toMaintenanceRequestDetailResponse(request);
     }
 
@@ -210,6 +255,22 @@ export const maintenanceService = {
       return null;
     }
 
+    if (role === "MANAGER" && userId !== undefined) {
+      const manager = await userRepository.findById(userId);
+
+      const managerCommunityId =
+        manager?.communityId ?? manager?.unit?.building?.communityId ?? null;
+
+      const requestCommunityId = request.unit.building.communityId;
+
+      if (!managerCommunityId || managerCommunityId !== requestCommunityId) {
+        throw new AppError(
+          "You are not authorized to update this maintenance request",
+          403,
+        );
+      }
+    }
+
     if (
       role === "TECHNICIAN" &&
       userId !== undefined &&
@@ -219,6 +280,15 @@ export const maintenanceService = {
         "You are not authorized to update this maintenance request",
         403,
       );
+    }
+
+    if (role === "TECHNICIAN") {
+      if (data.priority !== undefined || data.category !== undefined) {
+        throw new AppError(
+          "Technicians are not authorized to modify priority or category",
+          403,
+        );
+      }
     }
 
     if (data.status) {
@@ -279,6 +349,18 @@ export const maintenanceService = {
           message,
         },
       ]);
+      if (userId !== undefined) {
+        await logAdminActivity({
+          actorId: userId,
+          action: "MAINTENANCE_STATUS_UPDATED",
+          entity: "MAINTENANCE_REQUEST",
+          entityId: id,
+          metadata: {
+            from: request.status,
+            to: data.status,
+          },
+        });
+      }
     }
 
     return toMaintenanceRequestResponse(updatedRequest);
@@ -331,5 +413,36 @@ export const maintenanceService = {
     ]);
 
     return toMaintenanceRequestResponse(updatedRequest);
+  },
+  async getTechnicianDashboard(userId: number) {
+    const [
+      assignedRequests,
+      inProgressRequests,
+      resolvedRequests,
+      urgentRequests,
+      recentRequests,
+    ] = await Promise.all([
+      maintenanceRepository.countByTechnicianId(userId, {}),
+      maintenanceRepository.countByTechnicianId(userId, {
+        status: "IN_PROGRESS",
+      }),
+      maintenanceRepository.countByTechnicianId(userId, {
+        status: "RESOLVED",
+      }),
+      maintenanceRepository.countByTechnicianId(userId, {
+        priority: "URGENT",
+      }),
+      maintenanceRepository.findByTechnicianId(userId, 0, 5, {}),
+    ]);
+
+    return {
+      statistics: {
+        assignedRequests,
+        inProgressRequests,
+        resolvedRequests,
+        urgentRequests,
+      },
+      recentRequests: recentRequests.map(toMaintenanceRequestListResponse),
+    };
   },
 };

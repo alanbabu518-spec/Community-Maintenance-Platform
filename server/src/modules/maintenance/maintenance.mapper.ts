@@ -2,6 +2,7 @@ import type { MaintenanceRequest } from "@prisma/client";
 import type {
   MaintenanceRequestDetailResponse,
   MaintenanceRequestResponse,
+  MaintenanceRequestListResponse,
 } from "./maintenance.types.js";
 
 export function toMaintenanceRequestResponse(
@@ -19,6 +20,40 @@ export function toMaintenanceRequestResponse(
     technicianId: request.technicianId,
     createdAt: request.createdAt,
     updatedAt: request.updatedAt,
+  };
+}
+
+type MaintenanceRequestWithCommunity = MaintenanceRequest & {
+  unit: {
+    building: {
+      community: {
+        id: number;
+        name: string;
+      };
+    };
+  };
+};
+
+export function toMaintenanceRequestListResponse(
+  request: MaintenanceRequestWithCommunity,
+): MaintenanceRequestListResponse {
+  return {
+    id: request.id,
+    title: request.title,
+    description: request.description,
+    category: request.category,
+    priority: request.priority,
+    status: request.status,
+    residentId: request.residentId,
+    unitId: request.unitId,
+    technicianId: request.technicianId,
+    createdAt: request.createdAt,
+    updatedAt: request.updatedAt,
+
+    community: {
+      id: request.unit.building.community.id,
+      name: request.unit.building.community.name,
+    },
   };
 }
 

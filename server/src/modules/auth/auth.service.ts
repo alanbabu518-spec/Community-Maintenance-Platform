@@ -200,7 +200,7 @@ export const authService = {
     };
   },
 
-  async resetPassword(token: string, password: string) {
+   async resetPassword(token: string, password: string) {
     const userId = await getResetTokenUserId(token);
 
     if (!userId) {
@@ -217,6 +217,14 @@ export const authService = {
 
     return {
       message: "Password reset successfully",
+    };
+  },
+
+  async logout(userId: number) {
+    await userRepository.incrementTokenVersion(userId);
+
+    return {
+      message: "Logout successful",
     };
   },
 };

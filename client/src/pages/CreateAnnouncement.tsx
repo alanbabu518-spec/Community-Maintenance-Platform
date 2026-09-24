@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Megaphone } from "lucide-react";
 import AnnouncementForm, {
@@ -7,20 +8,29 @@ import { createAnnouncement } from "../services/announcement.api";
 
 function CreateAnnouncement() {
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleSubmit = async (data: AnnouncementFormData) => {
-    await createAnnouncement({
-      title: data.title,
-      message: data.content,
-      category: data.category as
-        | "General"
-        | "Maintenance"
-        | "Event"
-        | "Emergency",
-      priority: data.priority as "Low" | "Medium" | "High",
-    });
+    try {
+      setError("");
 
-    navigate("/announcements");
+      await createAnnouncement({
+        title: data.title,
+        message: data.content,
+        category: data.category as
+          | "General"
+          | "Maintenance"
+          | "Event"
+          | "Emergency",
+        priority: data.priority as "Low" | "Medium" | "High",
+      });
+
+      navigate("/announcements");
+    } catch {
+      setError(
+        "Unable to post the announcement. Please try again.",
+      );
+    }
   };
 
   return (
@@ -49,6 +59,12 @@ function CreateAnnouncement() {
           </p>
         </div>
       </div>
+
+      {error && (
+        <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400">
+          {error}
+        </div>
+      )}
 
       <AnnouncementForm
         onSubmit={handleSubmit}
