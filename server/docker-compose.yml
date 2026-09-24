@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: community-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1A2l3a4n
+      POSTGRES_DB: community_maintenance
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  redis:
+    image: redis:7-alpine
+    container_name: community-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  server:
+    build: .
+    container_name: community-server
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:1A2l3a4n@postgres:5432/community_maintenance
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - redis
+      
+  client:
+    build:
+      context: ../client
+      args:
+        VITE_API_BASE_URL: http://localhost:5000/api
+    container_name: community-client
+    restart: unless-stopped
+    ports:
+      - "5173:4173"
+    depends_on:
+      - server
+
+volumes:
+  postgres_data:

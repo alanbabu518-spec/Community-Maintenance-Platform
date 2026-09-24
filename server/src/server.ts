@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { initializeSocket } from "./config/socket.js";
 import { prisma } from "./lib/prisma.js";
 
-const PORT = 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
 const httpServer = createServer(app);
 

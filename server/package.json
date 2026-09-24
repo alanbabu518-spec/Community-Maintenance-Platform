@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec tsx src/server.ts",
-    "test-db": "tsx src/test-db.ts",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "postinstall": "prisma skills sync || exit 0"
-  },
+  "dev": "nodemon --exec tsx src/server.ts",
+  "start": "tsx src/server.ts",
+  "test-db": "tsx src/test-db.ts",
+  "test": "vitest",
+  "test:run": "vitest run",
+  "postinstall": "prisma skills sync || exit 0"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
