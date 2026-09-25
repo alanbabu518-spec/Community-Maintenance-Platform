@@ -80,10 +80,17 @@ io.on("connection", async (socket) => {
   });
 });
 
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+async function startServer() {
+  try {
+    await connectRedis();
 
-connectRedis().catch(() => {
-  console.error("Redis unavailable. Continuing without Redis.");
-});
+    httpServer.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Redis unavailable:", error);
+    process.exit(1);
+  }
+}
+
+startServer();
