@@ -2,12 +2,12 @@ import rateLimit from "express-rate-limit";
 import { RedisStore } from "rate-limit-redis";
 import { redisClient } from "../config/redis.js";
 
-
 const redisStore =
   process.env.NODE_ENV === "production"
     ? new RedisStore({
         sendCommand: async (...args: string[]) => {
           console.log(`[RateLimit] Redis command: ${args[0]}`);
+
           console.log(
             `[RateLimit] Redis status - isOpen: ${redisClient.isOpen}, isReady: ${redisClient.isReady}`,
           );
@@ -22,7 +22,6 @@ const redisStore =
       })
     : undefined;
 
-
 export const authRateLimiter = rateLimit({
   ...(redisStore ? { store: redisStore } : {}),
 
@@ -36,11 +35,9 @@ export const authRateLimiter = rateLimit({
 
   message: {
     success: false,
-    message:
-      "Too many authentication requests. Please try again later.",
+    message: "Too many authentication requests. Please try again later.",
   },
 });
-
 
 export const otpRateLimiter = rateLimit({
   ...(redisStore ? { store: redisStore } : {}),
@@ -55,11 +52,9 @@ export const otpRateLimiter = rateLimit({
 
   message: {
     success: false,
-    message:
-      "Too many OTP requests. Please try again later.",
+    message: "Too many OTP requests. Please try again later.",
   },
 });
-
 
 export const passwordResetRateLimiter = rateLimit({
   ...(redisStore ? { store: redisStore } : {}),
@@ -74,7 +69,6 @@ export const passwordResetRateLimiter = rateLimit({
 
   message: {
     success: false,
-    message:
-      "Too many password reset requests. Please try again later.",
+    message: "Too many password reset requests. Please try again later.",
   },
 });

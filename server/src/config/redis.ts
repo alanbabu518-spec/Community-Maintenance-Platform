@@ -38,5 +38,9 @@ export async function connectRedis() {
     await redisClient.connect();
   }
 
+  if (!redisClient.isReady) {
+    throw new Error("Redis connection was not ready");
+  }
+
   console.log("Redis connected successfully!");
 }
