@@ -20,7 +20,11 @@ import {
   getResetTokenUserId,
   deleteResetToken,
 } from "../../utils/passwordReset.js";
-import { sendOtpEmail, sendPasswordResetEmail } from "./email.service.js";
+import {
+  sendOtpEmail,
+  sendPasswordResetEmail,
+  sendOnboardingEmail,
+} from "./email.service.js";
 import {
   storePendingRegistration,
   getPendingRegistration,
@@ -133,6 +137,8 @@ export const authService = {
     await deleteOtp(email);
     await deletePendingRegistration(email);
 
+    await sendOnboardingEmail(user.email, user.name);
+
     return toUserResponse(user);
   },
 
@@ -200,7 +206,7 @@ export const authService = {
     };
   },
 
-   async resetPassword(token: string, password: string) {
+  async resetPassword(token: string, password: string) {
     const userId = await getResetTokenUserId(token);
 
     if (!userId) {
