@@ -5,7 +5,13 @@ import { redisClient } from "../config/redis.js";
 const redisStore =
   process.env.NODE_ENV === "production"
     ? new RedisStore({
-        sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+        sendCommand: (...args: string[]) => {
+          if (!redisClient.isReady) {
+            throw new Error("Redis is not ready");
+          }
+
+          return redisClient.sendCommand(args);
+        },
       })
     : undefined;
 

@@ -8,12 +8,14 @@ RUN npm ci
 
 COPY prisma ./prisma
 
+COPY prisma.config.ts ./
+
 RUN npx prisma generate
 
-COPY prisma.config.ts ./
 COPY tsconfig.json ./
+
 COPY src ./src
 
 EXPOSE 5000
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:prod"]

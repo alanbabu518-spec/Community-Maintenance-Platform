@@ -1,6 +1,5 @@
 import app from "./app.js";
-import { connectRedis } from "./config/redis.js";
-import "./worker/notification.worker.js";
+import { connectRedis, redisClient } from "./config/redis.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
@@ -23,7 +22,9 @@ initializeSocket(io);
 io.on("connection", async (socket) => {
   const token = socket.handshake.headers.cookie
     ?.split(";")
-    .find((cookie) => cookie.trim().startsWith("access_token="))
+    .find((cookie) =>
+      cookie.trim().startsWith("access_token=")
+    )
     ?.split("=")[1];
 
   if (!token) {
@@ -61,17 +62,16 @@ io.on("connection", async (socket) => {
     }
 
     socket.join(`user:${decoded.userId}`);
-    console.log(`Joined room: user:${decoded.userId}`);
 
-    const communityId = user?.unit?.building?.communityId;
+    const communityId = user.unit?.building?.communityId;
 
     if (communityId) {
       socket.join(`community:${communityId}`);
-      console.log(`Joined room: community:${communityId}`);
     }
 
     console.log(`Socket connected: ${socket.id}`);
-  } catch {
+  } catch (error) {
+    console.error("Socket authentication error:", error);
     socket.disconnect();
   }
 
@@ -83,14 +83,48 @@ io.on("connection", async (socket) => {
 async function startServer() {
   try {
     await connectRedis();
+    console.log("Redis ready");
+
+    await prisma.$connect();
+    console.log("PostgreSQL ready");
 
     httpServer.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("Redis unavailable:", error);
+    console.error("Startup failed:", error);
+
+    if (redisClient.isOpen) {
+      await redisClient.quit().catch(() => {});
+    }
+
+    await prisma.$disconnect().catch(() => {});
+
     process.exit(1);
   }
 }
+
+async function shutdown(signal: string) {
+  console.log(`${signal} received. Shutting down...`);
+
+  try {
+    await prisma.$disconnect();
+
+    if (redisClient.isOpen) {
+      await redisClient.quit();
+    }
+
+    httpServer.close(() => {
+      console.log("HTTP server closed");
+      process.exit(0);
+    });
+  } catch (error) {
+    console.error("Shutdown error:", error);
+    process.exit(1);
+  }
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
 startServer();

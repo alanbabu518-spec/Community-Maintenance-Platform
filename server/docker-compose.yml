@@ -11,6 +11,15 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d community_maintenance"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
@@ -18,6 +27,11 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   server:
     build: .
@@ -31,9 +45,11 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - postgres
-      - redis
-      
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   client:
     build:
       context: ../client
@@ -44,7 +60,8 @@ services:
     ports:
       - "5173:4173"
     depends_on:
-      - server
+      server:
+        condition: service_started
 
 volumes:
   postgres_data:
