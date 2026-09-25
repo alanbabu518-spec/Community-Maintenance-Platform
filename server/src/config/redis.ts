@@ -25,15 +25,18 @@ redisClient.on("end", () => {
 });
 
 redisClient.on("error", (error) => {
-  console.error("Redis Client Error:", error);
+  console.error("Redis error:", error);
 });
 
 export async function connectRedis() {
-  if (redisClient.isOpen) {
+  if (redisClient.isReady) {
+    console.log("Redis already connected");
     return;
   }
 
-  await redisClient.connect();
+  if (!redisClient.isOpen) {
+    await redisClient.connect();
+  }
 
   console.log("Redis connected successfully!");
 }

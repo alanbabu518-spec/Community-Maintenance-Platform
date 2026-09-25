@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
+ "scripts": {
   "dev": "nodemon --exec tsx src/server.ts",
   "start": "tsx src/server.ts",
   "start:prod": "prisma migrate deploy && tsx src/server.ts",
   "test-db": "tsx src/test-db.ts",
+  "create:admin": "tsx scripts/create-admin.ts",
   "test": "vitest",
   "test:run": "vitest run",
   "postinstall": "prisma skills sync || exit 0"

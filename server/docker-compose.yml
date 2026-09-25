@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1A2l3a4n
+      POSTGRES_PASSWORD: 1a2l3a4n
       POSTGRES_DB: community_maintenance
     ports:
       - "5432:5432"
@@ -34,13 +34,16 @@ services:
       retries: 10
 
   server:
-    build: .
+    build:
+      context: .
+      args:
+        DATABASE_URL: postgresql://postgres:1a2l3a4n@postgres:5432/community_maintenance
     container_name: community-server
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://postgres:1A2l3a4n@postgres:5432/community_maintenance
+      DATABASE_URL: postgresql://postgres:1a2l3a4n@postgres:5432/community_maintenance
       REDIS_URL: redis://redis:6379
     ports:
       - "5000:5000"
