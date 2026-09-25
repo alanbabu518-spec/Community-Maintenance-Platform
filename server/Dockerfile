@@ -21,4 +21,5 @@ COPY src ./src
 
 EXPOSE 5000
 
+
 CMD ["sh", "-c", "npx prisma migrate deploy && npx tsx src/server.ts"]

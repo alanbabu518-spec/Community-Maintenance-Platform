@@ -28,19 +28,29 @@ redisClient.on("error", (error) => {
   console.error("Redis error:", error);
 });
 
+let redisConnectionPromise: Promise<void> | null = null;
+
 export async function connectRedis() {
   if (redisClient.isReady) {
-    console.log("Redis already connected");
     return;
   }
 
-  if (!redisClient.isOpen) {
-    await redisClient.connect();
+  if (!redisConnectionPromise) {
+    redisConnectionPromise = (async () => {
+      if (!redisClient.isOpen) {
+        await redisClient.connect();
+      }
+
+      if (!redisClient.isReady) {
+        throw new Error("Redis connection was not ready");
+      }
+
+      console.log("Redis connected successfully!");
+    })().catch((error) => {
+      redisConnectionPromise = null;
+      throw error;
+    });
   }
 
-  if (!redisClient.isReady) {
-    throw new Error("Redis connection was not ready");
-  }
-
-  console.log("Redis connected successfully!");
+  await redisConnectionPromise;
 }
