@@ -1,10 +1,16 @@
 import { useState } from "react";
-import { Building2, MapPin, Plus, Users, ArrowUpRight } from "lucide-react";
+import {
+  Building2,
+  MapPin,
+  Plus,
+  Users,
+  ArrowUpRight,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 
 import PageTransition from "../components/ui/PageTransition";
 import { useCommunities } from "../features/communities/hooks/useCommunities";
 import { useCreateCommunity } from "../features/communities/hooks/useCreateCommunity";
-import { Link } from "react-router-dom";
 
 function Communities() {
   const { data: communities = [], isLoading, isError } = useCommunities();
@@ -32,56 +38,52 @@ function Communities() {
   return (
     <PageTransition>
       <div className="mx-auto w-full max-w-7xl space-y-8">
-        <section className="relative overflow-hidden rounded-3xl border border-border bg-card px-6 py-8 shadow-sm sm:px-8">
-          <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-                <Building2 className="h-3.5 w-3.5" />
-                Community Management
-              </div>
-
-              <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Communities
-              </h1>
-
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-                Manage residential communities and organize the properties
-                connected to your platform.
-              </p>
+        <section className="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-linear-to-br from-white to-slate-50 p-6 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-900/60 sm:flex-row sm:items-end sm:justify-between sm:p-8">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+              <Building2 className="h-3.5 w-3.5" />
+              Community Management
             </div>
 
-            <div className="flex shrink-0 items-center gap-3 rounded-2xl border border-border bg-background/70 px-4 py-3">
-              <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
-                <Building2 className="h-5 w-5" />
-              </div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
+              Communities
+            </h1>
 
-              <div>
-                <p className="text-2xl font-bold text-foreground">
-                  {communities.length}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Total communities
-                </p>
-              </div>
-            </div>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400 sm:text-base">
+              Manage residential communities and organize the properties
+              connected to your platform.
+            </p>
           </div>
 
-          <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 left-1/3 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
+          <div className="flex shrink-0 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+              <Building2 className="h-5 w-5" />
+            </div>
+
+            <div>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                {communities.length}
+              </p>
+
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Total communities
+              </p>
+            </div>
+          </div>
         </section>
 
-        <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          <div className="flex items-center gap-4 border-b border-border px-6 py-5 sm:px-8">
-            <div className="rounded-xl bg-primary/10 p-3 text-primary">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center gap-4 border-b border-slate-200 p-5 dark:border-slate-800 sm:p-6">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
               <Plus className="h-5 w-5" />
             </div>
 
             <div>
-              <h2 className="font-semibold text-foreground">
+              <h2 className="font-semibold text-slate-900 dark:text-white">
                 Create a new community
               </h2>
 
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Add a residential community to your platform.
               </p>
             </div>
@@ -89,12 +91,12 @@ function Communities() {
 
           <form
             onSubmit={handleSubmit}
-            className="grid gap-5 p-6 sm:p-8 lg:grid-cols-[1fr_1.4fr_auto] lg:items-end"
+            className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[1fr_1.4fr_auto] lg:items-end"
           >
             <div>
               <label
                 htmlFor="community-name"
-                className="mb-2 block text-sm font-medium text-foreground"
+                className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
               >
                 Community name
               </label>
@@ -108,14 +110,14 @@ function Communities() {
                 required
                 minLength={2}
                 maxLength={100}
-                className="h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+                className="h-11 w-full rounded-lg border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-600 dark:focus:border-slate-500 dark:focus:ring-slate-800"
               />
             </div>
 
             <div>
               <label
                 htmlFor="community-address"
-                className="mb-2 block text-sm font-medium text-foreground"
+                className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
               >
                 Address
               </label>
@@ -129,14 +131,14 @@ function Communities() {
                 required
                 minLength={5}
                 maxLength={255}
-                className="h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+                className="h-11 w-full rounded-lg border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-600 dark:focus:border-slate-500 dark:focus:ring-slate-800"
               />
             </div>
 
             <button
               type="submit"
               disabled={createCommunityMutation.isPending}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-slate-900 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
             >
               <Plus className="h-4 w-4" />
 
@@ -147,7 +149,7 @@ function Communities() {
           </form>
 
           {createCommunityMutation.isError && (
-            <div className="mx-6 mb-6 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive sm:mx-8">
+            <div className="mx-5 mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400 sm:mx-6 sm:mb-6">
               Failed to create community. Please check the details and try
               again.
             </div>
@@ -157,17 +159,17 @@ function Communities() {
         <section>
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-foreground">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                 Your communities
               </h2>
 
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Communities currently registered on the platform.
               </p>
             </div>
 
             {!isLoading && communities.length > 0 && (
-              <span className="hidden rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground sm:inline-flex">
+              <span className="hidden rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 sm:inline-flex dark:bg-slate-800 dark:text-slate-400">
                 {communities.length}{" "}
                 {communities.length === 1 ? "community" : "communities"}
               </span>
@@ -179,37 +181,41 @@ function Communities() {
               {Array.from({ length: 6 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-52 animate-pulse rounded-3xl border border-border bg-card"
+                  className="h-52 animate-pulse rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
                 />
               ))}
             </div>
           )}
 
           {isError && (
-            <div className="rounded-3xl border border-destructive/20 bg-destructive/5 p-8 text-center">
-              <p className="text-sm font-medium text-destructive">
-                Unable to load communities.
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/50 dark:bg-red-950/20">
+              <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                <Building2 className="h-5 w-5" />
+              </div>
+
+              <p className="mt-4 text-sm font-semibold text-red-700 dark:text-red-400">
+                Unable to load communities
               </p>
 
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Please try refreshing the page.
               </p>
             </div>
           )}
 
           {!isLoading && !isError && communities.length === 0 && (
-            <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-16 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                 <Building2 className="h-7 w-7" />
               </div>
 
-              <h3 className="mt-5 font-semibold text-foreground">
+              <h3 className="mt-5 font-semibold text-slate-900 dark:text-white">
                 No communities yet
               </h3>
 
-              <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                Create your first community above to start organizing buildings,
-                units, residents, and maintenance operations.
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
+                Create your first community above to start organizing
+                buildings, units, residents, and maintenance operations.
               </p>
             </div>
           )}
@@ -220,43 +226,42 @@ function Communities() {
                 <Link
                   key={community.id}
                   to={`/communities/${community.id}`}
-                  className="group relative block overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:focus:ring-slate-700"
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                      <Building2 className="h-6 w-6" />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                      <Building2 className="h-5 w-5" />
                     </div>
 
-                    <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+                    <span className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
                       #{community.id}
                     </span>
                   </div>
 
-                  <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-foreground">
+                  <div className="mt-5">
+                    <h3 className="truncate text-base font-bold text-slate-900 dark:text-white">
                       {community.name}
                     </h3>
 
-                    <div className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                    <div className="mt-3 flex items-start gap-2">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
 
-                      <span className="line-clamp-2">{community.address}</span>
+                      <span className="line-clamp-2 text-sm leading-5 text-slate-500 dark:text-slate-400">
+                        {community.address}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="mt-6 flex items-center justify-between border-t border-border pt-5">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
+                    <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
                       <Users className="h-4 w-4" />
                       <span>Community</span>
                     </div>
 
-                    <Link
-                      to={`/communities/${community.id}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary transition group-hover:gap-2"
-                    >
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900 transition-all group-hover:gap-2.5 dark:text-white">
                       View details
                       <ArrowUpRight className="h-3.5 w-3.5" />
-                    </Link>
+                    </span>
                   </div>
                 </Link>
               ))}

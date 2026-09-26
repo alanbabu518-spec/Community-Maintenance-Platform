@@ -3,10 +3,6 @@ import { io } from "socket.io-client";
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 const SOCKET_URL = new URL(API_URL).origin;
-
-console.log("VITE_API_BASE_URL:", API_URL);
-console.log("SOCKET_URL:", SOCKET_URL);
-
 export const socket = io(SOCKET_URL, {
   withCredentials: true,
 });

@@ -4,16 +4,27 @@ const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+
+  const base64 = (base64String + padding)
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
 
   const rawData = window.atob(base64);
 
   return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
 }
 
-export async function subscribeToPush() {
-  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-    throw new Error("Push notifications are not supported");
+export async function requestNotificationPermission() {
+  if (!("Notification" in window)) {
+    throw new Error("Browser notifications are not supported");
+  }
+
+  if (Notification.permission === "granted") {
+    return true;
+  }
+
+  if (Notification.permission === "denied") {
+    throw new Error("Notification permission was denied");
   }
 
   const permission = await Notification.requestPermission();
@@ -22,15 +33,33 @@ export async function subscribeToPush() {
     throw new Error("Notification permission was not granted");
   }
 
+  return true;
+}
+
+export async function subscribeToPush() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    throw new Error("Push notifications are not supported");
+  }
+
+  if (!VAPID_PUBLIC_KEY) {
+    throw new Error("VITE_VAPID_PUBLIC_KEY is not configured");
+  }
+
+  if (Notification.permission !== "granted") {
+    throw new Error("Notification permission is not granted");
+  }
+
   const registration = await navigator.serviceWorker.ready;
 
-  const existingSubscription = await registration.pushManager.getSubscription();
+  const existingSubscription =
+    await registration.pushManager.getSubscription();
 
   const subscription =
     existingSubscription ||
     (await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      applicationServerKey:
+        urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
     }));
 
   const subscriptionJson = subscription.toJSON();

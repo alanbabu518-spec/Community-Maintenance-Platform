@@ -1,5 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { ClipboardList, Clock, UserCheck, CheckCircle2 } from "lucide-react";
+import {
+  ClipboardList,
+  Clock,
+  UserCheck,
+  CheckCircle2,
+} from "lucide-react";
 import StatCard from "../components/ui/StatCard";
 import MaintenanceCard from "../features/maintenance/components/MaintenanceCard";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,6 +15,7 @@ import { useDashboardStats } from "../features/dashboard/hooks/useDashboardStats
 import { dashboardMaintenanceQuery } from "../features/dashboard/dashboard.queries";
 import ErrorPage from "../components/ui/ErrorPage";
 import { ApiError } from "../services/apiClient";
+import NotificationPermissionPopup from "../components/ui/NotificationPermissionPopup";
 
 const roleCopy: Record<string, string> = {
   RESIDENT: "Report and track your maintenance requests.",
@@ -107,6 +113,8 @@ function Dashboard() {
   return (
     <PageTransition>
       <div className="mx-auto w-full max-w-7xl space-y-8">
+        {user?.role === "RESIDENT" && <NotificationPermissionPopup />}
+
         <section className="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-linear-to-br from-white to-slate-50 p-6 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-900/60 sm:flex-row sm:items-end sm:justify-between sm:p-8">
           <div>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">

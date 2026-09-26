@@ -1,4 +1,6 @@
 import { Navigate } from "react-router-dom";
+
+import { MorphingSpinner } from "./ui/MorphingSpinner";
 import { useAuth } from "../context/AuthContext";
 
 interface RedirectIfAuthenticatedProps {
@@ -11,7 +13,17 @@ function RedirectIfAuthenticated({
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <p>Checking authentication...</p>;
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <MorphingSpinner size="lg" />
+
+          <p className="flex gap-1 text-lg text-foreground">
+            Loading
+          </p>
+        </div>
+      </main>
+    );
   }
 
   if (user) {
