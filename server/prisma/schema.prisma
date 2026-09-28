@@ -6,6 +6,167 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id                     Int                     @id @default(autoincrement())
+  name                   String
+  email                  String                  @unique
+  passwordHash           String
+  role                   UserRole
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  emailVerified          Boolean                 @default(false)
+  unitId                 Int?
+  googleId               String?                 @unique
+  tokenVersion           Int                     @default(0)
+  communityId            Int?
+  isActive               Boolean                 @default(true)
+  activityLogs           ActivityLog[]
+  maintenanceRequests    MaintenanceRequest[]    @relation("ResidentRequests")
+  assignedRequests       MaintenanceRequest[]    @relation("TechnicianRequests")
+  notifications          Notification[]
+  notificationPreference NotificationPreference?
+  pushSubscriptions      PushSubscription[]
+  community              Community?              @relation(fields: [communityId], references: [id])
+  unit                   Unit?                   @relation(fields: [unitId], references: [id])
+}
+
+model NotificationPreference {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  pushEnabled   Boolean  @default(true)
+  announcements Boolean  @default(true)
+  maintenance   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  type      String
+  title     String
+  message   String
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+model Community {
+  id            Int            @id @default(autoincrement())
+  name          String
+  address       String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  announcements Announcement[]
+  buildings     Building[]
+  users         User[]
+}
+
+model Building {
+  id          Int       @id @default(autoincrement())
+  name        String
+  communityId Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  community   Community @relation(fields: [communityId], references: [id])
+  units       Unit[]
+}
+
+model Unit {
+  id                  Int                  @id @default(autoincrement())
+  unitNumber          String
+  buildingId          Int
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  maintenanceRequests MaintenanceRequest[]
+  building            Building             @relation(fields: [buildingId], references: [id])
+  residents           User[]
+}
+
+model MaintenanceRequest {
+  id                     Int                     @id @default(autoincrement())
+  title                  String
+  description            String
+  category               String
+  priority               MaintenancePriority     @default(MEDIUM)
+  status                 MaintenanceStatus       @default(OPEN)
+  residentId             Int
+  unitId                 Int
+  technicianId           Int?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  maintenanceAttachments MaintenanceAttachment[]
+  resident               User                    @relation("ResidentRequests", fields: [residentId], references: [id])
+  technician             User?                   @relation("TechnicianRequests", fields: [technicianId], references: [id])
+  unit                   Unit                    @relation(fields: [unitId], references: [id])
+
+  @@index([residentId])
+  @@index([technicianId])
+  @@index([status])
+  @@index([priority])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model MaintenanceAttachment {
+  id                   Int                @id @default(autoincrement())
+  maintenanceRequestId Int
+  fileUrl              String
+  fileName             String
+  fileType             String
+  createdAt            DateTime           @default(now())
+  maintenanceRequest   MaintenanceRequest @relation(fields: [maintenanceRequestId], references: [id], onDelete: Cascade)
+
+  @@index([maintenanceRequestId])
+}
+
+model PushSubscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Announcement {
+  id          Int       @id @default(autoincrement())
+  communityId Int
+  title       String
+  message     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  author      String?
+  category    String?
+  priority    String?
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@index([communityId, createdAt])
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  actorId   Int
+  action    String
+  entity    String
+  entityId  Int?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  actor     User     @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+  @@index([createdAt])
+  @@index([entity, entityId])
+}
+
 enum UserRole {
   ADMIN
   MANAGER
@@ -27,186 +188,4 @@ enum MaintenancePriority {
   MEDIUM
   HIGH
   URGENT
-}
-
-model User {
-  id            Int      @id @default(autoincrement())
-  name          String
-  email         String   @unique
-  passwordHash  String
-  googleId      String?  @unique
-  role          UserRole
-  emailVerified Boolean  @default(false)
-  tokenVersion  Int      @default(0)
-  isActive      Boolean  @default(true)
-
-  unitId Int?
-  unit   Unit? @relation(fields: [unitId], references: [id])
-
-  communityId Int?
-  community   Community? @relation(fields: [communityId], references: [id])
-
-  maintenanceRequests    MaintenanceRequest[]    @relation("ResidentRequests")
-  assignedRequests       MaintenanceRequest[]    @relation("TechnicianRequests")
-  notifications          Notification[]
-  pushSubscriptions      PushSubscription[]
-  notificationPreference NotificationPreference?
-  activityLogs           ActivityLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model NotificationPreference {
-  id            Int      @id @default(autoincrement())
-  userId        Int      @unique
-  pushEnabled   Boolean  @default(true)
-  announcements Boolean  @default(true)
-  maintenance   Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Notification {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  type      String
-  title     String
-  message   String
-  isRead    Boolean   @default(false)
-  readAt    DateTime?
-  createdAt DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, isRead])
-  @@index([createdAt])
-}
-
-model Community {
-  id      Int    @id @default(autoincrement())
-  name    String
-  address String
-
-  buildings     Building[]
-  announcements Announcement[]
-  users         User[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Building {
-  id          Int    @id @default(autoincrement())
-  name        String
-  communityId Int
-
-  community Community @relation(fields: [communityId], references: [id])
-  units     Unit[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Unit {
-  id         Int    @id @default(autoincrement())
-  unitNumber String
-  buildingId Int
-
-  building  Building @relation(fields: [buildingId], references: [id])
-  residents User[]
-
-  maintenanceRequests MaintenanceRequest[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model MaintenanceRequest {
-  id          Int    @id @default(autoincrement())
-  title       String
-  description String
-
-  category String
-  priority MaintenancePriority @default(MEDIUM)
-  status   MaintenanceStatus   @default(OPEN)
-
-  residentId   Int
-  unitId       Int
-  technicianId Int?
-
-  resident   User  @relation("ResidentRequests", fields: [residentId], references: [id])
-  unit       Unit  @relation(fields: [unitId], references: [id])
-  technician User? @relation("TechnicianRequests", fields: [technicianId], references: [id])
-
-  createdAt              DateTime                @default(now())
-  updatedAt              DateTime                @updatedAt
-  maintenanceAttachments MaintenanceAttachment[]
-
-  @@index([residentId])
-  @@index([technicianId])
-  @@index([status])
-  @@index([priority])
-  @@index([category])
-  @@index([createdAt])
-}
-
-model MaintenanceAttachment {
-  id                   Int      @id @default(autoincrement())
-  maintenanceRequestId Int
-  fileUrl              String
-  fileName             String
-  fileType             String
-  createdAt            DateTime @default(now())
-
-  maintenanceRequest MaintenanceRequest @relation(fields: [maintenanceRequestId], references: [id], onDelete: Cascade)
-
-  @@index([maintenanceRequestId])
-}
-
-model PushSubscription {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  endpoint  String   @unique
-  p256dh    String
-  auth      String
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model Announcement {
-  id          Int      @id @default(autoincrement())
-  communityId Int
-  title       String
-  message     String
-  category    String?
-  priority    String?
-  author      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
-
-  @@index([communityId, createdAt])
-}
-
-model ActivityLog {
-  id        Int      @id @default(autoincrement())
-  actorId   Int
-  action    String
-  entity    String
-  entityId  Int?
-  metadata  Json?
-  createdAt DateTime @default(now())
-
-  actor User @relation(fields: [actorId], references: [id], onDelete: Cascade)
-
-  @@index([actorId])
-  @@index([createdAt])
-  @@index([entity, entityId])
 }

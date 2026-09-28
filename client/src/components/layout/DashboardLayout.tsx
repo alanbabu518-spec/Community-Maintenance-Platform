@@ -17,6 +17,11 @@ const navigationSections = [
     label: "Overview",
     items: [
       {
+        name: "Home",
+        path: "/",
+        icon: Home,
+      },
+      {
         name: "Dashboard",
         path: "/dashboard",
         icon: LayoutDashboard,
