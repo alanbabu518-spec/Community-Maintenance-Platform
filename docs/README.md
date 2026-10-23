@@ -6,7 +6,7 @@
 
 **A centralized platform to report, track, and resolve maintenance issues inside residential communities.**
 
-![CommunityCare Resident Dashboard](docs/images/resident-dashboard.png.png)
+![CommunityCare Resident Dashboard](docs/images/resident-dashboard.png)
 
 [Overview](#-what-is-communitycare) · [Features](#-key-features) · [Architecture](#-system-architecture) · [Setup](#-getting-started) · [API](#-api-documentation)
 
@@ -48,25 +48,25 @@ The screenshots below use the filenames currently present in the project's `docs
 
 Residents can view their maintenance requests and check their progress.
 
-![Resident Dashboard](docs/images/resident-dashboard.png.png)
+![Resident Dashboard](docs/images/resident-dashboard.png)
 
 ### Admin Dashboard
 
 Administrators can access the platform's administrative overview and management tools.
 
-![Admin Dashboard](docs/images/Admin-dashboard.png.png)
+![Admin Dashboard](docs/images/Admin-dashboard.png)
 
 ### Create a Maintenance Request
 
 The request form provides a place to describe a community issue and submit it for review.
 
-![Create Maintenance Request](docs/images/create-request.png.png)
+![Create Maintenance Request](docs/images/create-request.png)
 
 ### Request Details
 
 The request details screen provides information about an individual maintenance request.
 
-![Maintenance Request Details](docs/images/request-details.png.png)
+![Maintenance Request Details](docs/images/request-details.png)
 
 ---
 
