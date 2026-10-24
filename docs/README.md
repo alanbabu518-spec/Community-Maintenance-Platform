@@ -6,7 +6,7 @@
 
 **A centralized platform to report, track, and resolve maintenance issues inside residential communities.**
 
-![CommunityCare Resident Dashboard](https://github.com/alanbabu518-spec/Community-Maintenance-Platform/blob/main/docs/images/resident-dashboard.png)
+![CommunityCare Resident Dashboard](https://github.com/alanbabu518-spec/Community-Maintenance-Platform/blob/main/docs/images/landingpage.png)
 
 [Overview](#-what-is-communitycare) · [Features](#-key-features) · [Architecture](#-system-architecture) · [Setup](#-getting-started) · [API](#-api-documentation)
 
