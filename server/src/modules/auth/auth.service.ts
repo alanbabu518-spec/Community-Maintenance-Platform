@@ -139,7 +139,22 @@ export const authService = {
 
     await sendOnboardingEmail(user.email, user.name);
 
-    return toUserResponse(user);
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        role: user.role,
+        tokenVersion: user.tokenVersion,
+      },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "7d",
+      },
+    );
+
+    return {
+      user: toUserResponse(user),
+      token,
+    };
   },
 
   async login(data: LoginInput) {

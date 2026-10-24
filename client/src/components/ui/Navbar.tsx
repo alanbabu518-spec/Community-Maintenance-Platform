@@ -1,30 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Menu,
-  X,
-  UsersRound,
-  UserRound,
-  Users,
-  Settings,
-  Bell,
-} from "lucide-react";
+import { Menu, X, UsersRound } from "lucide-react";
 
-import { useAuth } from "../../context/AuthContext";
-import NotificationDropdown from "./NotificationDropdown";
-import { getNotifications } from "../../services/notification.api";
-import LogoutButton from "../../features/auth/components/LogoutButton";
-
-/*
-  Navbar — dark, matches the particle hero.
-  • Transparent over the hero; midnight bar + hairline once scrolled
-    (background fades with opacity only).
-  • Desktop links from lg (1024px). Below that: logo on the left; actions and
-    the three-line menu button on the right. The menu is a side drawer that
-    slides in from the right (transform only, so it stays smooth).
-  • Uses only the theme tokens from index.css.
-*/
-
+/* Public landing-page navigation. Keep this navbar identical for every visitor. */
 const navItems = [
   { label: "Home", id: "hero" },
   { label: "Features", id: "features" },
@@ -35,20 +13,12 @@ const navItems = [
 
 const focus =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6f8bff]";
-
-const navLink = `font-f37-bolton-medium text-caption leading-caption uppercase tracking-eyebrow rounded-lg px-3 py-2 transition-colors duration-150 hover:text-paper ${focus}`;
-
-// 44px touch target on phones, 40px from sm up
+const navLink = `rounded-lg px-3 py-2 font-f37-bolton-medium text-caption uppercase leading-caption tracking-eyebrow text-halo-violet transition-colors duration-150 hover:text-paper ${focus}`;
 const iconBtn = `flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-halo-violet transition-colors duration-150 hover:bg-white/10 hover:text-paper sm:h-10 sm:w-10 ${focus}`;
-
 const primaryBtn = `inline-flex h-10 shrink-0 items-center justify-center rounded-lg bg-signal-blue px-4 font-f37-bolton text-body-sm text-paper transition-[background-color,transform] duration-150 hover:bg-[color-mix(in_srgb,var(--color-signal-blue),white_14%)] active:scale-[0.97] ${focus}`;
-
 const outlineBtn = `inline-flex h-12 items-center justify-center rounded-lg border border-slate-body px-6 font-f37-bolton text-body-sm text-paper transition-[background-color,border-color] duration-150 hover:border-paper hover:bg-white/5 ${focus}`;
-
 const menuItem = `flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left font-open-sauce-sans text-body-sm leading-body-sm text-halo-violet transition-colors duration-150 hover:bg-white/10 hover:text-paper ${focus}`;
 
-/* Original logo: UsersRound icon in a rounded tile + wordmark.
-   The tile is white on the dark bar so the icon stays visible. */
 function Logo({ onClick }: { onClick: () => void }) {
   return (
     <Link
@@ -60,8 +30,7 @@ function Logo({ onClick }: { onClick: () => void }) {
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-paper text-midnight-ink">
         <UsersRound size={21} />
       </span>
-
-      <span className="hidden font-f37-bolton text-[20px] font-medium leading-none tracking-[-0.02em] text-paper min-[360px]:inline sm:text-[22px]">
+      <span className="hidden min-[360px]:inline font-f37-bolton text-[20px] font-medium leading-none tracking-[-0.02em] text-paper sm:text-[22px]">
         CommunityCare
       </span>
     </Link>
@@ -69,20 +38,12 @@ function Logo({ onClick }: { onClick: () => void }) {
 }
 
 function Navbar() {
-  const { user } = useAuth();
-
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeId, setActiveId] = useState("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
-
-  const clusterRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const wasMenuOpen = useRef(false);
-
   const location = useLocation();
   const navigate = useNavigate();
   const onHome = location.pathname === "/";
@@ -94,7 +55,6 @@ function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Scroll-spy: mark the section in the middle of the viewport.
   useEffect(() => {
     if (!onHome) {
       setActiveId("");
@@ -119,57 +79,6 @@ function Navbar() {
   }, [onHome]);
 
   useEffect(() => {
-    if (!user) {
-      setUnreadNotificationCount(0);
-      return;
-    }
-
-    let cancelled = false;
-
-    const loadUnreadCount = async () => {
-      try {
-        const result = await getNotifications(1, 100);
-        if (cancelled) return;
-
-        setUnreadNotificationCount(
-          result.notifications.filter((n) => !n.isRead).length,
-        );
-      } catch {
-        if (!cancelled) setUnreadNotificationCount(0);
-      }
-    };
-
-    loadUnreadCount();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user]);
-
-  // Profile menu: close on outside click / Escape
-  useEffect(() => {
-    if (!profileOpen) return;
-
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (!clusterRef.current?.contains(event.target as Node)) {
-        setProfileOpen(false);
-      }
-    };
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setProfileOpen(false);
-    };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("keydown", handleEscape);
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [profileOpen]);
-
-  // Mobile menu: lock page scroll, close on Escape / route change / desktop width
-  useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? "hidden" : "";
     if (!mobileMenuOpen) return;
 
@@ -177,14 +86,12 @@ function Navbar() {
       if (event.key === "Escape") setMobileMenuOpen(false);
     };
     document.addEventListener("keydown", handleEscape);
-
     return () => {
       document.body.style.overflow = "";
       document.removeEventListener("keydown", handleEscape);
     };
   }, [mobileMenuOpen]);
 
-  // Move focus into the drawer when it opens, back to the menu button when it closes
   useEffect(() => {
     if (mobileMenuOpen) {
       wasMenuOpen.current = true;
@@ -197,7 +104,6 @@ function Navbar() {
 
   useEffect(() => {
     setMobileMenuOpen(false);
-    setProfileOpen(false);
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
@@ -210,82 +116,20 @@ function Navbar() {
   }, []);
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
-  const closeProfile = () => setProfileOpen(false);
 
   const scrollToSection = (sectionId: string) => {
     closeMobileMenu();
-    closeProfile();
-
     if (!onHome) {
       navigate(`/#${sectionId}`);
       return;
     }
-
     document
       .getElementById(sectionId)
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const getUserInitial = () =>
-    user?.name ? user.name.trim().charAt(0).toUpperCase() : "U";
-
-  const profileMenu =
-    user && profileOpen ? (
-      <div
-        role="menu"
-        className="absolute right-0 top-[calc(100%+12px)] z-100 w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-slate-body bg-midnight-ink"
-      >
-        <div className="border-b border-slate-body/70 p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-paper font-f37-bolton text-body text-midnight-ink">
-              {getUserInitial()}
-            </div>
-
-            <div className="min-w-0">
-              <p className="truncate font-open-sauce-sans text-body-sm font-medium leading-body-sm text-paper">
-                {user.name || "User"}
-              </p>
-              <p className="truncate font-open-sauce-sans text-caption leading-caption text-mist">
-                {user.email || ""}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-2">
-          <Link to="/dashboard" onClick={closeProfile} role="menuitem" className={menuItem}>
-            <UserRound size={18} />
-            My Profile
-          </Link>
-
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              closeProfile();
-              navigate("/login");
-            }}
-            className={menuItem}
-          >
-            <Users size={18} />
-            Switch Account
-          </button>
-
-          <Link to="/settings" onClick={closeProfile} role="menuitem" className={menuItem}>
-            <Settings size={18} />
-            Settings
-          </Link>
-        </div>
-
-        <div className="border-t border-slate-body/70 p-2">
-          <LogoutButton />
-        </div>
-      </div>
-    ) : null;
-
   return (
     <header className="fixed inset-x-0 top-0 z-50 pt-[env(safe-area-inset-top)]">
-      {/* Background fades in on scroll — opacity only, so it stays composited */}
       <div
         aria-hidden="true"
         className={`absolute inset-0 border-b border-slate-body/50 bg-midnight-ink/85 backdrop-blur-md transition-opacity duration-300 ${
@@ -295,11 +139,10 @@ function Navbar() {
 
       <nav
         aria-label="Main"
-        className="relative mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between gap-3 px-4 sm:h-[72px] sm:px-8"
+        className="relative mx-auto flex h-16 w-full max-w-300 items-center justify-between gap-3 px-4 sm:h-18 sm:px-8"
       >
         <Logo onClick={closeMobileMenu} />
 
-        {/* Desktop links */}
         <div className="hidden items-center lg:flex">
           {navItems.map((item) => {
             const active = activeId === item.id;
@@ -309,7 +152,7 @@ function Navbar() {
                 type="button"
                 onClick={() => scrollToSection(item.id)}
                 aria-current={active ? "location" : undefined}
-                className={`${navLink} ${active ? "text-paper" : "text-halo-violet"}`}
+                className={`${navLink} ${active ? "text-paper" : ""}`}
               >
                 {item.label}
               </button>
@@ -317,73 +160,19 @@ function Navbar() {
           })}
         </div>
 
-        {/* Actions */}
-        <div ref={clusterRef} className="relative flex items-center gap-1 sm:gap-2">
-          {user ? (
-            <>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setNotificationsOpen((open) => !open)}
-                  className={`${iconBtn} relative`}
-                  aria-label={
-                    unreadNotificationCount > 0
-                      ? `View notifications, ${unreadNotificationCount} unread`
-                      : "View notifications"
-                  }
-                  aria-expanded={notificationsOpen}
-                >
-                  <Bell size={20} />
-
-                  {unreadNotificationCount > 0 && (
-                    <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
-                      {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
-                    </span>
-                  )}
-                </button>
-
-                {notificationsOpen && (
-                  <NotificationDropdown
-                    onClose={() => setNotificationsOpen(false)}
-                    onUnreadCountChange={setUnreadNotificationCount}
-                  />
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setProfileOpen((open) => !open);
-                }}
-                className={`flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-paper font-open-sauce-sans text-caption font-medium text-midnight-ink transition-[transform,opacity] duration-150 hover:opacity-90 active:scale-95 sm:h-10 sm:w-10 ${focus}`}
-                title={user.name || user.email || "User"}
-                aria-label="Open profile menu"
-                aria-haspopup="menu"
-                aria-expanded={profileOpen}
-              >
-                {getUserInitial()}
-              </button>
-
-              <Link to="/dashboard" className={`${primaryBtn} ml-1 hidden lg:inline-flex`}>
-                Dashboard
-              </Link>
-
-              {profileMenu}
-            </>
-          ) : (
-            <>
-              <Link to="/login" className={`${navLink} hidden text-paper min-[1024px]:inline-flex`}>
-                Sign in
-              </Link>
-
-              {/* Desktop only — not shown on mobile */}
-              <Link to="/register" className={`${primaryBtn} !hidden min-[1024px]:!inline-flex`}>
-                Get started
-              </Link>
-            </>
-          )}
-
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Link
+            to="/login"
+            className={`${navLink} hidden text-paper min-[1024px]:inline-flex`}
+          >
+            Sign in
+          </Link>
+          <Link
+            to="/register"
+            className={`${primaryBtn} hidden! min-[1024px]:inline-flex!`}
+          >
+            Get started
+          </Link>
           <button
             ref={menuButtonRef}
             type="button"
@@ -398,7 +187,6 @@ function Navbar() {
         </div>
       </nav>
 
-      {/* Side menu (mobile / tablet): slides in from the right */}
       <div
         aria-hidden="true"
         onClick={closeMobileMenu}
@@ -418,7 +206,6 @@ function Navbar() {
       >
         <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-slate-body/50 px-4">
           <Logo onClick={closeMobileMenu} />
-
           <button
             ref={closeButtonRef}
             type="button"
@@ -448,28 +235,20 @@ function Navbar() {
         </nav>
 
         <div className="flex shrink-0 flex-col gap-3 border-t border-slate-body/50 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          {user ? (
-            <Link to="/dashboard" onClick={closeMobileMenu} className={`${primaryBtn} !h-12`}>
-              Dashboard
-            </Link>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                onClick={closeMobileMenu}
-                className={outlineBtn}
-              >
-                Sign in
-              </Link>
-              <Link
-                to="/register"
-                onClick={closeMobileMenu}
-                className={`${primaryBtn} !h-12 w-full`}
-              >
-                Get started
-              </Link>
-            </>
-          )}
+          <Link
+            to="/login"
+            onClick={closeMobileMenu}
+            className={outlineBtn}
+          >
+            Sign in
+          </Link>
+          <Link
+            to="/register"
+            onClick={closeMobileMenu}
+            className={`${primaryBtn} h-12! w-full`}
+          >
+            Get started
+          </Link>
         </div>
       </div>
     </header>

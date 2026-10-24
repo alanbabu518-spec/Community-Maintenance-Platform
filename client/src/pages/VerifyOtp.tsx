@@ -5,6 +5,7 @@ import { verifyOtp, resendOtp } from "../services/auth.api";
 import Button from "../components/ui/Button";
 import Spinner from "../components/ui/Spinner";
 import PageTransition from "../components/ui/PageTransition";
+import { useAuth } from "../context/AuthContext";
 
 function AnimatedLines() {
   return (
@@ -63,6 +64,7 @@ function AnimatedLines() {
 
 function VerifyOtp() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [searchParams] = useSearchParams();
 
   const email = searchParams.get("email") ?? "";
@@ -182,12 +184,13 @@ function VerifyOtp() {
       setSuccess("");
       setLoading(true);
 
-      await verifyOtp({
+      const result = await verifyOtp({
         email,
         otp: otpValue,
       });
 
-      navigate("/login");
+      setUser(result.user);
+      navigate("/dashboard", { replace: true });
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "OTP verification failed",

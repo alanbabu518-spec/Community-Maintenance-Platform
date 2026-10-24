@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Wrench,
@@ -12,6 +12,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import DashboardHeaderActions from "../ui/DashboardHeaderActions";
 
 const navigationSections = [
   {
@@ -65,6 +66,7 @@ function ManagerLayout() {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
@@ -73,6 +75,8 @@ function ManagerLayout() {
       await logout();
     } catch (error) {
       console.error("Logout failed:", error);
+    } finally {
+      navigate("/", { replace: true });
     }
   };
 
@@ -90,7 +94,7 @@ function ManagerLayout() {
     <nav className="flex-1 overflow-y-auto px-4 py-5">
       {navigationSections.map((section) => (
         <div key={section.label} className="mb-6">
-          <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+          <p className="mb-2 px-3 text-micro font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
             {section.label}
           </p>
 
@@ -199,6 +203,7 @@ function ManagerLayout() {
               </div>
 
               <div className="flex items-center gap-3">
+                <DashboardHeaderActions />
                 <div className="hidden text-right sm:block">
                   <p className="text-sm font-medium text-slate-900 dark:text-white">
                     {user?.name || "Manager"}

@@ -67,6 +67,7 @@ vi.mock("../utils/pendingRegistration.js", () => ({
 vi.mock("../modules/auth/email.service.js", () => ({
   sendOtpEmail: vi.fn(),
   sendPasswordResetEmail: vi.fn(),
+  sendOnboardingEmail: vi.fn(),
 }));
 
 beforeEach(() => {
@@ -207,6 +208,7 @@ describe("authService", () => {
       unitId: 1,
     });
 
+    vi.mocked(jwt.sign).mockReturnValue("test-token" as any);
     vi.mocked(getOtp).mockResolvedValue("123456");
 
     vi.mocked(userRepository.findByEmail).mockResolvedValue(null);
@@ -248,14 +250,27 @@ describe("authService", () => {
     const result = await authService.verifyOtp("test@example.com", "123456");
 
     expect(result).toEqual({
-      id: 1,
-      name: "Test User",
-      email: "test@example.com",
-      role: "RESIDENT",
-      communityId: null,
-      unitId: 1,
-      unitNumber: null,
+      user: {
+        id: 1,
+        name: "Test User",
+        email: "test@example.com",
+        role: "RESIDENT",
+        communityId: null,
+        unitId: 1,
+        unitNumber: null,
+      },
+      token: "test-token",
     });
+
+    expect(jwt.sign).toHaveBeenCalledWith(
+      {
+        userId: 1,
+        role: "RESIDENT",
+        tokenVersion: 0,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" },
+    );
 
     expect(getPendingRegistration).toHaveBeenCalledWith("test@example.com");
 

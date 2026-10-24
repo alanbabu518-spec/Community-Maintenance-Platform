@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -86,15 +86,107 @@ function HeroParticles({ reduce }: { reduce: boolean | null }) {
   );
 }
 
+/* ---------- Scroll reveal ----------
+   Apple-style: a critically damped spring (no overshoot) because nothing was
+   flicked; small travel; plays once. Reduced motion → a short cross-fade. */
+function Reveal({
+  children,
+  index = 0,
+  className,
+}: {
+  children: ReactNode;
+  index?: number;
+  className?: string;
+}) {
+  const reduce = useReducedMotion();
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: reduce ? 0 : 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "0px 0px -80px 0px" }}
+      transition={
+        reduce
+          ? { duration: 0.2 }
+          : { type: "spring", bounce: 0, duration: 0.6, delay: index * 0.06 }
+      }
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* Dark → light fade: smoothstep-eased stops, mixed in OKLab, so there is no
+   visible band edge or "grey" midpoint (avoids an abrupt brightness jump). */
+const FADE_STEPS = [0, 0.043, 0.156, 0.316, 0.5, 0.684, 0.844, 0.957, 1];
+const EASED_FADE = `linear-gradient(in oklab to bottom, ${FADE_STEPS.map(
+  (mix, i) =>
+    `color-mix(in oklab, var(--color-slate-50) ${mix * 100}%, var(--color-midnight-ink)) ${i * 12.5}%`,
+).join(", ")})`;
+
+/* ---------- Shared styles for the sections below the hero ---------- */
+// Same type system as the hero: F37 Bolton headings, uppercase eyebrow,
+// Open Sauce body, 8px radii, hairline borders, no shadows.
+const eyebrow =
+  "font-f37-bolton-medium text-caption leading-caption uppercase tracking-eyebrow text-signal-blue dark:text-halo-violet";
+
+const title =
+  "text-balance font-f37-bolton font-light text-subheading leading-subheading tracking-subheading text-midnight-ink dark:text-paper sm:text-heading-sm sm:leading-heading-sm sm:tracking-heading-sm lg:text-heading lg:leading-heading lg:tracking-heading";
+
+const lead =
+  "text-pretty text-body-sm leading-body-sm text-slate-body dark:text-halo-violet sm:text-body sm:leading-body";
+
+const card =
+  "rounded-lg border border-silver-border bg-paper transition-colors duration-200 hover:border-signal-blue/40 dark:border-slate-body/70 dark:bg-midnight-ink dark:hover:border-halo-violet/50";
+
+const cardTitle =
+  "font-f37-bolton text-[22px] font-normal leading-snug tracking-[-0.01em] text-midnight-ink dark:text-paper";
+
+const cardText =
+  "text-pretty text-body-sm leading-body-sm text-slate-body dark:text-halo-violet";
+
+const iconChip =
+  "flex h-11 w-11 items-center justify-center rounded-lg bg-signal-blue/10 text-signal-blue ring-1 ring-inset ring-signal-blue/20 dark:bg-white/5 dark:text-halo-violet dark:ring-white/10";
+
+const primaryButton =
+  "inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-lg bg-signal-blue px-6 font-f37-bolton text-body-sm text-paper transition-[background-color,scale] duration-100 ease-out hover:bg-[color-mix(in_srgb,var(--color-signal-blue),white_14%)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6f8bff] active:scale-[0.97]";
+
+const container = "mx-auto max-w-300 px-5 py-20 sm:px-8 lg:py-24";
+
+/* ---------- Content ---------- */
+const features = [
+  { icon: ClipboardPlus, title: "Report Issues", text: "Residents can quickly report maintenance problems with descriptions, priorities, and supporting photos." },
+  { icon: ClipboardCheck, title: "Track Requests", text: "Follow every maintenance request through its complete lifecycle from open to resolved." },
+  { icon: UserRoundCog, title: "Smart Assignment", text: "Management teams can assign maintenance requests to technicians and monitor their progress." },
+  { icon: Megaphone, title: "Community Updates", text: "Share important announcements and keep residents updated about community activities." },
+  { icon: Building2, title: "Centralized Management", text: "Organize residents, buildings, units, technicians, and maintenance activity from one centralized platform." },
+  { icon: Sparkles, title: "AI-Powered Assistance", text: "Future AI capabilities can help summarize requests, prioritize issues, and assist community management teams." },
+];
+
+const steps = [
+  ["01", "Submit", "Residents report an issue with details and photos."],
+  ["02", "Acknowledge", "Management reviews and acknowledges the request."],
+  ["03", "Assign", "The request is assigned to the appropriate technician."],
+  ["04", "Work", "The technician works on the reported maintenance issue."],
+  ["05", "Resolve", "The completed maintenance work is marked as resolved."],
+  ["06", "Close", "The request is closed after the issue has been completed."],
+];
+
+const roles = [
+  ["Residents", "Report issues, attach photos, and track maintenance requests."],
+  ["Management", "Organize requests, assign technicians, and monitor progress."],
+  ["Technicians", "View assigned work and keep maintenance requests moving toward resolution."],
+];
+
 function Home() {
   const reduce = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-white">
+    <div className="min-h-screen bg-white font-open-sauce-sans text-slate-900 antialiased [font-optical-sizing:auto] dark:bg-midnight-ink dark:text-white">
       <Navbar />
 
       <main>
-        {/* ===================== HERO (new) ===================== */}
+        {/* ===================== HERO ===================== */}
         <section
           id="hero"
           className="relative scroll-mt-16 overflow-hidden bg-midnight-ink text-paper"
@@ -107,7 +199,7 @@ function Home() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,color-mix(in_srgb,var(--color-midnight-ink)_75%,transparent)_0%,transparent_65%)]" />
 
           {/* pointer-events-none lets the canvas receive hover; buttons opt back in */}
-          <div className="pointer-events-none relative mx-auto flex min-h-screen max-w-[1200px] flex-col items-center justify-center px-5 py-32 text-center sm:px-8">
+          <div className="pointer-events-none relative mx-auto flex min-h-screen max-w-300 flex-col items-center justify-center px-5 py-32 text-center sm:px-8">
             <motion.p
               className="font-f37-bolton-medium text-caption leading-caption uppercase tracking-eyebrow text-halo-violet"
               {...reveal(0, reduce)}
@@ -137,277 +229,162 @@ function Home() {
               className="pointer-events-auto mt-10 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row"
               {...reveal(4, reduce)}
             >
-              <Link
-                to="/maintenance/new"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-signal-blue px-6 font-f37-bolton text-body-sm text-paper transition-[background-color,transform] duration-150 hover:bg-[color-mix(in_srgb,var(--color-signal-blue),white_14%)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6f8bff] active:scale-[0.97]"
-              >
+              <Link to="/maintenance/new" className={primaryButton}>
                 Report an Issue
                 <ArrowRight size={18} />
               </Link>
 
               <Link
                 to="/dashboard"
-                className="inline-flex h-12 items-center justify-center rounded-lg border border-slate-body px-6 font-f37-bolton text-body-sm text-paper transition-[background-color,border-color,transform] duration-150 hover:border-paper hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6f8bff] active:scale-[0.97]"
+                className="inline-flex h-12 items-center justify-center rounded-lg border border-slate-body px-6 font-f37-bolton text-body-sm text-paper transition-[background-color,border-color,scale] duration-100 ease-out hover:border-paper hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6f8bff] active:scale-[0.97]"
               >
                 Explore Dashboard
               </Link>
             </motion.div>
           </div>
         </section>
-        {/* =================== END HERO =================== */}
 
+        {/* Smooth dark → light transition (below the hero, so no white inside it).
+            Hidden in dark mode, where both sides are the same midnight colour. */}
+        <div
+          aria-hidden="true"
+          className="h-40 sm:h-56 dark:hidden"
+          style={{ backgroundImage: EASED_FADE }}
+        />
+
+        {/* ===================== FEATURES ===================== */}
         <section
           id="features"
-          className="scroll-mt-16 border-t border-slate-200/80 bg-slate-50 dark:border-slate-800 dark:bg-slate-900"
+          className="scroll-mt-16 bg-slate-50 dark:bg-midnight-ink"
         >
-          <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-300">
-                Platform Features
-              </p>
+          <div className={container}>
+            <Reveal className="mx-auto max-w-2xl text-center">
+              <p className={eyebrow}>Platform Features</p>
 
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
-                Everything your community needs
-              </h2>
+              <h2 className={`${title} mt-3`}>Everything your community needs</h2>
 
-              <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg">
+              <p className={`${lead} mt-4`}>
                 From reporting maintenance problems to keeping residents
                 informed, CommunityCare brings everyday community operations
                 together.
               </p>
-            </div>
+            </Reveal>
 
-            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-violet-300 hover:shadow-lg focus-within:border-violet-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-violet-800">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-signal-blue/10 text-signal-blue ring-1 ring-inset ring-signal-blue/20 dark:bg-signal-blue/15 dark:text-cyan-300">
-                  <ClipboardPlus size={21} />
+            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {features.map(({ icon: Icon, title: featureTitle, text }, i) => (
+                <Reveal key={featureTitle} index={i % 3} className="h-full">
+                <div className={`${card} h-full p-6`}>
+                  <div className={iconChip}>
+                    <Icon size={21} />
+                  </div>
+
+                  <h3 className={`${cardTitle} mt-5`}>{featureTitle}</h3>
+                  <p className={`${cardText} mt-2`}>{text}</p>
                 </div>
-
-                <h3 className="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
-                  Report Issues
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  Residents can quickly report maintenance problems with
-                  descriptions, priorities, and supporting photos.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-violet-300 hover:shadow-lg focus-within:border-violet-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-violet-800">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-signal-blue/10 text-signal-blue ring-1 ring-inset ring-signal-blue/20 dark:bg-signal-blue/15 dark:text-cyan-300">
-                  <ClipboardCheck size={21} />
-                </div>
-
-                <h3 className="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
-                  Track Requests
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  Follow every maintenance request through its complete
-                  lifecycle from open to resolved.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-violet-300 hover:shadow-lg focus-within:border-violet-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-violet-800">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-signal-blue/10 text-signal-blue ring-1 ring-inset ring-signal-blue/20 dark:bg-signal-blue/15 dark:text-cyan-300">
-                  <UserRoundCog size={21} />
-                </div>
-
-                <h3 className="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
-                  Smart Assignment
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  Management teams can assign maintenance requests to
-                  technicians and monitor their progress.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-violet-300 hover:shadow-lg focus-within:border-violet-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-violet-800">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-signal-blue/10 text-signal-blue ring-1 ring-inset ring-signal-blue/20 dark:bg-signal-blue/15 dark:text-cyan-300">
-                  <Megaphone size={21} />
-                </div>
-
-                <h3 className="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
-                  Community Updates
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  Share important announcements and keep residents updated
-                  about community activities.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-violet-300 hover:shadow-lg focus-within:border-violet-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-violet-800">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-signal-blue/10 text-signal-blue ring-1 ring-inset ring-signal-blue/20 dark:bg-signal-blue/15 dark:text-cyan-300">
-                  <Building2 size={21} />
-                </div>
-
-                <h3 className="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
-                  Centralized Management
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  Organize residents, buildings, units, technicians, and
-                  maintenance activity from one centralized platform.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-violet-300 hover:shadow-lg focus-within:border-violet-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-violet-800">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-signal-blue/10 text-signal-blue ring-1 ring-inset ring-signal-blue/20 dark:bg-signal-blue/15 dark:text-cyan-300">
-                  <Sparkles size={21} />
-                </div>
-
-                <h3 className="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
-                  AI-Powered Assistance
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  Future AI capabilities can help summarize requests,
-                  prioritize issues, and assist community management teams.
-                </p>
-              </div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
 
+        {/* ===================== WORKFLOW ===================== */}
         <section
           id="workflow"
-          className="scroll-mt-16 border-t border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950"
+          className="scroll-mt-16 bg-white dark:border-t dark:border-slate-body/40 dark:bg-midnight-ink"
         >
-          <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-semibold uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
-                How It Works
-              </p>
+          <div className={container}>
+            <Reveal className="mx-auto max-w-2xl text-center">
+              <p className={eyebrow}>How It Works</p>
 
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
-                From issue to resolution
-              </h2>
+              <h2 className={`${title} mt-3`}>From issue to resolution</h2>
 
-              <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg">
+              <p className={`${lead} mt-4`}>
                 CommunityCare keeps every maintenance request moving through a
                 clear and transparent workflow.
               </p>
-            </div>
+            </Reveal>
 
             <div className="mt-14">
-              <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-6">
-                {[
-                  ["01", "Submit", "Residents report an issue with details and photos."],
-                  ["02", "Acknowledge", "Management reviews and acknowledges the request."],
-                  ["03", "Assign", "The request is assigned to the appropriate technician."],
-                  ["04", "Work", "The technician works on the reported maintenance issue."],
-                  ["05", "Resolve", "The completed maintenance work is marked as resolved."],
-                  ["06", "Close", "The request is closed after the issue has been completed."],
-                ].map(([number, title, description]) => (
-                  <div
-                    key={number}
-                    className="relative rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center transition-colors hover:border-violet-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-violet-800"
-                  >
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-signal-blue/10 text-sm font-bold text-signal-blue ring-1 ring-inset ring-signal-blue/20 dark:bg-signal-blue/15 dark:text-cyan-300">
+              <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+                {steps.map(([number, stepTitle, description], i) => (
+                  <Reveal key={number} index={i % 6} className="h-full">
+                  <div className={`${card} h-full p-6 text-center`}>
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-signal-blue/10 font-ibm-plex-mono text-body-sm tracking-data text-signal-blue ring-1 ring-inset ring-signal-blue/20 dark:bg-white/5 dark:text-halo-violet dark:ring-white/10">
                       {number}
                     </div>
 
-                    <h3 className="mt-5 text-base font-semibold text-slate-900 dark:text-white">
-                      {title}
+                    <h3 className="mt-5 font-f37-bolton text-body font-medium leading-body text-midnight-ink dark:text-paper">
+                      {stepTitle}
                     </h3>
 
-                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    <p className="mt-2 text-caption leading-6 text-slate-body dark:text-halo-violet">
                       {description}
                     </p>
                   </div>
+                  </Reveal>
                 ))}
               </div>
 
-              <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+              <Reveal className="mt-10 rounded-lg border border-silver-border bg-slate-50 p-6 dark:border-slate-body/70 dark:bg-midnight-ink sm:p-8">
                 <div className="flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
                   <div>
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                    <p className="font-f37-bolton text-[24px] font-light leading-snug tracking-[-0.02em] text-midnight-ink dark:text-paper">
                       Have a maintenance issue?
                     </p>
 
-                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                    <p className="mt-1 text-body-sm leading-body-sm text-slate-body dark:text-halo-violet">
                       Submit a request and let your community team take care
                       of the rest.
                     </p>
                   </div>
 
-                  <Link
-                    to="/maintenance/new"
-                    className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-signal-blue px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6f8bff]"
-                  >
+                  <Link to="/maintenance/new" className={primaryButton}>
                     Report an Issue
                     <ArrowRight size={18} />
                   </Link>
                 </div>
-              </div>
+              </Reveal>
             </div>
           </div>
         </section>
 
+        {/* ===================== ABOUT ===================== */}
         <section
           id="about"
-          className="scroll-mt-16 border-t border-slate-200/80 bg-slate-50 dark:border-slate-800 dark:bg-slate-900"
+          className="scroll-mt-16 bg-slate-50 dark:border-t dark:border-slate-body/40 dark:bg-midnight-ink"
         >
-          <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+          <div className={container}>
             <div className="grid items-center gap-12 lg:grid-cols-2">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-300">
-                  About CommunityCare
-                </p>
+              <Reveal>
+                <p className={eyebrow}>About CommunityCare</p>
 
-                <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+                <h2 className={`${title} mt-3`}>
                   One platform for better community operations
                 </h2>
 
-                <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg">
+                <p className={`${lead} mt-5 max-w-xl`}>
                   CommunityCare connects residents, management teams, and
                   technicians through a centralized maintenance platform
                   designed to make everyday community operations simpler,
                   clearer, and more organized.
                 </p>
 
-                <p className="mt-4 max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300">
+                <p className="mt-4 max-w-xl text-body-sm leading-body-sm text-slate-body dark:text-mist">
                   From the moment a resident reports an issue to the moment it
                   is resolved, everyone involved can follow the same workflow
                   and stay informed.
                 </p>
-              </div>
+              </Reveal>
 
               <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                    Residents
-                  </p>
-
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    Report issues, attach photos, and track maintenance
-                    requests.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                    Management
-                  </p>
-
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    Organize requests, assign technicians, and monitor
-                    progress.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                    Technicians
-                  </p>
-
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    View assigned work and keep maintenance requests moving
-                    toward resolution.
-                  </p>
-                </div>
+                {roles.map(([roleTitle, text], i) => (
+                  <Reveal key={roleTitle} index={i} className="h-full">
+                    <div className={`${card} h-full p-5`}>
+                      <p className={cardTitle}>{roleTitle}</p>
+                      <p className={`${cardText} mt-2`}>{text}</p>
+                    </div>
+                  </Reveal>
+                ))}
               </div>
             </div>
           </div>

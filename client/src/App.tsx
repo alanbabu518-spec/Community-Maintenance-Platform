@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import DashboardLayout from "./components/layout/DashboardLayout";
@@ -64,13 +64,29 @@ function NotFoundPage() {
   );
 }
 
+function getDashboardPath(role: string) {
+  if (role === "ADMIN") return "/admin/dashboard";
+  if (role === "MANAGER") return "/manager/dashboard";
+  if (role === "TECHNICIAN") return "/technician/dashboard";
+  return "/dashboard";
+}
+
+function LandingPageRoute() {
+  const { user, loading } = useAuth();
+
+  if (loading) return <Loading type="dashboard" />;
+  if (user) return <Navigate to={getDashboardPath(user.role)} replace />;
+
+  return <Home />;
+}
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Suspense fallback={<Loading type="dashboard" />}>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<LandingPageRoute />} />
 
             <Route
               path="/login"
