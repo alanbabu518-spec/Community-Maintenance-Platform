@@ -7,11 +7,18 @@ import {
   AccordionTrigger,
 } from "./Accordion";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 import {
-  HelpCircle,
-  ArrowRight,
-} from "lucide-react";
+  body,
+  h2,
+  h3,
+  eyebrow,
+  lead,
+  container,
+  sectionPad,
+  focus,
+} from "./Tokens";
 
 const faqItems = [
   {
@@ -46,44 +53,43 @@ const faqItems = [
   },
 ];
 
+function AskLink() {
+  return (
+    <div>
+      <p className={`${body} text-body-sm leading-body-sm text-slate-body`}>
+        Still have a question?
+      </p>
+      <Link
+        to="/maintenance/new"
+        className={`font-f37-bolton mt-3 inline-flex items-center gap-2 rounded-md text-body-sm text-signal-blue transition-colors duration-150 hover:text-midnight-ink ${focus}`}
+      >
+        Report an issue
+        <ArrowRight size={16} />
+      </Link>
+    </div>
+  );
+}
+
 export default function FAQs() {
   return (
     <section
       id="faqs"
-      className="scroll-mt-16 border-t border-slate-200 bg-white py-16 md:py-24 dark:border-slate-800 dark:bg-slate-950"
+      className="scroll-mt-20 border-t border-silver-border bg-paper text-midnight-ink"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className={`${container} ${sectionPad}`}>
         <div className="grid gap-10 md:grid-cols-5 md:gap-14">
           <div className="md:col-span-2">
-            <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white">
-              <HelpCircle size={21} />
-            </div>
+            <p className={eyebrow.light}>Frequently asked questions</p>
 
-            <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Frequently Asked Questions
-            </p>
+            <h2 className={`${h2} mt-4`}>Everything you need to know</h2>
 
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-white">
-              Everything you need to know
-            </h2>
-
-            <p className="mt-4 max-w-md text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
+            <p className={`${lead.light} mt-5 max-w-md`}>
               Learn how CommunityCare helps residents, management teams, and
               technicians keep community maintenance organized.
             </p>
 
-            <div className="mt-7 hidden md:block">
-              <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">
-                Still have a question?
-              </p>
-
-              <Link
-                to="/maintenance/new"
-                className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 transition hover:text-slate-600 dark:text-white dark:hover:text-slate-300"
-              >
-                Report an issue
-                <ArrowRight size={16} />
-              </Link>
+            <div className="mt-8 hidden md:block">
+              <AskLink />
             </div>
           </div>
 
@@ -93,9 +99,11 @@ export default function FAQs() {
                 <AccordionItem
                   key={item.id}
                   value={item.id}
-                  className="border-b border-slate-200 dark:border-slate-800"
+                  className="border-b border-silver-border"
                 >
-                  <AccordionTrigger className="cursor-pointer text-base font-medium text-slate-900 hover:no-underline sm:text-lg dark:text-white">
+                  <AccordionTrigger
+                    className={`${h3} cursor-pointer py-5 text-left text-midnight-ink transition-colors duration-150 hover:text-signal-blue hover:no-underline ${focus}`}
+                  >
                     {item.question}
                   </AccordionTrigger>
 
@@ -108,17 +116,7 @@ export default function FAQs() {
           </div>
 
           <div className="md:hidden">
-            <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">
-              Still have a question?
-            </p>
-
-            <Link
-              to="/maintenance/new"
-              className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 transition hover:text-slate-600 dark:text-white dark:hover:text-slate-300"
-            >
-              Report an issue
-              <ArrowRight size={16} />
-            </Link>
+            <AskLink />
           </div>
         </div>
       </div>
@@ -126,53 +124,39 @@ export default function FAQs() {
   );
 }
 
+/*
+  Answer reveal. The original blurred every character (hundreds of nodes);
+  this fades in word by word — opacity only — and is skipped entirely for
+  reduced motion. Export name kept so existing imports keep working.
+*/
 export const BlurredStagger = ({
   text = "CommunityCare",
 }: {
   text: string;
 }) => {
-  const container = {
-    hidden: {
-      opacity: 0,
-    },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.015,
-      },
-    },
-  };
+  const reduce = useReducedMotion();
+  const textClass = `${body} pb-5 text-body-sm leading-body-sm text-slate-body`;
 
-  const letterAnimation = {
-    hidden: {
-      opacity: 0,
-      filter: "blur(10px)",
-    },
-    show: {
-      opacity: 1,
-      filter: "blur(0px)",
-    },
-  };
+  if (reduce) return <p className={textClass}>{text}</p>;
 
   return (
-    <div className="w-full">
-      <motion.p
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="break-word whitespace-normal text-base leading-relaxed text-slate-600 dark:text-slate-300"
-      >
-        {text.split("").map((char, index) => (
-          <motion.span
-            key={`${char}-${index}`}
-            variants={letterAnimation}
-            transition={{ duration: 0.3 }}
-            className="inline-block"
-          >
-            {char === " " ? "\u00A0" : char}
-          </motion.span>
-        ))}
-      </motion.p>
-    </div>
+    <motion.p
+      className={textClass}
+      initial="hidden"
+      animate="show"
+      variants={{ hidden: {}, show: { transition: { staggerChildren: 0.018 } } }}
+    >
+      {text.split(" ").map((word, index) => (
+        <motion.span
+          key={`${word}-${index}`}
+          className="inline-block"
+          variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}
+          transition={{ duration: 0.25 }}
+        >
+          {word}
+          {"\u00A0"}
+        </motion.span>
+      ))}
+    </motion.p>
   );
 };
